@@ -1,4 +1,6 @@
 import { ChangeEvent } from 'react'
+import iconv from 'iconv-lite'
+import { extractVerifications } from '../sie'
 
 export default function Import() {
   const onChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -11,10 +13,18 @@ export default function Import() {
     const reader = new FileReader()
 
     reader.addEventListener('load', () => {
-      console.log(reader.result)
+      event.target.value = ''
+
+      const sieFile = iconv.decode(
+        Buffer.from(reader.result as ArrayBuffer),
+        'CP437',
+      )
+      const verifications = extractVerifications(sieFile)
+
+      console.log(verifications)
     })
 
-    reader.readAsText(files[0])
+    reader.readAsArrayBuffer(files[0])
   }
 
   return (
