@@ -1,8 +1,36 @@
 import { ChangeEvent } from 'react'
 import iconv from 'iconv-lite'
-import { extractVerifications } from '../sie'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Account } from '@prisma/client'
+import {
+  getAccountMap,
+  extractVerifications,
+  getUniqueAccountCodes,
+} from '../sie'
+
+import { VerificationInsert } from '../pages/api/import'
 
 export default function Import() {
+  const queryClient = useQueryClient()
+
+  const mutation = useMutation({
+    mutationFn: (body: {
+      accounts: Account[]
+      verifications: VerificationInsert[]
+    }) =>
+      fetch('/api/import', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      }).then((res) => res.json()),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['accounts'] })
+      queryClient.invalidateQueries({ queryKey: ['verifications'] })
+    },
+  })
+
   const onChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { files } = event.target
 
@@ -19,9 +47,17 @@ export default function Import() {
         Buffer.from(reader.result as ArrayBuffer),
         'CP437',
       )
+
       const verifications = extractVerifications(sieFile)
 
-      console.log(verifications)
+      const accountMap = getAccountMap(sieFile)
+      const uniqueAccountCodes = getUniqueAccountCodes(verifications)
+      const accounts = uniqueAccountCodes.map((code) => ({
+        code,
+        description: accountMap[code],
+      }))
+
+      mutation.mutate({ accounts, verifications })
     })
 
     reader.readAsArrayBuffer(files[0])

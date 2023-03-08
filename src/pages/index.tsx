@@ -1,5 +1,7 @@
 import Head from 'next/head'
 import Import from '../components/Import'
+import Accounts from '../components/Accounts'
+import Verifications from '../components/Verifications'
 
 export default function Home() {
   return (
@@ -19,6 +21,8 @@ export default function Home() {
         <main>
           <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
             <Import />
+            <Accounts />
+            <Verifications />
           </div>
         </main>
       </div>
