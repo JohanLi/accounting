@@ -6,6 +6,7 @@ import {
   getAccountMap,
   extractVerifications,
   getUniqueAccountCodes,
+  markDeletedAndRemoveNegations,
 } from '../sie'
 
 import { VerificationInsert } from '../pages/api/import'
@@ -48,7 +49,9 @@ export default function Import() {
         'CP437',
       )
 
-      const verifications = extractVerifications(sieFile)
+      const verifications = markDeletedAndRemoveNegations(
+        extractVerifications(sieFile),
+      )
 
       const accountMap = getAccountMap(sieFile)
       const uniqueAccountCodes = getUniqueAccountCodes(verifications)

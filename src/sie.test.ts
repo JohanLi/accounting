@@ -1,5 +1,10 @@
 import { expect, test } from 'vitest'
-import { extractVerifications, getUniqueAccountCodes } from './sie'
+import {
+  extractVerifications,
+  getUniqueAccountCodes,
+  markDeletedAndRemoveNegations,
+} from './sie'
+import { VerificationInsert } from './pages/api/import'
 
 test('extractVerifications', () => {
   expect(
@@ -25,6 +30,7 @@ b
       date: new Date('2023-01-02'),
       description: 'Friskvård',
       createdAt: new Date('2023-01-10'),
+      deletedAt: null,
       transactions: [
         {
           accountCode: 2640,
@@ -45,6 +51,7 @@ b
       date: new Date('2023-01-05'),
       description: 'Insättning till skattekonto',
       createdAt: new Date('2023-01-10'),
+      deletedAt: null,
       transactions: [
         {
           accountCode: 1630,
@@ -86,6 +93,43 @@ test('getUniqueAccountCodes', () => {
           },
         ],
       },
-    ]),
+    ] as VerificationInsert[]),
   ).toEqual([2640, 1630, 1930])
+})
+
+/*
+  Deletions in my previous bookkeeping software is handled this way.
+  While it might be convention, it's not documented in the SIE specification.
+
+  I don't intend to handle it the same way — instead, verifications will simply
+  have a deletedAt field.
+ */
+test('markDeletedAndRemoveNegations', () => {
+  expect(
+    markDeletedAndRemoveNegations([
+      {
+        id: 1,
+        description: 'Friskvård',
+      },
+      {
+        id: 2,
+        description: 'Insättning till skattekonto',
+      },
+      {
+        id: 3,
+        description: 'Annullering av V1',
+        createdAt: new Date('2023-02-01'),
+      },
+    ] as VerificationInsert[]),
+  ).toEqual([
+    {
+      id: 1,
+      description: 'Friskvård',
+      deletedAt: new Date('2023-02-01'),
+    },
+    {
+      id: 2,
+      description: 'Insättning till skattekonto',
+    },
+  ])
 })

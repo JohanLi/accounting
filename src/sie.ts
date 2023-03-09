@@ -61,6 +61,7 @@ export function extractVerifications(input: string) {
         date: extractDate(date),
         description,
         createdAt: extractDate(createdAt),
+        deletedAt: null,
         transactions: [],
       }
 
@@ -93,9 +94,7 @@ export function extractVerifications(input: string) {
   return verifications
 }
 
-export function getUniqueAccountCodes(
-  verifications: Pick<VerificationInsert, 'transactions'>[],
-) {
+export function getUniqueAccountCodes(verifications: VerificationInsert[]) {
   const accountCodes: number[] = []
 
   for (const verification of verifications) {
@@ -107,4 +106,31 @@ export function getUniqueAccountCodes(
   }
 
   return accountCodes
+}
+
+export function markDeletedAndRemoveNegations(
+  verifications: VerificationInsert[],
+) {
+  const deletedIdsAndDate: { [id: number]: Date } = {}
+
+  const removedNegations = verifications.filter((verification) => {
+    const id = verification.description.match(/^Annullering av V(\d+)/)?.[1]
+
+    if (id) {
+      deletedIdsAndDate[parseInt(id)] = verification.createdAt
+      return false
+    }
+
+    return true
+  })
+
+  return removedNegations.map((verification) => {
+    const deletedAt = deletedIdsAndDate[verification.id]
+
+    if (deletedAt) {
+      verification.deletedAt = deletedAt
+    }
+
+    return verification
+  })
 }

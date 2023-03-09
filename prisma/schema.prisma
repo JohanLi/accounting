@@ -27,5 +27,6 @@ model Verification {
   date         DateTime
   description  String
   createdAt    DateTime      @default(now())
+  deletedAt    DateTime?
   transactions Transaction[]
 }

@@ -8,6 +8,9 @@ export default async function handler(
 ) {
   if (req.method === 'GET') {
     const verifications = await prisma.verification.findMany({
+      where: {
+        deletedAt: null,
+      },
       orderBy: {
         date: 'asc',
       },
