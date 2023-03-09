@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { VerificationWithTransactions } from '../pages/api/import'
+import { Amount } from './Amount'
 
 export default function Verifications() {
   const verifications = useQuery<VerificationWithTransactions[]>({
@@ -39,17 +40,28 @@ export default function Verifications() {
           {verifications.data?.map((verification) => (
             <tr key={verification.id}>
               <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
-                {verification.date.toString()}
+                {new Date(verification.date).toLocaleDateString('sv-SE')}
               </td>
               <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-500">
                 {verification.description}
               </td>
               <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-500">
-                {verification.transactions.map((transaction) => (
-                  <div key={transaction.id}>
-                    {transaction.accountCode} {transaction.amount}
-                  </div>
-                ))}
+                {verification.transactions.length && (
+                  <table className="min-w-full divide-y divide-gray-300">
+                    <tbody className="divide-y divide-gray-200 bg-white">
+                      {verification.transactions.map((transaction) => (
+                        <tr key={transaction.id}>
+                          <td className="w-16 py-2 pl-4 pr-3 text-sm text-gray-500 sm:pl-0">
+                            {transaction.accountCode}
+                          </td>
+                          <td className="px-2 py-2 text-sm font-medium">
+                            <Amount amount={transaction.amount} />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
               </td>
             </tr>
           ))}
