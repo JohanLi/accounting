@@ -25,9 +25,18 @@ export default async function handler(
       verifications: VerificationInsert[]
     }
 
-    const account = await prisma.account.createMany({
-      data: accounts,
-    })
+    // https://stackoverflow.com/a/71409459
+    const account = await prisma.$transaction(
+      accounts.map((account) =>
+        prisma.account.upsert({
+          where: { code: account.code },
+          update: {
+            description: account.description,
+          },
+          create: account,
+        }),
+      ),
+    )
 
     for (const verification of verifications) {
       await prisma.verification.create({
@@ -36,6 +45,11 @@ export default async function handler(
           transactions: {
             create: verification.transactions,
           },
+          /*
+            Verification IDs in SIE seem to start from 1 for each fiscal year,
+            and likely don't have any intrinsic meaning
+           */
+          id: undefined,
         },
       })
     }

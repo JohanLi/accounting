@@ -1,6 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { VerificationWithTransactions } from '../pages/api/import'
 import { Amount } from './Amount'
+import Dropdown from './Dropdown'
+import { getCurrentFiscalYear, withinFiscalYear } from '../utils'
+import { useState } from 'react'
 
 export default function Verifications() {
   const verifications = useQuery<VerificationWithTransactions[]>({
@@ -8,8 +11,26 @@ export default function Verifications() {
     queryFn: () => fetch('/api/verifications').then((res) => res.json()),
   })
 
+  const [selectedFiscalYear, setSelectedFiscalYear] = useState(
+    getCurrentFiscalYear(),
+  )
+
+  const filteredVerifications =
+    verifications.data?.filter((verification) =>
+      withinFiscalYear(verification, selectedFiscalYear),
+    ) || []
+
   return (
     <div className="mt-8">
+      <div className="flex justify-end">
+        <div className="flex items-center space-x-4">
+          <div className="text-gray-500">FY</div>
+          <Dropdown
+            selectedFiscalYear={selectedFiscalYear}
+            setSelectedFiscalYear={setSelectedFiscalYear}
+          />
+        </div>
+      </div>
       <h1 className="text-base font-semibold leading-6 text-gray-900">
         Verifications
       </h1>
@@ -37,7 +58,7 @@ export default function Verifications() {
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
-          {verifications.data?.map((verification) => (
+          {filteredVerifications.map((verification) => (
             <tr key={verification.id}>
               <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
                 {new Date(verification.date).toLocaleDateString('sv-SE')}
@@ -65,7 +86,7 @@ export default function Verifications() {
               </td>
             </tr>
           ))}
-          {verifications.data?.length === 0 && (
+          {filteredVerifications.length === 0 && (
             <tr>
               <td colSpan={3} className="py-4 px-3 text-sm text-gray-500">
                 No verifications found. Import an SIE file first.
