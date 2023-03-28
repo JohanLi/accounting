@@ -1,12 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
-import { VerificationWithTransactions } from '../pages/api/import'
+import { VerificationWithTransactionsAndDocuments } from '../pages/api/import'
 import { Amount } from './Amount'
 import Dropdown from './Dropdown'
 import { getCurrentFiscalYear, withinFiscalYear } from '../utils'
 import { useState } from 'react'
+import Documents from './Documents'
 
 export default function Verifications() {
-  const verifications = useQuery<VerificationWithTransactions[]>({
+  const verifications = useQuery<VerificationWithTransactionsAndDocuments[]>({
     queryKey: ['verifications'],
     queryFn: () => fetch('/api/verifications').then((res) => res.json()),
   })
@@ -55,6 +56,12 @@ export default function Verifications() {
             >
               Transactions
             </th>
+            <th
+              scope="col"
+              className="py-3.5 px-3 text-left text-sm font-semibold text-gray-900"
+            >
+              Documents
+            </th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
@@ -83,6 +90,9 @@ export default function Verifications() {
                     </tbody>
                   </table>
                 )}
+              </td>
+              <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-500">
+                <Documents documents={verification.documents} />
               </td>
             </tr>
           ))}

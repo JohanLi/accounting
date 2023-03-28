@@ -22,6 +22,14 @@ model Account {
   Transaction Transaction[]
 }
 
+model Document {
+  id             Int          @id @default(autoincrement())
+  extension      String
+  hash           String
+  verification   Verification @relation(fields: [verificationId], references: [id])
+  verificationId Int
+}
+
 model Verification {
   id           Int           @id @default(autoincrement())
   date         DateTime
@@ -29,4 +37,7 @@ model Verification {
   createdAt    DateTime      @default(now())
   deletedAt    DateTime?
   transactions Transaction[]
+  documents    Document[]
+  // receipts, which are separate, need this to be correctly imported. To be removed
+  oldId        Int
 }

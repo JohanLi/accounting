@@ -1,4 +1,5 @@
-import { VerificationWithTransactions } from './pages/api/import'
+import { Document } from '@prisma/client'
+import { VerificationWithTransactionsAndDocuments } from './pages/api/import'
 
 export function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
@@ -28,7 +29,7 @@ export function getAllFiscalYearsInReverse() {
   return years
 }
 
-function getFiscalYear(year: number) {
+export function getFiscalYear(year: number) {
   return {
     start: new Date(Date.UTC(year, 6, 1)),
     end: new Date(Date.UTC(year + 1, 5, 30)),
@@ -36,7 +37,7 @@ function getFiscalYear(year: number) {
 }
 
 export function withinFiscalYear(
-  verification: VerificationWithTransactions,
+  verification: VerificationWithTransactionsAndDocuments,
   year: number,
 ) {
   const { start, end } = getFiscalYear(year)

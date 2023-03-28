@@ -16,6 +16,7 @@ export default async function handler(
       },
       include: {
         transactions: true,
+        documents: true,
       },
     })
 

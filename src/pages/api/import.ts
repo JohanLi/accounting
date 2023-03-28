@@ -3,6 +3,7 @@ import {
   Account,
   PrismaClient,
   Transaction,
+  Document,
   Verification,
 } from '@prisma/client'
 
@@ -11,8 +12,9 @@ const prisma = new PrismaClient()
 export type VerificationInsert = Verification & {
   transactions: Pick<Transaction, 'accountCode' | 'amount'>[]
 }
-export type VerificationWithTransactions = Verification & {
+export type VerificationWithTransactionsAndDocuments = Verification & {
   transactions: Transaction[]
+  documents: Document[]
 }
 
 export default async function handler(
@@ -50,6 +52,7 @@ export default async function handler(
             and likely don't have any intrinsic meaning
            */
           id: undefined,
+          oldId: verification.id,
         },
       })
     }
