@@ -1,14 +1,65 @@
-/*
-  Throwaway code to import documents
-  Assumes that all verifications have been imported first
- */
+// Throwaway code to import verifications and their documents
 
 import crypto from 'crypto'
 import { readdir, readFile, copyFile, mkdir } from 'fs/promises'
 import { PrismaClient } from '@prisma/client'
 import { getFiscalYear } from '../src/utils'
+import iconv from 'iconv-lite'
+import {
+  extractVerifications,
+  getAccountMap,
+  getUniqueAccountCodes,
+  markDeletedAndRemoveNegations,
+} from './sie'
 
 const prisma = new PrismaClient()
+
+async function importVerifications(year: number) {
+  const sieFile = iconv.decode(
+    await readFile(`${__dirname}/verifications/${year}.sie`),
+    'CP437',
+  )
+
+  const verifications = markDeletedAndRemoveNegations(
+    extractVerifications(sieFile),
+  )
+
+  const accountMap = getAccountMap(sieFile)
+  const uniqueAccountCodes = getUniqueAccountCodes(verifications)
+  const accounts = uniqueAccountCodes.map((code) => ({
+    code,
+    description: accountMap[code],
+  }))
+
+  // https://stackoverflow.com/a/71409459
+  await prisma.$transaction(
+    accounts.map((account) =>
+      prisma.account.upsert({
+        where: { code: account.code },
+        update: {
+          description: account.description,
+        },
+        create: account,
+      }),
+    ),
+  )
+
+  for (const verification of verifications) {
+    await prisma.verification.create({
+      data: {
+        ...verification,
+        transactions: {
+          create: verification.transactions,
+        },
+        /*
+          Verification IDs in SIE seem to start from 1 for each fiscal year,
+          and likely don't have any intrinsic meaning
+         */
+        id: undefined,
+      },
+    })
+  }
+}
 
 async function md5(filePath: string) {
   const file = await readFile(filePath)
@@ -69,9 +120,10 @@ async function importDocuments(year: number) {
 
 async function main() {
   try {
-    await importDocuments(2020)
-    await importDocuments(2021)
-    await importDocuments(2022)
+    for (const year of [2021, 2022, 2023]) {
+      await importVerifications(year)
+      await importDocuments(year)
+    }
   } catch (e) {
     console.error(e)
     process.exit(1)

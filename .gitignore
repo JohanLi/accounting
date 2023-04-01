@@ -22,5 +22,6 @@ next-env.d.ts
 
 .idea
 /src/receipts
+/scripts/verifications
 /scripts/documents
 /public/documents

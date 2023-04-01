@@ -1,10 +1,21 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { PrismaClient } from '@prisma/client'
+import {
+  PrismaClient,
+  Transaction,
+  Document,
+  Verification,
+} from '@prisma/client'
+
+export type VerificationWithTransactionsAndDocuments = Verification & {
+  transactions: Transaction[]
+  documents: Document[]
+}
+
 const prisma = new PrismaClient()
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse,
+  res: NextApiResponse<VerificationWithTransactionsAndDocuments[]>,
 ) {
   if (req.method === 'GET') {
     const verifications = await prisma.verification.findMany({

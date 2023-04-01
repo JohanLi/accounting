@@ -1,4 +1,8 @@
-import { VerificationInsert } from './pages/api/import'
+import { Transaction, Verification } from '@prisma/client'
+
+export type VerificationInsert = Verification & {
+  transactions: Pick<Transaction, 'accountCode' | 'amount'>[]
+}
 
 function removeQuotes(input: string) {
   if (input.startsWith('"') && input.endsWith('"')) {
@@ -63,6 +67,7 @@ export function extractVerifications(input: string) {
         createdAt: extractDate(createdAt),
         deletedAt: null,
         transactions: [],
+        oldId: parseInt(number),
       }
 
       if (!lines[i + 1].startsWith('{')) {

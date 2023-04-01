@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
-import { VerificationWithTransactionsAndDocuments } from '../pages/api/import'
 import { Amount } from './Amount'
 import Dropdown from './Dropdown'
 import { getCurrentFiscalYear, withinFiscalYear } from '../utils'
 import { useState } from 'react'
 import Documents from './Documents'
+import { VerificationWithTransactionsAndDocuments } from '../pages/api/verifications'
 
 export default function Verifications() {
   const verifications = useQuery<VerificationWithTransactionsAndDocuments[]>({

@@ -3,8 +3,8 @@ import {
   extractVerifications,
   getUniqueAccountCodes,
   markDeletedAndRemoveNegations,
+  VerificationInsert,
 } from './sie'
-import { VerificationInsert } from './pages/api/import'
 
 test('extractVerifications', () => {
   expect(
@@ -45,6 +45,7 @@ b
           amount: 22642,
         },
       ],
+      oldId: 1,
     },
     {
       id: 2,
@@ -62,6 +63,7 @@ b
           amount: -10000000,
         },
       ],
+      oldId: 2,
     },
   ])
 })
