@@ -7,7 +7,7 @@ export type Receipt = {
   total: number
   vat: number
   date: Date
-  type: 'SALE_WITHIN_SWEDEN_25' | ''
+  type: 'SALE_WITHIN_SWEDEN_25' | 'BANKING_COSTS' | ''
   description: string
 }
 
@@ -70,7 +70,7 @@ export async function parse(path: string): Promise<Receipt> {
     const dates: Date[] = []
 
     strings.forEach((string) => {
-      const foundMonetaryValue = string.match(/SEK (\d+,\d+)/)
+      const foundMonetaryValue = string.match(/(\d+,\d+)/)
 
       if (foundMonetaryValue) {
         monetaryValues.push(foundMonetaryValue[1].replace(',', '.'))
@@ -79,8 +79,7 @@ export async function parse(path: string): Promise<Receipt> {
 
       const foundDate = string.match(/\d{4}-\d{2}-\d{2}/)
 
-      // all their receipts show 2099-12-31 as the end date
-      if (foundDate && foundDate[0] !== '2099-12-31') {
+      if (foundDate) {
         dates.push(new Date(foundDate[0]))
       }
     })
@@ -91,8 +90,8 @@ export async function parse(path: string): Promise<Receipt> {
       total: assumedTotal.mul(100).toNumber(),
       vat: 0,
       date: getLatestDate(dates),
-      type: '',
-      description: '',
+      type: 'BANKING_COSTS',
+      description: 'SEB månadsavgift',
     }
   }
 

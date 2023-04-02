@@ -49,22 +49,35 @@ export function withinFiscalYear(
 export const UPLOAD_FORM_KEY = 'files'
 
 export function receiptToTransaction(receipt: Receipt) {
-  if (receipt.type !== 'SALE_WITHIN_SWEDEN_25') {
-    throw Error(`Unexpected receipt type: ${receipt.type}`)
+  if (receipt.type === 'SALE_WITHIN_SWEDEN_25') {
+    return [
+      {
+        accountCode: 1930,
+        amount: receipt.total,
+      },
+      {
+        accountCode: 2610,
+        amount: -receipt.vat,
+      },
+      {
+        accountCode: 3011,
+        amount: -(receipt.total - receipt.vat),
+      },
+    ]
   }
 
-  return [
-    {
-      accountCode: 1930,
-      amount: receipt.total,
-    },
-    {
-      accountCode: 2610,
-      amount: receipt.vat,
-    },
-    {
-      accountCode: 3011,
-      amount: receipt.total - receipt.vat,
-    },
-  ]
+  if (receipt.type === 'BANKING_COSTS') {
+    return [
+      {
+        accountCode: 1930,
+        amount: -receipt.total,
+      },
+      {
+        accountCode: 6570,
+        amount: receipt.total,
+      },
+    ]
+  }
+
+  throw Error(`Unexpected receipt type: ${receipt.type}`)
 }

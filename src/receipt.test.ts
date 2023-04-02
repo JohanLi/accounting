@@ -11,11 +11,11 @@ test('parse', async () => {
   })
 
   expect(await parse(`${__dirname}/receipts/bank.pdf`)).toEqual({
-    total: 12000,
+    total: 13000,
     vat: 0,
-    date: new Date('2022-08-17'),
-    type: '',
-    description: '',
+    date: new Date('2023-04-03'),
+    type: 'BANKING_COSTS',
+    description: 'SEB månadsavgift',
   })
 
   expect(await parse(`${__dirname}/receipts/mobile.pdf`)).toEqual({

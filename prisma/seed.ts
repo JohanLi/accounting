@@ -17,6 +17,10 @@ async function main() {
         code: 3011,
         description: 'Försäljning inom Sverige 25%',
       },
+      {
+        code: 6570,
+        description: 'Bankkostnader',
+      },
     ],
   })
 }
