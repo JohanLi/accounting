@@ -24,4 +24,3 @@ next-env.d.ts
 /src/receipts
 /scripts/verifications
 /scripts/documents
-/public/documents

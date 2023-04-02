@@ -1,7 +1,7 @@
-import { Document } from '@prisma/client'
+import { VerificationWithTransactionsAndDocuments } from '../pages/api/verifications'
 
 type Props = {
-  documents: Document[]
+  documents: VerificationWithTransactionsAndDocuments['documents']
 }
 
 export default function Documents({ documents }: Props) {
@@ -12,7 +12,7 @@ export default function Documents({ documents }: Props) {
   return (
     <ul>
       {documents.map((document) => {
-        const url = `/documents/${document.id}.${document.extension}`
+        const url = `/api/documents?id=${document.id}`
 
         return (
           <li key={document.id}>

@@ -8,7 +8,7 @@ import {
 
 export type VerificationWithTransactionsAndDocuments = Verification & {
   transactions: Transaction[]
-  documents: Document[]
+  documents: Pick<Document, 'id' | 'extension'>[]
 }
 
 const prisma = new PrismaClient()
@@ -27,7 +27,12 @@ export default async function handler(
       },
       include: {
         transactions: true,
-        documents: true,
+        documents: {
+          select: {
+            id: true,
+            extension: true,
+          },
+        },
       },
     })
 

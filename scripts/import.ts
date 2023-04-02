@@ -1,7 +1,7 @@
 // Throwaway code to import verifications and their documents
 
 import crypto from 'crypto'
-import { readdir, readFile, copyFile, mkdir } from 'fs/promises'
+import { readdir, readFile, mkdir } from 'fs/promises'
 import { PrismaClient } from '@prisma/client'
 import { getFiscalYear } from '../src/utils'
 import iconv from 'iconv-lite'
@@ -61,8 +61,7 @@ async function importVerifications(year: number) {
   }
 }
 
-async function md5(filePath: string) {
-  const file = await readFile(filePath)
+async function md5(file: Buffer) {
   return crypto.createHash('md5').update(file).digest('hex')
 }
 
@@ -73,13 +72,13 @@ async function importDocuments(year: number) {
 
   const directory = `${__dirname}/documents/${year}`
 
-  const files = await readdir(directory)
+  const fileNames = await readdir(directory)
 
-  for (const file of files) {
-    const found = file.match(/V(\d+)_?(\d)?/)
+  for (const fileName of fileNames) {
+    const found = fileName.match(/V(\d+)_?(\d)?/)
 
     if (!found) {
-      throw Error(`Found an unexpected file name: ${file}`)
+      throw Error(`Found an unexpected file name: ${fileName}`)
     }
 
     // the ordering of documents for a given verification is not handled for now
@@ -97,24 +96,23 @@ async function importDocuments(year: number) {
       },
     })
 
-    const extension = file.split('.').pop()
+    const extension = fileName.split('.').pop()
 
     if (!extension) {
-      throw Error(`No extension found: ${file}`)
+      throw Error(`No extension found: ${fileName}`)
     }
 
-    const hash = await md5(`${directory}/${file}`)
+    const file = await readFile(`${directory}/${fileName}`)
+    const hash = await md5(file)
 
-    const { id: documentId } = await prisma.document.create({
+    await prisma.document.create({
       data: {
         extension,
         hash,
+        file,
         verificationId,
       },
     })
-
-    const newFilename = `${documentId}.${extension}`
-    await copyFile(`${directory}/${file}`, `${destination}/${newFilename}`)
   }
 }
 
