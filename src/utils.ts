@@ -1,4 +1,5 @@
 import { VerificationWithTransactionsAndDocuments } from './pages/api/verifications'
+import { Receipt } from './receipt'
 
 export function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
@@ -43,4 +44,27 @@ export function withinFiscalYear(
   return (
     new Date(verification.date) >= start && new Date(verification.date) <= end
   )
+}
+
+export const UPLOAD_FORM_KEY = 'files'
+
+export function receiptToTransaction(receipt: Receipt) {
+  if (receipt.type !== 'SALE_WITHIN_SWEDEN_25') {
+    throw Error(`Unexpected receipt type: ${receipt.type}`)
+  }
+
+  return [
+    {
+      accountCode: 1930,
+      amount: receipt.total,
+    },
+    {
+      accountCode: 2610,
+      amount: receipt.vat,
+    },
+    {
+      accountCode: 3011,
+      amount: receipt.total - receipt.vat,
+    },
+  ]
 }

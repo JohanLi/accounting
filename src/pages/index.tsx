@@ -2,6 +2,7 @@ import Head from 'next/head'
 import Accounts from '../components/Accounts'
 import Verifications from '../components/Verifications'
 import Totals from '../components/Totals'
+import Upload from '../components/Upload'
 
 export default function Home() {
   return (
@@ -20,6 +21,7 @@ export default function Home() {
         </header>
         <main>
           <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <Upload />
             <Totals />
             <Verifications />
             <Accounts />

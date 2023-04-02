@@ -11,7 +11,7 @@ model Transaction {
   id             Int          @id @default(autoincrement())
   account        Account      @relation(fields: [accountCode], references: [code])
   accountCode    Int          @db.SmallInt
-  amount         Float
+  amount         Int
   verification   Verification @relation(fields: [verificationId], references: [id])
   verificationId Int
 }
@@ -30,6 +30,15 @@ model Document {
   verificationId Int
 }
 
+model Document2 {
+  id             Int          @id @default(autoincrement())
+  extension      String
+  hash           String
+  file           Bytes        @db.ByteA
+  verification   Verification @relation(fields: [verificationId], references: [id])
+  verificationId Int
+}
+
 model Verification {
   id           Int           @id @default(autoincrement())
   date         DateTime
@@ -38,6 +47,7 @@ model Verification {
   deletedAt    DateTime?
   transactions Transaction[]
   documents    Document[]
+  documents2   Document2[]
   // receipts, which are separate, need this to be correctly imported. To be removed
-  oldId        Int
+  oldId        Int?
 }

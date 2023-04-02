@@ -3,7 +3,15 @@ import Decimal from 'decimal.js'
 import { getDocument, PDFDocumentProxy } from 'pdfjs-dist/legacy/build/pdf'
 import { TextContent } from 'pdfjs-dist/types/web/text_layer_builder'
 
-export async function parse(path: string) {
+export type Receipt = {
+  total: number
+  vat: number
+  date: Date
+  type: 'SALE_WITHIN_SWEDEN_25' | ''
+  description: string
+}
+
+export async function parse(path: string): Promise<Receipt> {
   const strings = await getPDFStrings(path)
 
   if (strings.includes('Developers Bay AB')) {
@@ -44,9 +52,11 @@ export async function parse(path: string) {
     }
 
     return {
-      total: assumedTotal.toFixed(2),
-      vat: expectedVat,
+      total: assumedTotal.mul(100).toNumber(),
+      vat: new Decimal(expectedVat).mul(100).toNumber(),
       date: getLatestDate(dates),
+      type: 'SALE_WITHIN_SWEDEN_25',
+      description: 'Income',
     }
   }
 
@@ -78,9 +88,11 @@ export async function parse(path: string) {
     const assumedTotal = Decimal.max(...monetaryValues)
 
     return {
-      total: assumedTotal.toFixed(2),
-      vat: new Decimal(0).toFixed(2),
+      total: assumedTotal.mul(100).toNumber(),
+      vat: 0,
       date: getLatestDate(dates),
+      type: '',
+      description: '',
     }
   }
 
@@ -112,12 +124,13 @@ export async function parse(path: string) {
     const assumedTotal = Decimal.max(...monetaryValues)
 
     return {
-      total: assumedTotal.toFixed(2),
-      vat: Decimal.sub(
-        assumedTotal,
-        Decimal.div(assumedTotal, 1 + vatRate),
-      ).toFixed(2),
+      total: assumedTotal.mul(100).toNumber(),
+      vat: Decimal.sub(assumedTotal, Decimal.div(assumedTotal, 1 + vatRate))
+        .mul(100)
+        .toNumber(),
       date: getLatestDate(dates),
+      type: '',
+      description: '',
     }
   }
 
@@ -157,9 +170,11 @@ export async function parse(path: string) {
     }
 
     return {
-      total: assumedTotal.toFixed(2),
-      vat: expectedVat,
+      total: assumedTotal.mul(100).toNumber(),
+      vat: new Decimal(expectedVat).mul(100).toNumber(),
       date: getLatestDate(dates),
+      type: '',
+      description: '',
     }
   }
 
