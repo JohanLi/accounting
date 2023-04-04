@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "next dev",
     "test": "vitest",
+    "test-e2e": "sh ./tests/run.sh",
     "node": "node -r @swc-node/register"
   },
   "lint-staged": {
@@ -31,6 +32,7 @@
     "react-dropzone": "^14.2.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.32.1",
     "@swc-node/register": "^1.6.2",
     "@tailwindcss/forms": "^0.5.3",
     "@types/formidable": "^2.0.5",

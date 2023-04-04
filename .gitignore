@@ -24,3 +24,9 @@ next-env.d.ts
 /src/receipts
 /scripts/verifications
 /scripts/documents
+
+/tests/report
+/tests/results
+
+# will be added later
+/prisma/migrations/
