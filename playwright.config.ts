@@ -9,16 +9,11 @@ export default defineConfig({
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
   },
-  /*
-   chromium does not work well with react-dropzone
-   https://github.com/microsoft/playwright/issues/8850
-   https://github.com/microsoft/playwright/issues/12369
-   */
   projects: [
     {
-      name: 'firefox',
+      name: 'chromium',
       use: {
-        ...devices['Desktop Firefox'],
+        ...devices['Desktop Chrome'],
       },
     },
   ],

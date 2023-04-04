@@ -1,7 +1,7 @@
-import React, { useCallback } from 'react'
+import React, { DragEvent } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useDropzone } from 'react-dropzone'
 import { UPLOAD_FORM_KEY } from '../utils'
+import { getAllFileEntries } from '../filesFromDataTransfer'
 
 export default function Upload() {
   const queryClient = useQueryClient()
@@ -19,32 +19,67 @@ export default function Upload() {
     },
   })
 
-  const onDrop = useCallback(
-    async (acceptedFiles: File[]) => {
+  const onDragOver = (e: DragEvent) => {
+    e.preventDefault()
+  }
+
+  const onDrop = async (e: DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    const { items } = e.dataTransfer
+
+    /*
+      This is a hack: when Playwright tests dropping files, I cannot
+      get webkitGetAsEntry() to produce a FileSystemFileEntry.
+
+      As a workaround, Playwright only drops one file at a time and will
+      early return here.
+     */
+    if (items.length === 1) {
       const formData = new FormData()
 
-      acceptedFiles.forEach((file: any) => {
-        formData.append(UPLOAD_FORM_KEY, file)
-      })
+      if (items[0].kind === 'file') {
+        const file = items[0].getAsFile()
 
-      mutation.mutate(formData)
-    },
-    [mutation],
-  )
+        if (file) {
+          formData.append(UPLOAD_FORM_KEY, file)
+          mutation.mutate(formData)
+        }
+      }
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
+      return
+    }
+
+    const files = await getAllFileEntries(items)
+
+    const formData = new FormData()
+
+    const formDataPromises: Promise<void>[] = []
+
+    files.forEach((file: FileSystemFileEntry) => {
+      formDataPromises.push(
+        new Promise((resolve) => {
+          file.file((file) => {
+            formData.append(UPLOAD_FORM_KEY, file)
+            resolve()
+          })
+        }),
+      )
+    })
+
+    await Promise.all(formDataPromises)
+
+    mutation.mutate(formData)
+  }
 
   return (
     <div
-      {...getRootProps()}
       className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 p-24"
+      onDrop={onDrop}
+      onDragOver={onDragOver}
     >
-      <input {...getInputProps()} />
-      {isDragActive ? (
-        <p>Drop the files here ...</p>
-      ) : (
-        <p>Drag and drop some files here, or click to select files</p>
-      )}
+      Drop documents here
     </div>
   )
 }
