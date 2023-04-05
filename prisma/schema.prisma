@@ -26,7 +26,7 @@ model Document {
   id             Int          @id @default(autoincrement())
   extension      String
   hash           String
-  file           Bytes        @db.ByteA
+  data           Bytes        @db.ByteA
   verification   Verification @relation(fields: [verificationId], references: [id])
   verificationId Int
 }

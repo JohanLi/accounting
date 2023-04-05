@@ -1,13 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import formidable from 'formidable'
-import { receiptToTransaction, UPLOAD_FORM_KEY } from '../../utils'
+import { md5, receiptToTransaction } from '../../utils'
 import { parse } from '../../receipt'
-import { readFile, unlink } from 'fs/promises'
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-const form = formidable({ multiples: true, hashAlgorithm: 'md5' })
+export type UploadFiles = {
+  extension: string
+  data: string
+}[]
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== 'POST') {
@@ -15,62 +16,39 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     return
   }
 
-  return new Promise<void>((resolve) => {
-    form.parse(req, async (err, fields, files) => {
-      if (err) {
-        console.error(err)
-        res.status(500)
-        resolve()
-        return
-      }
+  const files = req.body as UploadFiles
 
-      let documents = files[UPLOAD_FORM_KEY]
+  for (const file of files) {
+    const data = Buffer.from(file.data, 'base64')
 
-      if (!Array.isArray(documents)) {
-        documents = [documents]
-      }
+    const extension = file.extension
+    const hash = await md5(data)
 
-      for (const document of documents) {
-        const extension = document.originalFilename?.split('.').pop() || ''
-        const hash = document.hash || ''
-        const file = await readFile(document.filepath)
+    try {
+      const receipt = await parse(data)
 
-        try {
-          const receipt = await parse(document.filepath)
-
-          await prisma.verification.create({
-            data: {
-              date: receipt.date,
-              description: receipt.description,
-              transactions: {
-                create: receiptToTransaction(receipt),
-              },
-              documents: {
-                create: {
-                  extension,
-                  hash,
-                  file,
-                },
-              },
+      await prisma.verification.create({
+        data: {
+          date: receipt.date,
+          description: receipt.description,
+          transactions: {
+            create: receiptToTransaction(receipt),
+          },
+          documents: {
+            create: {
+              extension,
+              hash,
+              data,
             },
-          })
-        } catch (e) {
-          console.error(e)
-        }
+          },
+        },
+      })
+    } catch (e) {
+      console.error(e)
+    }
+  }
 
-        await unlink(document.filepath)
-      }
-
-      res.status(200).json({})
-      resolve()
-    })
-  })
-}
-
-export const config = {
-  api: {
-    bodyParser: false,
-  },
+  res.status(200).json({})
 }
 
 export default handler

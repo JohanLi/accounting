@@ -1,5 +1,6 @@
 import { VerificationWithTransactionsAndDocuments } from './pages/api/verifications'
 import { Receipt } from './receipt'
+import crypto from 'crypto'
 
 export function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
@@ -46,8 +47,6 @@ export function withinFiscalYear(
   )
 }
 
-export const UPLOAD_FORM_KEY = 'files'
-
 export function receiptToTransaction(receipt: Receipt) {
   if (receipt.type === 'SALE_WITHIN_SWEDEN_25') {
     return [
@@ -80,4 +79,8 @@ export function receiptToTransaction(receipt: Receipt) {
   }
 
   throw Error(`Unexpected receipt type: ${receipt.type}`)
+}
+
+export async function md5(buffer: Buffer) {
+  return crypto.createHash('md5').update(buffer).digest('hex')
 }

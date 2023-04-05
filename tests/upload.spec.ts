@@ -14,6 +14,7 @@ test('uploading documents should result in the correct totals', async ({
     './src/receipts/bank.pdf',
     'bank.pdf',
   )
+
   await dragAndDropFile(
     page,
     dropLocator,

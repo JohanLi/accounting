@@ -1,8 +1,10 @@
 import { expect, test } from 'vitest'
 import { parse } from './receipt'
+import { readFile } from 'fs/promises'
 
 test('parse', async () => {
-  expect(await parse(`${__dirname}/receipts/invoice.pdf`)).toEqual({
+  let data = await readFile(`${__dirname}/receipts/invoice.pdf`)
+  expect(await parse(data)).toEqual({
     total: 20685000,
     vat: 4137000,
     date: new Date('2023-01-14'),
@@ -10,7 +12,8 @@ test('parse', async () => {
     description: 'Income',
   })
 
-  expect(await parse(`${__dirname}/receipts/bank.pdf`)).toEqual({
+  data = await readFile(`${__dirname}/receipts/bank.pdf`)
+  expect(await parse(data)).toEqual({
     total: 13000,
     vat: 0,
     date: new Date('2023-04-03'),
@@ -18,7 +21,8 @@ test('parse', async () => {
     description: 'SEB månadsavgift',
   })
 
-  expect(await parse(`${__dirname}/receipts/mobile.pdf`)).toEqual({
+  data = await readFile(`${__dirname}/receipts/mobile.pdf`)
+  expect(await parse(data)).toEqual({
     total: 31100,
     vat: 6220,
     date: new Date('2023-01-03'),
@@ -26,7 +30,8 @@ test('parse', async () => {
     description: '',
   })
 
-  expect(await parse(`${__dirname}/receipts/skiing.pdf`)).toEqual({
+  data = await readFile(`${__dirname}/receipts/skiing.pdf`)
+  expect(await parse(data)).toEqual({
     total: 24000,
     vat: 1358,
     date: new Date('2023-01-19'),

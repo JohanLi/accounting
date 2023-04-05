@@ -1,9 +1,8 @@
 // Throwaway code to import verifications and their documents
 
-import crypto from 'crypto'
 import { readdir, readFile, mkdir } from 'fs/promises'
 import { PrismaClient } from '@prisma/client'
-import { getFiscalYear } from '../src/utils'
+import { getFiscalYear, md5 } from '../src/utils'
 import iconv from 'iconv-lite'
 import {
   extractVerifications,
@@ -61,10 +60,6 @@ async function importVerifications(year: number) {
   }
 }
 
-async function md5(file: Buffer) {
-  return crypto.createHash('md5').update(file).digest('hex')
-}
-
 async function importDocuments(year: number) {
   const destination = `${__dirname}/../public/documents`
 
@@ -102,14 +97,14 @@ async function importDocuments(year: number) {
       throw Error(`No extension found: ${fileName}`)
     }
 
-    const file = await readFile(`${directory}/${fileName}`)
-    const hash = await md5(file)
+    const data = await readFile(`${directory}/${fileName}`)
+    const hash = await md5(data)
 
     await prisma.document.create({
       data: {
         extension,
         hash,
-        file,
+        data,
         verificationId,
       },
     })

@@ -1,4 +1,3 @@
-import fs from 'fs'
 import Decimal from 'decimal.js'
 import { getDocument, PDFDocumentProxy } from 'pdfjs-dist/legacy/build/pdf'
 import { TextContent } from 'pdfjs-dist/types/web/text_layer_builder'
@@ -11,8 +10,8 @@ export type Receipt = {
   description: string
 }
 
-export async function parse(path: string): Promise<Receipt> {
-  const strings = await getPDFStrings(path)
+export async function parse(buffer: Buffer): Promise<Receipt> {
+  const strings = await getPDFStrings(buffer)
 
   if (strings.includes('Developers Bay AB')) {
     const vatRate = 0.25
@@ -180,11 +179,9 @@ export async function parse(path: string): Promise<Receipt> {
   throw Error('Receipt is not from a recognized source')
 }
 
-async function getPDFStrings(path: string) {
-  const data = new Uint8Array(await fs.readFileSync(path))
-
+async function getPDFStrings(buffer: Buffer) {
   const pdf: PDFDocumentProxy = await getDocument({
-    data,
+    data: Uint8Array.from(buffer),
     // https://github.com/mozilla/pdf.js/issues/4244#issuecomment-1479534301
     useSystemFonts: true,
   }).promise

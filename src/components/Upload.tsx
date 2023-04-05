@@ -1,16 +1,31 @@
 import React, { DragEvent } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { UPLOAD_FORM_KEY } from '../utils'
 import { getAllFileEntries } from '../filesFromDataTransfer'
+import { UploadFiles } from '../pages/api/upload'
+
+const toBase64 = (file: File) =>
+  new Promise<string>((resolve, reject) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = () => {
+      const base64 = reader.result as string
+      // https://developer.mozilla.org/en-US/docs/Web/API/FileReader/readAsDataURL
+      resolve(base64.substring(base64.indexOf(',') + 1))
+    }
+    reader.onerror = (error) => reject(error)
+  })
 
 export default function Upload() {
   const queryClient = useQueryClient()
 
   const mutation = useMutation({
-    mutationFn: (body: FormData) =>
+    mutationFn: (body: UploadFiles) =>
       fetch('/api/upload', {
         method: 'POST',
-        body,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
       }).then((res) => res.json()),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['totals'] })
@@ -37,14 +52,17 @@ export default function Upload() {
       early return here.
      */
     if (items.length === 1) {
-      const formData = new FormData()
+      const uploadFiles: UploadFiles = []
 
       if (items[0].kind === 'file') {
         const file = items[0].getAsFile()
 
         if (file) {
-          formData.append(UPLOAD_FORM_KEY, file)
-          mutation.mutate(formData)
+          uploadFiles.push({
+            extension: file.name.split('.').pop() || '',
+            data: await toBase64(file),
+          })
+          mutation.mutate(uploadFiles)
         }
       }
 
@@ -53,24 +71,27 @@ export default function Upload() {
 
     const files = await getAllFileEntries(items)
 
-    const formData = new FormData()
+    const uploadFiles: UploadFiles = []
 
-    const formDataPromises: Promise<void>[] = []
+    const uploadFilePromises: Promise<void>[] = []
 
     files.forEach((file: FileSystemFileEntry) => {
-      formDataPromises.push(
+      uploadFilePromises.push(
         new Promise((resolve) => {
-          file.file((file) => {
-            formData.append(UPLOAD_FORM_KEY, file)
+          file.file(async (file) => {
+            uploadFiles.push({
+              extension: file.name.split('.').pop() || '',
+              data: await toBase64(file),
+            })
             resolve()
           })
         }),
       )
     })
 
-    await Promise.all(formDataPromises)
+    await Promise.all(uploadFilePromises)
 
-    mutation.mutate(formData)
+    mutation.mutate(uploadFiles)
   }
 
   return (
