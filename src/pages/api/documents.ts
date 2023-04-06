@@ -24,7 +24,7 @@ export default async function handler(
     }
 
     res.setHeader('Content-Type', contentType)
-    res.end(document.file)
+    res.end(document.data)
     return
   }
 

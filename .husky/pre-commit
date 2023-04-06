@@ -4,3 +4,4 @@
 npx lint-staged
 # https://vitest.dev/guide/features.html#watch-mode
 CI=true npm test
+tsc --noEmit
