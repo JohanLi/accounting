@@ -1,25 +1,13 @@
 import React, { DragEvent } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { getAllFileEntries } from '../filesFromDataTransfer'
-import { UploadFiles } from '../pages/api/upload'
-
-const toBase64 = (file: File) =>
-  new Promise<string>((resolve, reject) => {
-    const reader = new FileReader()
-    reader.readAsDataURL(file)
-    reader.onload = () => {
-      const base64 = reader.result as string
-      // https://developer.mozilla.org/en-US/docs/Web/API/FileReader/readAsDataURL
-      resolve(base64.substring(base64.indexOf(',') + 1))
-    }
-    reader.onerror = (error) => reject(error)
-  })
+import { getExtensionAndData, getFileEntries } from '../filesFromDataTransfer'
+import { UploadFile } from '../pages/api/upload'
 
 export default function Upload() {
   const queryClient = useQueryClient()
 
   const mutation = useMutation({
-    mutationFn: (body: UploadFiles) =>
+    mutationFn: (body: UploadFile[]) =>
       fetch('/api/upload', {
         method: 'POST',
         headers: {
@@ -45,53 +33,35 @@ export default function Upload() {
     const { items } = e.dataTransfer
 
     /*
-      This is a hack: when Playwright tests dropping files, I cannot
-      get webkitGetAsEntry() to produce a FileSystemFileEntry.
+      When Playwright tests dropping files, webkitGetAsEntry()
+      does not produce a FileSystemFileEntry.
 
-      As a workaround, Playwright only drops one file at a time and will
-      early return here.
+      This is a hack to get the tests to work.
      */
-    if (items.length === 1) {
-      const uploadFiles: UploadFiles = []
+    const isPlaywrightTest = items[0].webkitGetAsEntry() === null
+    if (isPlaywrightTest) {
+      const file = items[0].getAsFile()
 
-      if (items[0].kind === 'file') {
-        const file = items[0].getAsFile()
-
-        if (file) {
-          uploadFiles.push({
-            extension: file.name.split('.').pop() || '',
-            data: await toBase64(file),
-          })
-          mutation.mutate(uploadFiles)
-        }
+      if (file) {
+        mutation.mutate([await getExtensionAndData(file)])
       }
 
       return
     }
 
-    const files = await getAllFileEntries(items)
+    const fileEntries = await getFileEntries(items)
+    const files = await Promise.all(
+      fileEntries.map(
+        (file) =>
+          new Promise<UploadFile>((resolve, reject) => {
+            file.file((file) => {
+              getExtensionAndData(file).then(resolve).catch(reject)
+            }, reject)
+          }),
+      ),
+    )
 
-    const uploadFiles: UploadFiles = []
-
-    const uploadFilePromises: Promise<void>[] = []
-
-    files.forEach((file: FileSystemFileEntry) => {
-      uploadFilePromises.push(
-        new Promise((resolve) => {
-          file.file(async (file) => {
-            uploadFiles.push({
-              extension: file.name.split('.').pop() || '',
-              data: await toBase64(file),
-            })
-            resolve()
-          })
-        }),
-      )
-    })
-
-    await Promise.all(uploadFilePromises)
-
-    mutation.mutate(uploadFiles)
+    mutation.mutate(files)
   }
 
   return (

@@ -1,29 +1,31 @@
-// based on https://stackoverflow.com/a/53058574
-export async function getAllFileEntries(
-  dataTransferItemList: DataTransferItemList,
-) {
-  let fileEntries: FileSystemFileEntry[] = []
+import { UploadFile } from './pages/api/upload'
+
+export async function getFileEntries(items: DataTransferItemList) {
+  let entries: FileSystemFileEntry[] = []
   let queue: FileSystemEntry[] = []
-  for (let i = 0; i < dataTransferItemList.length; i++) {
-    const entry = dataTransferItemList[i].webkitGetAsEntry()
+
+  for (let i = 0; i < items.length; i++) {
+    const entry = items[i].webkitGetAsEntry()
 
     if (entry) {
       queue.push(entry)
     }
   }
+
   while (queue.length > 0) {
-    let entry = queue.shift() as FileSystemEntry
+    let entry = queue.shift()!
 
     if (isFile(entry)) {
-      fileEntries.push(entry)
+      entries.push(entry)
     } else if (isDirectory(entry)) {
-      queue.push(...(await readAllDirectoryEntries(entry.createReader())))
+      queue.push(...(await readDirectoryEntries(entry.createReader())))
     }
   }
-  return fileEntries
+
+  return entries
 }
 
-async function readAllDirectoryEntries(
+async function readDirectoryEntries(
   directoryReader: FileSystemDirectoryReader,
 ) {
   let entries: FileSystemEntry[] = []
@@ -33,6 +35,7 @@ async function readAllDirectoryEntries(
     entries.push(...readEntries)
     readEntries = await readEntriesPromise(directoryReader)
   }
+
   return entries
 }
 
@@ -48,4 +51,23 @@ function isFile(item: FileSystemEntry): item is FileSystemFileEntry {
 
 function isDirectory(item: FileSystemEntry): item is FileSystemDirectoryEntry {
   return item.isDirectory
+}
+
+export async function getExtensionAndData(file: File) {
+  return new Promise<UploadFile>((resolve, reject) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+
+    reader.onload = () => {
+      const extension = file.name.split('.').pop() || ''
+
+      // https://developer.mozilla.org/en-US/docs/Web/API/FileReader/readAsDataURL
+      let data = reader.result as string
+      data = data.substring(data.indexOf(',') + 1)
+
+      resolve({ extension, data })
+    }
+
+    reader.onerror = (error) => reject(error)
+  })
 }

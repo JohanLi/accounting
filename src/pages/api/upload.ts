@@ -5,10 +5,10 @@ import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-export type UploadFiles = {
+export type UploadFile = {
   extension: string
   data: string
-}[]
+}
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== 'POST') {
@@ -16,7 +16,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     return
   }
 
-  const files = req.body as UploadFiles
+  const files = req.body as UploadFile[]
 
   for (const file of files) {
     const data = Buffer.from(file.data, 'base64')
