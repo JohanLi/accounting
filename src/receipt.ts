@@ -2,181 +2,128 @@ import Decimal from 'decimal.js'
 import { getDocument, PDFDocumentProxy } from 'pdfjs-dist/legacy/build/pdf'
 import { TextContent } from 'pdfjs-dist/types/web/text_layer_builder'
 
+type Type = 'INCOME' | 'BANKING_COSTS' | 'MOBILE_PROVIDER' | 'WELLNESS'
+type VatRate = '0.25' | '0.12' | '0.06' | '0'
+
+const types: {
+  [key in Type]: {
+    debit: number
+    credit: number
+    vatRate: VatRate
+  }
+} = {
+  INCOME: {
+    debit: 1930,
+    credit: 3011,
+    vatRate: '0.25',
+  },
+  BANKING_COSTS: {
+    debit: 6570,
+    credit: 1930,
+    vatRate: '0',
+  },
+  MOBILE_PROVIDER: {
+    debit: 6212,
+    credit: 1930,
+    vatRate: '0.25',
+  },
+  WELLNESS: {
+    debit: 7699,
+    credit: 2890,
+    vatRate: '0.06',
+  },
+}
+
+type Source = {
+  identifiedBy: string
+  type: Type
+  description: string
+}
+
+const sources: Source[] = [
+  {
+    identifiedBy: 'Developers Bay AB',
+    type: 'INCOME',
+    description: 'Inkomst',
+  },
+  {
+    identifiedBy: 'Skandinaviska Enskilda Banken AB',
+    type: 'BANKING_COSTS',
+    description: 'SEB månadsavgift',
+  },
+  {
+    identifiedBy: 'Hi3G Access AB',
+    type: 'MOBILE_PROVIDER',
+    description: 'Tre företagsabonnemang',
+  },
+  {
+    identifiedBy: 'Flottsbro',
+    type: 'WELLNESS',
+    description: 'Friskvård skidåkning',
+  },
+]
+
 export type Receipt = {
   total: number
   vat: number
   date: Date
-  type: 'SALE_WITHIN_SWEDEN_25' | 'BANKING_COSTS' | ''
+  type: Type
   description: string
 }
 
 export async function parse(buffer: Buffer): Promise<Receipt> {
   const strings = await getPDFStrings(buffer)
 
-  if (strings.includes('Developers Bay AB')) {
-    const vatRate = 0.25
+  let source = sources.find((source) => strings.includes(source.identifiedBy))
 
-    const monetaryValues: string[] = []
-    const dates: Date[] = []
+  if (!source) {
+    source = sources.find((source) =>
+      strings.find((string) => string.includes(source.identifiedBy)),
+    )
+  }
 
-    strings.forEach((string) => {
-      const foundMonetaryValue = string.match(/(\d+.\d+,\d+)/)
+  if (!source) {
+    throw Error('Receipt is not from a recognized source')
+  }
 
-      if (foundMonetaryValue) {
-        monetaryValues.push(
-          foundMonetaryValue[1].replace('.', '').replace(',', '.'),
-        )
-        return
-      }
+  const { vatRate } = types[source.type]
 
-      const foundDate = string.match(/\d{4}-\d{2}-\d{2}/)
+  const monetaryValues = getMonetaryValues(strings)
+  const dates = getDates(strings)
 
-      if (foundDate) {
-        dates.push(new Date(foundDate[0]))
-      }
-    })
+  const assumedTotal = Decimal.max(...monetaryValues)
 
-    const assumedTotal = Decimal.max(...monetaryValues)
+  const receipt: Receipt = {
+    total: assumedTotal.mul(100).toNumber(),
+    vat: 0,
+    date: getLatestDate(dates),
+    type: source.type,
+    description: source.description,
+  }
+
+  if (vatRate !== '0') {
     const expectedVat = Decimal.sub(
       assumedTotal,
-      Decimal.div(assumedTotal, 1 + vatRate),
+      Decimal.div(assumedTotal, Decimal.add(1, vatRate)),
     ).toFixed(2)
 
     const foundExpectedVat = monetaryValues.find(
-      (value) => value === expectedVat,
+      (value) =>
+        value === expectedVat ||
+        value === `${expectedVat.replace(',', '.')} SEK`,
     )
 
     if (!foundExpectedVat) {
-      throw Error('Did not find the expected VAT amount')
+      // this can occur if the total has been rounded to the nearest krona
+      if (!strings.includes(`Moms ${Decimal.mul(vatRate, 100)}%`)) {
+        throw Error('Did not find the expected VAT rate')
+      }
     }
 
-    return {
-      total: assumedTotal.mul(100).toNumber(),
-      vat: new Decimal(expectedVat).mul(100).toNumber(),
-      date: getLatestDate(dates),
-      type: 'SALE_WITHIN_SWEDEN_25',
-      description: 'Income',
-    }
+    receipt.vat = new Decimal(expectedVat).mul(100).toNumber()
   }
 
-  // vatRate 0.00
-  if (
-    strings.find((string) =>
-      string.includes('Skandinaviska Enskilda Banken AB'),
-    )
-  ) {
-    const monetaryValues: string[] = []
-    const dates: Date[] = []
-
-    strings.forEach((string) => {
-      const foundMonetaryValue = string.match(/(\d+,\d+)/)
-
-      if (foundMonetaryValue) {
-        monetaryValues.push(foundMonetaryValue[1].replace(',', '.'))
-        return
-      }
-
-      const foundDate = string.match(/\d{4}-\d{2}-\d{2}/)
-
-      if (foundDate) {
-        dates.push(new Date(foundDate[0]))
-      }
-    })
-
-    const assumedTotal = Decimal.max(...monetaryValues)
-
-    return {
-      total: assumedTotal.mul(100).toNumber(),
-      vat: 0,
-      date: getLatestDate(dates),
-      type: 'BANKING_COSTS',
-      description: 'SEB månadsavgift',
-    }
-  }
-
-  if (strings.includes('Hi3G Access AB')) {
-    const vatRate = 0.25
-
-    if (!strings.includes(`Moms ${vatRate * 100}%`)) {
-      throw Error('Did not find the expected VAT rate')
-    }
-
-    const monetaryValues: string[] = []
-    const dates: Date[] = []
-
-    strings.forEach((string) => {
-      const foundMonetaryValue = string.match(/(\d+,\d+) SEK/)
-
-      if (foundMonetaryValue) {
-        monetaryValues.push(foundMonetaryValue[1].replace(',', '.'))
-        return
-      }
-
-      const foundDate = string.match(/\d{4}-\d{2}-\d{2}/)
-
-      if (foundDate) {
-        dates.push(new Date(foundDate[0]))
-      }
-    })
-
-    const assumedTotal = Decimal.max(...monetaryValues)
-
-    return {
-      total: assumedTotal.mul(100).toNumber(),
-      vat: Decimal.sub(assumedTotal, Decimal.div(assumedTotal, 1 + vatRate))
-        .mul(100)
-        .toNumber(),
-      date: getLatestDate(dates),
-      type: '',
-      description: '',
-    }
-  }
-
-  if (strings.find((string) => string.includes('Flottsbro'))) {
-    const vatRate = 0.06
-
-    const monetaryValues: string[] = []
-    const dates: Date[] = []
-
-    strings.forEach((string) => {
-      const foundMonetaryValue = string.match(/(\d+.\d+) SEK/)
-
-      if (foundMonetaryValue) {
-        monetaryValues.push(foundMonetaryValue[1])
-        return
-      }
-
-      const foundDate = string.match(/(\d{2})\/(\d{2})\/(\d{4})/)
-
-      if (foundDate) {
-        dates.push(new Date(`${foundDate[3]}-${foundDate[2]}-${foundDate[1]}`))
-      }
-    })
-
-    const assumedTotal = Decimal.max(...monetaryValues)
-    const expectedVat = Decimal.sub(
-      assumedTotal,
-      Decimal.div(assumedTotal, 1 + vatRate),
-    ).toFixed(2)
-
-    const foundExpectedVat = monetaryValues.find(
-      (value) => value === expectedVat,
-    )
-
-    if (!foundExpectedVat) {
-      throw Error('Did not find the expected VAT amount')
-    }
-
-    return {
-      total: assumedTotal.mul(100).toNumber(),
-      vat: new Decimal(expectedVat).mul(100).toNumber(),
-      date: getLatestDate(dates),
-      type: '',
-      description: '',
-    }
-  }
-
-  throw Error('Receipt is not from a recognized source')
+  return receipt
 }
 
 async function getPDFStrings(buffer: Buffer) {
@@ -214,4 +161,95 @@ function getLatestDate(dates: Date[]) {
 
     return latest
   })
+}
+
+const monetaryFormats = [
+  /(\d+,\d+) SEK/,
+  /(\d+.\d+) SEK/,
+  /(\d+.\d+,\d+)/,
+  /(\d+,\d+)/,
+]
+function getMonetaryValues(strings: string[]) {
+  const found = monetaryFormats.find((regex) =>
+    strings.find((string) => string.match(regex)),
+  )
+
+  if (!found) {
+    throw Error('Did not find any monetary values')
+  }
+
+  return strings
+    .map((string) => string.match(found))
+    .filter((found): found is RegExpMatchArray => found !== null)
+    .map((found) =>
+      found[1]
+        // invoice
+        .replace(/.(\d{3})/, '$1')
+        // using point as decimal separator
+        .replace(',', '.'),
+    )
+}
+
+const dateFormats = [/\d{4}-\d{2}-\d{2}/, /(\d{2})\/(\d{2})\/(\d{4})/]
+function getDates(strings: string[]) {
+  const found = dateFormats.findIndex((regex) =>
+    strings.find((string) => string.match(regex)),
+  )
+
+  if (found === -1) {
+    throw Error('Did not find any dates')
+  }
+
+  return strings
+    .map((string) => string.match(dateFormats[found]))
+    .filter((foundDate): foundDate is RegExpMatchArray => foundDate !== null)
+    .map((foundDate) => {
+      if (found === 1) {
+        return new Date(`${foundDate[3]}-${foundDate[2]}-${foundDate[1]}`)
+      }
+
+      return new Date(foundDate[0])
+    })
+}
+
+export function receiptToTransaction(receipt: Receipt) {
+  const { total, vat, type } = receipt
+  const { debit, credit, vatRate } = types[type]
+
+  if (type === 'INCOME') {
+    return [
+      {
+        accountCode: debit,
+        amount: total,
+      },
+      {
+        accountCode: credit,
+        amount: -(receipt.total - receipt.vat),
+      },
+      {
+        accountCode: 2610, // assumes 25% vat
+        amount: -vat,
+      },
+    ]
+  }
+
+  const transactions = [
+    {
+      accountCode: debit,
+      amount: receipt.total - receipt.vat,
+    },
+    {
+      accountCode: credit,
+      amount: -total,
+    },
+  ]
+
+  if (vatRate !== '0') {
+    transactions.push({
+      accountCode: 2640,
+      amount: vat,
+    })
+  }
+
+  return transactions
 }

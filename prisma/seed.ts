@@ -14,12 +14,28 @@ async function main() {
         description: 'Utgående moms 25%',
       },
       {
+        code: 2640,
+        description: 'Ingående moms',
+      },
+      {
+        code: 2890,
+        description: 'Övriga kortfristiga skulder',
+      },
+      {
         code: 3011,
         description: 'Försäljning inom Sverige 25%',
       },
       {
+        code: 6212,
+        description: 'Mobiltelefoni',
+      },
+      {
         code: 6570,
         description: 'Bankkostnader',
+      },
+      {
+        code: 7699,
+        description: 'Övriga personalkostnader',
       },
     ],
   })

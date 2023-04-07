@@ -1,5 +1,4 @@
 import { VerificationWithTransactionsAndDocuments } from './pages/api/verifications'
-import { Receipt } from './receipt'
 import crypto from 'crypto'
 
 export function classNames(...classes: string[]) {
@@ -45,40 +44,6 @@ export function withinFiscalYear(
   return (
     new Date(verification.date) >= start && new Date(verification.date) <= end
   )
-}
-
-export function receiptToTransaction(receipt: Receipt) {
-  if (receipt.type === 'SALE_WITHIN_SWEDEN_25') {
-    return [
-      {
-        accountCode: 1930,
-        amount: receipt.total,
-      },
-      {
-        accountCode: 2610,
-        amount: -receipt.vat,
-      },
-      {
-        accountCode: 3011,
-        amount: -(receipt.total - receipt.vat),
-      },
-    ]
-  }
-
-  if (receipt.type === 'BANKING_COSTS') {
-    return [
-      {
-        accountCode: 1930,
-        amount: -receipt.total,
-      },
-      {
-        accountCode: 6570,
-        amount: receipt.total,
-      },
-    ]
-  }
-
-  throw Error(`Unexpected receipt type: ${receipt.type}`)
 }
 
 export async function md5(buffer: Buffer) {
