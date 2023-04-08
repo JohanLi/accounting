@@ -2,7 +2,12 @@ import Decimal from 'decimal.js'
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf'
 import { TextContent } from 'pdfjs-dist/types/web/text_layer_builder'
 
-type Type = 'INCOME' | 'BANKING_COSTS' | 'MOBILE_PROVIDER' | 'WELLNESS'
+type Type =
+  | 'INCOME'
+  | 'BANKING_COSTS'
+  | 'GOOGLE_WORKSPACE'
+  | 'MOBILE_PROVIDER'
+  | 'WELLNESS'
 type VatRate = '0.25' | '0.12' | '0.06' | '0'
 
 const types: {
@@ -21,6 +26,11 @@ const types: {
     debit: 6570,
     credit: 1930,
     vatRate: '0',
+  },
+  GOOGLE_WORKSPACE: {
+    debit: 4535,
+    credit: 1930,
+    vatRate: '0', // TODO implement reverse charge 25%
   },
   MOBILE_PROVIDER: {
     debit: 6212,
@@ -50,6 +60,11 @@ const sources: Source[] = [
     identifiedBy: 'Skandinaviska Enskilda Banken AB',
     type: 'BANKING_COSTS',
     description: 'SEB månadsavgift',
+  },
+  {
+    identifiedBy: 'Google Workspace',
+    type: 'GOOGLE_WORKSPACE',
+    description: 'Google Workspace',
   },
   {
     identifiedBy: 'Hi3G Access AB',
@@ -164,6 +179,7 @@ function getLatestDate(dates: Date[]) {
 }
 
 const monetaryFormats = [
+  /€(\d+.\d+)/, // TODO support € and $
   /(\d+,\d+) SEK/,
   /(\d+.\d+) SEK/,
   /(\d+.\d+,\d+)/,
@@ -190,7 +206,11 @@ function getMonetaryValues(strings: string[]) {
     )
 }
 
-const dateFormats = [/\d{4}-\d{2}-\d{2}/, /(\d{2})\/(\d{2})\/(\d{4})/]
+const dateFormats = [
+  /[A-Z][a-z]{2} \d{1,2}, \d{4}/,
+  /\d{4}-\d{2}-\d{2}/,
+  /(\d{2})\/(\d{2})\/(\d{4})/,
+]
 function getDates(strings: string[]) {
   const found = dateFormats.findIndex((regex) =>
     strings.find((string) => string.match(regex)),
@@ -204,11 +224,15 @@ function getDates(strings: string[]) {
     .map((string) => string.match(dateFormats[found]))
     .filter((foundDate): foundDate is RegExpMatchArray => foundDate !== null)
     .map((foundDate) => {
-      if (found === 1) {
+      if (found === 2) {
         return new Date(`${foundDate[3]}-${foundDate[2]}-${foundDate[1]}`)
       }
 
-      return new Date(foundDate[0])
+      /*
+        While "2023-04-08" is treated as UTC, "Apr 8, 2023" is treated as local time.
+        UTC+00:00 is a hack to make sure both of them are treated as UTC.
+       */
+      return new Date(`${foundDate[0]} UTC+00:00`)
     })
 }
 

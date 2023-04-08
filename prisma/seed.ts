@@ -26,6 +26,10 @@ async function main() {
         description: 'Försäljning inom Sverige 25%',
       },
       {
+        code: 4535,
+        description: 'Inköp av tjänster inom EU 25%',
+      },
+      {
         code: 6212,
         description: 'Mobiltelefoni',
       },
