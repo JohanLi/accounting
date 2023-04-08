@@ -1,5 +1,5 @@
 import Decimal from 'decimal.js'
-import { getDocument, PDFDocumentProxy } from 'pdfjs-dist/legacy/build/pdf'
+import { getDocument } from 'pdfjs-dist/legacy/build/pdf'
 import { TextContent } from 'pdfjs-dist/types/web/text_layer_builder'
 
 type Type = 'INCOME' | 'BANKING_COSTS' | 'MOBILE_PROVIDER' | 'WELLNESS'
@@ -127,7 +127,7 @@ export async function parse(buffer: Buffer): Promise<Receipt> {
 }
 
 async function getPDFStrings(buffer: Buffer) {
-  const pdf: PDFDocumentProxy = await getDocument({
+  const pdf = await getDocument({
     data: Uint8Array.from(buffer),
     // https://github.com/mozilla/pdf.js/issues/4244#issuecomment-1479534301
     useSystemFonts: true,
