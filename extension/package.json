@@ -1,0 +1,16 @@
+{
+  "name": "extension",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@crxjs/vite-plugin": "^2.0.0-beta.11",
+    "@types/chrome": "^0.0.209",
+    "typescript": "^4.9.3",
+    "vite": "^4.0.0"
+  }
+}
