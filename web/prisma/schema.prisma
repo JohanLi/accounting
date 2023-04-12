@@ -42,3 +42,16 @@ model Verification {
   // receipts, which are separate, need this to be correctly imported. To be removed
   oldId        Int?
 }
+
+model BankTransaction {
+  id          Int      @id @default(autoincrement())
+  externalId  String
+  date        DateTime
+  amount      Int
+  balance     Int
+  description String
+
+  // Two transactions can actually have the same "externalId" + "date"
+  // example of when it happens: two transfers on the same day to the tax account
+  @@unique([externalId, date, balance])
+}
