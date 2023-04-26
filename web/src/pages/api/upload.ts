@@ -5,6 +5,14 @@ import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '100mb'
+    }
+  }
+}
+
 export type UploadFile = {
   extension: string
   data: string
@@ -12,7 +20,7 @@ export type UploadFile = {
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== 'POST') {
-    res.status(405)
+    res.status(405).end()
     return
   }
 

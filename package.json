@@ -1,7 +1,0 @@
-{
-  "name": "accounting",
-  "workspaces": [
-    "web",
-    "extension"
-  ]
-}

@@ -1,16 +1,33 @@
 {
   "name": "extension",
-  "version": "0.0.0",
-  "type": "module",
+  "version": "0.1.0",
+  "displayName": "accounting",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
+    "dev": "plasmo dev"
+  },
+  "dependencies": {
+    "@plasmohq/messaging": "^0.1.8",
+    "p-limit": "^4.0.0",
+    "plasmo": "0.68.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
   },
   "devDependencies": {
-    "@crxjs/vite-plugin": "^2.0.0-beta.11",
-    "@types/chrome": "^0.0.209",
-    "typescript": "^4.9.3",
-    "vite": "^4.0.0"
+    "@plasmohq/prettier-plugin-sort-imports": "3.6.4",
+    "@types/chrome": "0.0.227",
+    "@types/node": "18.15.11",
+    "@types/react": "18.0.32",
+    "@types/react-dom": "18.0.11",
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.23",
+    "prettier": "2.8.7",
+    "tailwindcss": "^3.3.1",
+    "typescript": "5.0.3"
+  },
+  "manifest": {
+    "host_permissions": [
+      "https://*/*",
+      "http://*/*"
+    ]
   }
 }
