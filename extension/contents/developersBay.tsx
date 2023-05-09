@@ -1,18 +1,4 @@
-/*
-  My business bank (SEB) charges a monthly fee. The invoices:
-    - are located in an obscure section of the website
-    - not straightforward to get the invoice for month X
-    - have long, meaningless filenames
-    - each take 3 seconds to generate, every time, even though they produce the same PDF files
-
-  Ideally: a button press downloads all invoices and gives each PDF file a
-  good name.
-
-  Invoices are found in Kundservice > Dokument & avtal
- */
-
 import cssText from 'data-text:./style.css'
-import pLimit from 'p-limit'
 import type { PlasmoCSConfig } from 'plasmo'
 import { useEffect, useState } from 'react'
 
@@ -21,7 +7,7 @@ import { sendToBackground } from '@plasmohq/messaging'
 import type { RequestBody, ResponseBody } from '../background/messages/download'
 
 export const config: PlasmoCSConfig = {
-  matches: ['https://apps.seb.se/ccs/ibf/*'],
+  matches: ['https://box.developersbay.se/*'],
 }
 
 export const getStyle = () => {
@@ -30,20 +16,9 @@ export const getStyle = () => {
   return style
 }
 
-// downloading too many in parallel seems to cause the server to error out
-const limit = pLimit(5)
-
-/*
-  This API is called from the Kundservice > Dokument & avtal page.
-  You need to first visit "Internetbanken företag" before it works — logging in alone won't do it
- */
-const API_BASE_URL =
-  'https://ibf.apps.seb.se/dsc/digitaldocuments-corporate/digitaldocuments'
-
 type Document = {
-  document_key: string
-  title: string
-  effective_date: string
+  id: string
+  invoice_date: string
 }
 
 export type Download = {
@@ -51,10 +26,15 @@ export type Download = {
   filename: string
 }
 
-// used as a check in case the results get paginated
-const FIRST_INVOICE_DATE = '2021-12-07'
+const API_LIST_INVOICES_URL =
+  'https://api.box.developersbay.se/api/invoices/user/5267'
 
-export default function Seb() {
+const getInvoiceUrl = (id: string) => `https://api.box.developersbay.se/api/invoices/${id}/pdf`
+
+// used as a check in case the results get paginated
+const FIRST_INVOICE_DATE = '2022-05-31'
+
+export default function DevelopersBay() {
   const [downloads, setDownloads] = useState<Download[]>()
   const [error, setError] = useState('')
   const [isDownloading, setIsDownloading] = useState(false)
@@ -63,7 +43,11 @@ export default function Seb() {
     let ignore = false
 
     const fetchDownloads = async () => {
-      const response = await fetch(API_BASE_URL, { credentials: 'include' })
+      const response = await fetch(API_LIST_INVOICES_URL, {
+        headers: {
+          authorization: `Bearer ${localStorage.getItem('id_token')}`
+        }
+      })
 
       if (!response.ok) {
         throw new Error('Failed to fetch invoices')
@@ -76,7 +60,7 @@ export default function Seb() {
       }
 
       if (
-        documents[documents.length - 1].effective_date !== FIRST_INVOICE_DATE
+        documents[documents.length - 1].invoice_date !== FIRST_INVOICE_DATE
       ) {
         throw new Error(
           'The earliest invoice found does not match the known earliest invoice',
@@ -86,10 +70,9 @@ export default function Seb() {
       if (!ignore) {
         setDownloads(
           documents
-            .filter(({ title }) => title === 'Faktura')
             .map((document) => ({
-              url: `${API_BASE_URL}/pdf/${document.document_key}`,
-              filename: `bookkeeping/seb/seb-${document.effective_date}.pdf`,
+              url: getInvoiceUrl(document.id),
+              filename: `bookkeeping/developersbay/developersbay-${document.invoice_date}.pdf`,
             })),
         )
       }
@@ -108,17 +91,27 @@ export default function Seb() {
     setIsDownloading(true)
 
     const uploadFiles = await Promise.all(
-      downloads.map((download) =>
-        limit(async () => {
-          const response = await fetch(download.url, { credentials: 'include' })
-          const buffer = await response.arrayBuffer()
-          const data = Buffer.from(buffer).toString('base64')
-          return {
-            data,
-            extension: 'pdf',
+      downloads.map(async (document) => {
+        const urlResponse = await fetch(document.url, {
+          headers: {
+            authorization: `Bearer ${localStorage.getItem('id_token')}`
           }
-        }),
-      ),
+        })
+
+        if (!urlResponse.ok) {
+          throw new Error('Failed to fetch invoice')
+        }
+
+        const { path: url } = (await urlResponse.json()) as { path: string }
+
+        const fileResponse = await fetch(url)
+        const buffer = await fileResponse.arrayBuffer()
+        const data = Buffer.from(buffer).toString('base64')
+        return {
+          data,
+          extension: 'pdf',
+        }
+      })
     )
 
     const response = await sendToBackground<RequestBody, ResponseBody>({
