@@ -1,0 +1,13 @@
+{
+  "name": "accounting",
+  "packageManager": "pnpm@7.15.0",
+  "private": true,
+  "scripts": {
+    "setup": "turbo run setup",
+    "test": "turbo run test",
+    "dev": "turbo run dev"
+  },
+  "devDependencies": {
+    "turbo": "^1.9.3"
+  }
+}

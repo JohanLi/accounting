@@ -2,10 +2,11 @@
   "name": "web",
   "version": "0.1.0",
   "scripts": {
-    "dev": "next dev",
+    "dev": "docker-compose up -d && next dev",
     "test": "vitest",
     "test-e2e": "sh ./tests/run.sh",
-    "node": "node -r @swc-node/register"
+    "node": "node -r @swc-node/register",
+    "setup": "docker volume create --name=accounting-postgres && pnpm exec prisma migrate dev"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
