@@ -1,18 +1,13 @@
+name: accounting
 services:
   postgres:
     image: postgres:15.2
     ports:
       - 5432:5432
+    env_file:
+      - .env
     volumes:
       - accounting-postgres:/var/lib/postgresql/data
-    env_file:
-      - .env
-  test-postgres:
-    image: postgres:15.2
-    ports:
-      - "${TEST_POSTGRES_PORT}:5432"
-    env_file:
-      - .env
 
 volumes:
   accounting-postgres:

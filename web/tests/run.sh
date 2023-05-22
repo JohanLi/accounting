@@ -1,10 +1,15 @@
 #!/bin/sh
 
-source .env
-export POSTGRES_PORT=$TEST_POSTGRES_PORT
-export DATABASE_URL=$TEST_DATABASE_URL
+# https://unix.stackexchange.com/a/52066
+set -e
 
-docker-compose up -d test-postgres
-prisma migrate dev --name test-init
+export POSTGRES_PORT=5433
+docker compose --file docker-compose.test.yml up -d
+
+# https://github.com/prisma/prisma/issues/6603
+# https://github.com/prisma/prisma/discussions/12501
+prisma generate
+
+prisma migrate dev --name init-test
 prisma migrate reset --force
 playwright test

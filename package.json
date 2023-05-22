@@ -5,6 +5,7 @@
   "scripts": {
     "setup": "turbo run setup",
     "test": "turbo run test",
+    "test-e2e": "turbo run test-e2e",
     "dev": "turbo run dev"
   },
   "devDependencies": {

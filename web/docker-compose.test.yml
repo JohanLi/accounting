@@ -1,0 +1,11 @@
+# the name must be different from the one in docker-compose.yml
+# otherwise docker-compose up will complain about orphan containers
+# https://stackoverflow.com/questions/50947938/docker-compose-orphan-containers-warning
+name: accounting-test
+services:
+  postgres:
+    image: postgres:15.2
+    ports:
+      - ${POSTGRES_PORT}:5432
+    env_file:
+      - .env

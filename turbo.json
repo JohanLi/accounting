@@ -3,6 +3,7 @@
   "pipeline": {
     "setup": {},
     "test": {},
+    "test-e2e": {},
     "dev": {
       "cache": false,
       "persistent": true
