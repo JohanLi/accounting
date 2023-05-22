@@ -12,5 +12,5 @@ For personal use. The user experience I'm aiming for is:
 ```
 pnpm install
 pnpm run setup
-pnpm run dev
+pnpm dev
 ```
