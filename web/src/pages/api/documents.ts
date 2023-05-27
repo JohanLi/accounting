@@ -1,8 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { PrismaClient } from '@prisma/client'
 import mime from 'mime-types'
-
-const prisma = new PrismaClient()
+import { prisma } from '../../db'
 
 export default async function handler(
   req: NextApiRequest,

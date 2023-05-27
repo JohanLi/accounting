@@ -1,7 +1,6 @@
 // Throwaway code to import verifications and their documents
 
 import { readdir, readFile, mkdir } from 'fs/promises'
-import { PrismaClient } from '@prisma/client'
 import { getFiscalYear, md5 } from '../src/utils'
 import iconv from 'iconv-lite'
 import {
@@ -10,8 +9,7 @@ import {
   getUniqueAccountCodes,
   markDeletedAndRemoveNegations,
 } from './sie'
-
-const prisma = new PrismaClient()
+import { prisma } from '../src/db'
 
 async function importVerifications(year: number) {
   const sieFile = iconv.decode(

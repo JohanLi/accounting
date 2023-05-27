@@ -1,8 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { BankTransaction, PrismaClient } from '@prisma/client'
+import { BankTransaction } from '@prisma/client'
 import Cors from 'cors'
-
-const prisma = new PrismaClient()
+import { prisma } from '../../../db'
 
 const cors = Cors({
   methods: ['POST'],

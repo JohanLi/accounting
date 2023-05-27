@@ -1,17 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import {
-  PrismaClient,
   Transaction,
   Document,
   Verification,
 } from '@prisma/client'
+import { prisma } from '../../db'
 
 export type VerificationWithTransactionsAndDocuments = Verification & {
   transactions: Transaction[]
   documents: Pick<Document, 'id' | 'extension'>[]
 }
-
-const prisma = new PrismaClient()
 
 export default async function handler(
   req: NextApiRequest,
