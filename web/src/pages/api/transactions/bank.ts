@@ -10,16 +10,17 @@ const cors = Cors({
 const runMiddleware = (
   req: NextApiRequest,
   res: NextApiResponse,
-  fn: Function
-) => new Promise((resolve, reject) => {
-  fn(req, res, (result: any) => {
-    if (result instanceof Error) {
-      return reject(result)
-    }
+  fn: Function,
+) =>
+  new Promise((resolve, reject) => {
+    fn(req, res, (result: any) => {
+      if (result instanceof Error) {
+        return reject(result)
+      }
 
-    return resolve(result)
+      return resolve(result)
+    })
   })
-})
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   await runMiddleware(req, res, cors)

@@ -6,9 +6,12 @@
     "setup": "turbo run setup",
     "test": "turbo run test",
     "test-e2e": "turbo run test-e2e",
-    "dev": "turbo run dev"
+    "dev": "turbo run dev",
+    "prepare": "husky install",
+    "pre-commit": "turbo run pre-commit"
   },
   "devDependencies": {
+    "husky": "^8.0.3",
     "turbo": "^1.9.3"
   }
 }

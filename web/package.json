@@ -6,7 +6,8 @@
     "dev": "next dev",
     "test": "vitest",
     "test-e2e": "sh ./tests/run.sh",
-    "node": "node -r @swc-node/register"
+    "node": "node -r @swc-node/register",
+    "pre-commit": "npx lint-staged && CI=true pnpm test && tsc --noEmit"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
@@ -46,7 +47,6 @@
     "eslint": "8.35.0",
     "eslint-config-next": "13.2.3",
     "eslint-config-prettier": "^8.6.0",
-    "husky": "^8.0.3",
     "lint-staged": "^13.1.2",
     "postcss": "^8.4.21",
     "prettier": "^2.8.4",

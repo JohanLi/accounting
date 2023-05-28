@@ -1,7 +1,0 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
-npx lint-staged
-# https://vitest.dev/guide/features.html#watch-mode
-CI=true pnpm test
-tsc --noEmit

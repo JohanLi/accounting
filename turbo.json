@@ -4,6 +4,7 @@
     "setup": {},
     "test": {},
     "test-e2e": {},
+    "pre-commit": {},
     "dev": {
       "cache": false,
       "persistent": true

@@ -1,9 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import {
-  Transaction,
-  Document,
-  Verification,
-} from '@prisma/client'
+import { Transaction, Document, Verification } from '@prisma/client'
 import { prisma } from '../../db'
 
 export type VerificationWithTransactionsAndDocuments = Verification & {
