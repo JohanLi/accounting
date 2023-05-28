@@ -1,4 +1,5 @@
 import cssText from 'data-text:./style.css'
+import pLimit from 'p-limit'
 import type { PlasmoCSConfig } from 'plasmo'
 import { useEffect, useState } from 'react'
 
@@ -29,7 +30,16 @@ export type Download = {
 const API_LIST_INVOICES_URL =
   'https://api.box.developersbay.se/api/invoices/user/5267'
 
-const getInvoiceUrl = (id: string) => `https://api.box.developersbay.se/api/invoices/${id}/pdf`
+/*
+  There appears to be a flaw in their API for fetching invoices if you
+  send parallel requests. Even though you pass in different invoice IDs,
+  sometimes their responses (including S3 URL) are the same. This will
+  cause you to download the same invoice multiple times, while missing others.
+ */
+const limit = pLimit(1)
+
+const getInvoiceUrl = (id: string) =>
+  `https://api.box.developersbay.se/api/invoices/${id}/pdf`
 
 // used as a check in case the results get paginated
 const FIRST_INVOICE_DATE = '2022-05-31'
@@ -45,8 +55,8 @@ export default function DevelopersBay() {
     const fetchDownloads = async () => {
       const response = await fetch(API_LIST_INVOICES_URL, {
         headers: {
-          authorization: `Bearer ${localStorage.getItem('id_token')}`
-        }
+          authorization: `Bearer ${localStorage.getItem('id_token')}`,
+        },
       })
 
       if (!response.ok) {
@@ -59,9 +69,7 @@ export default function DevelopersBay() {
         throw new Error('No invoices found')
       }
 
-      if (
-        documents[documents.length - 1].invoice_date !== FIRST_INVOICE_DATE
-      ) {
+      if (documents[documents.length - 1].invoice_date !== FIRST_INVOICE_DATE) {
         throw new Error(
           'The earliest invoice found does not match the known earliest invoice',
         )
@@ -69,11 +77,10 @@ export default function DevelopersBay() {
 
       if (!ignore) {
         setDownloads(
-          documents
-            .map((document) => ({
-              url: getInvoiceUrl(document.id),
-              filename: `bookkeeping/developersbay/developersbay-${document.invoice_date}.pdf`,
-            })),
+          documents.map((document) => ({
+            url: getInvoiceUrl(document.id),
+            filename: `bookkeeping/developersbay/developersbay-${document.invoice_date}.pdf`,
+          })),
         )
       }
     }
@@ -91,27 +98,29 @@ export default function DevelopersBay() {
     setIsDownloading(true)
 
     const uploadFiles = await Promise.all(
-      downloads.map(async (document) => {
-        const urlResponse = await fetch(document.url, {
-          headers: {
-            authorization: `Bearer ${localStorage.getItem('id_token')}`
+      downloads.map((document) =>
+        limit(async () => {
+          const urlResponse = await fetch(document.url, {
+            headers: {
+              authorization: `Bearer ${localStorage.getItem('id_token')}`,
+            },
+          })
+
+          if (!urlResponse.ok) {
+            throw new Error('Failed to fetch invoice')
           }
-        })
 
-        if (!urlResponse.ok) {
-          throw new Error('Failed to fetch invoice')
-        }
+          const { path: url } = (await urlResponse.json()) as { path: string }
 
-        const { path: url } = (await urlResponse.json()) as { path: string }
-
-        const fileResponse = await fetch(url)
-        const buffer = await fileResponse.arrayBuffer()
-        const data = Buffer.from(buffer).toString('base64')
-        return {
-          data,
-          extension: 'pdf',
-        }
-      })
+          const fileResponse = await fetch(url)
+          const buffer = await fileResponse.arrayBuffer()
+          const data = Buffer.from(buffer).toString('base64')
+          return {
+            data,
+            extension: 'pdf',
+          }
+        }),
+      ),
     )
 
     const response = await sendToBackground<RequestBody, ResponseBody>({
