@@ -141,7 +141,7 @@ export async function parse(buffer: Buffer): Promise<Receipt> {
   return receipt
 }
 
-async function getPDFStrings(buffer: Buffer) {
+export async function getPDFStrings(buffer: Buffer) {
   const pdf = await getDocument({
     data: Uint8Array.from(buffer),
     // https://github.com/mozilla/pdf.js/issues/4244#issuecomment-1479534301

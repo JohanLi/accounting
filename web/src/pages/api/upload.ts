@@ -1,20 +1,36 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { md5 } from '../../utils'
-import { parse, receiptToTransaction } from '../../receipt'
+import { getPDFStrings, parse, receiptToTransaction } from '../../receipt'
 import { prisma } from '../../db'
 
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: '100mb'
-    }
-  }
+      sizeLimit: '100mb',
+    },
+  },
 }
 
 export type UploadFile = {
   extension: string
   data: string
 }
+
+/*
+  Developers Bay generates a slightly different PDF each time you download
+  an invoice — specifically CreationDate and ModDate in the PDF metadata.
+
+  Because of this, the hash is instead based on the PDF strings.
+ */
+async function getHash(data: Buffer, extension: string) {
+  if (extension !== 'pdf') {
+    return md5(data)
+  }
+
+  const pdfStrings = await getPDFStrings(data)
+  return md5(Buffer.from(JSON.stringify(pdfStrings)))
+}
+
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== 'POST') {
@@ -24,14 +40,36 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   const files = req.body as UploadFile[]
 
-  for (const file of files) {
-    const data = Buffer.from(file.data, 'base64')
+  const documents = await Promise.all(
+    files.map(async (file) => {
+      const data = Buffer.from(file.data, 'base64')
 
-    const extension = file.extension
-    const hash = await md5(data)
+      return {
+        data,
+        extension: file.extension,
+        hash: await getHash(data, file.extension),
+      }
+    }),
+  )
 
+  const hashes = (
+    await prisma.document.findMany({
+      select: {
+        hash: true,
+      },
+      where: {
+        hash: { in: documents.map((document) => document.hash) },
+      },
+    })
+  ).map((document) => document.hash)
+
+  const newDocuments = documents.filter(
+    (document) => !hashes.includes(document.hash),
+  )
+
+  for (const document of newDocuments) {
     try {
-      const receipt = await parse(data)
+      const receipt = await parse(document.data)
 
       await prisma.verification.create({
         data: {
@@ -41,11 +79,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             create: receiptToTransaction(receipt),
           },
           documents: {
-            create: {
-              extension,
-              hash,
-              data,
-            },
+            create: document,
           },
         },
       })

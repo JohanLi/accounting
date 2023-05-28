@@ -25,7 +25,7 @@ model Account {
 model Document {
   id             Int          @id @default(autoincrement())
   extension      String
-  hash           String
+  hash           String       @unique
   data           Bytes        @db.ByteA
   verification   Verification @relation(fields: [verificationId], references: [id])
   verificationId Int
