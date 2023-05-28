@@ -1,14 +1,18 @@
 import { Page, Locator } from '@playwright/test'
 import { readFile } from 'fs/promises'
 
+export async function getBase64(filePath: string) {
+  return (await readFile(filePath)).toString('base64')
+}
+
 // https://github.com/microsoft/playwright/issues/13364#issuecomment-1156288428
-export const dragAndDropFile = async (
+export async function dragAndDropFile(
   page: Page,
   locator: Locator,
   filePath: string,
   fileName: string,
-) => {
-  const buffer = (await readFile(filePath)).toString('base64')
+) {
+  const buffer = await getBase64(filePath)
 
   const dataTransfer = await page.evaluateHandle(
     async ({ bufferData, localFileName }) => {

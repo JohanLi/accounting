@@ -31,7 +31,6 @@ async function getHash(data: Buffer, extension: string) {
   return md5(Buffer.from(JSON.stringify(pdfStrings)))
 }
 
-
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== 'POST') {
     res.status(405).end()
@@ -63,32 +62,39 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     })
   ).map((document) => document.hash)
 
-  const newDocuments = documents.filter(
-    (document) => !hashes.includes(document.hash),
+  const verifications = await Promise.all(
+    documents
+      .filter((document) => !hashes.includes(document.hash))
+      .map(async (document) => {
+        const receipt = await parse(document.data)
+
+        return {
+          data: {
+            date: receipt.date,
+            description: receipt.description,
+            transactions: {
+              create: receiptToTransaction(receipt),
+            },
+            documents: {
+              create: document,
+            },
+          },
+        }
+      }),
   )
 
-  for (const document of newDocuments) {
-    try {
-      const receipt = await parse(document.data)
-
-      await prisma.verification.create({
-        data: {
-          date: receipt.date,
-          description: receipt.description,
-          transactions: {
-            create: receiptToTransaction(receipt),
-          },
-          documents: {
-            create: document,
-          },
-        },
-      })
-    } catch (e) {
-      console.error(e)
-    }
+  try {
+    // createMany is not possible https://github.com/prisma/prisma/issues/5455
+    const createdVerifications = await prisma.$transaction(
+      verifications.map((verification) =>
+        prisma.verification.create(verification),
+      ),
+    )
+    res.status(200).json(createdVerifications)
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({})
   }
-
-  res.status(200).json({})
 }
 
 export default handler
