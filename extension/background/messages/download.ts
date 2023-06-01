@@ -10,7 +10,7 @@ export type RequestBody = {
 }
 
 export type ResponseBody = {
-  message: string
+  created: number
 }
 
 const handler: PlasmoMessaging.MessageHandler<
@@ -19,7 +19,7 @@ const handler: PlasmoMessaging.MessageHandler<
   > = async (req, res) => {
   const { uploadFiles } = req.body
 
-  await fetch('http://localhost:3000/api/upload', {
+  const response = await fetch('http://localhost:3000/api/upload', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -28,7 +28,7 @@ const handler: PlasmoMessaging.MessageHandler<
   })
 
   res.send({
-    message: 'success',
+    created: (await response.json()).length
   })
 }
 
