@@ -1,10 +1,14 @@
+import pLimit from 'p-limit'
 import { useEffect, useReducer } from 'react'
 
 import { sendToBackground } from '@plasmohq/messaging'
 
-import type { RequestBody, ResponseBody } from './background/messages/download'
+import type {
+  RequestBody,
+  ResponseBody,
+  UploadFile,
+} from './background/messages/download'
 import { classNames } from './utils'
-import pLimit from 'p-limit'
 
 /*
  For SEB, downloading too many in parallel seems to cause the server to
@@ -118,24 +122,32 @@ export default function Download({ getDownloads, requestInit }: Props) {
       })
       .catch((e) => {
         console.error(e)
-        dispatch({ type: 'error', payload: 'Failed to fetch downloads' })
+        dispatch({ type: 'error', payload: 'Failed to fetch download URLs' })
       })
   }, [state.state])
 
   const onClick = async () => {
     dispatch({ type: 'downloadStarted' })
 
-    const uploadFiles = await Promise.all(
-      state.downloads.map(async (download) => {
-        const response = await limit(() => fetch(download.url, requestInit))
-        const buffer = await response.arrayBuffer()
-        const data = Buffer.from(buffer).toString('base64')
-        return {
-          data,
-          extension: 'pdf',
-        }
-      }),
-    )
+    let uploadFiles: UploadFile[]
+
+    try {
+      uploadFiles = await Promise.all(
+        state.downloads.map(async (download) => {
+          const response = await limit(() => fetch(download.url, requestInit))
+          const buffer = await response.arrayBuffer()
+          const data = Buffer.from(buffer).toString('base64')
+          return {
+            data,
+            extension: 'pdf',
+          }
+        }),
+      )
+    } catch (e) {
+      console.error(e)
+      dispatch({ type: 'error', payload: 'Failed to download' })
+      return
+    }
 
     const response = await sendToBackground<RequestBody, ResponseBody>({
       name: 'download',
@@ -144,12 +156,35 @@ export default function Download({ getDownloads, requestInit }: Props) {
       },
     })
 
+    if (response.error) {
+      dispatch({
+        type: 'error',
+        payload: `Failed to upload: ${response.error}`,
+      })
+      return
+    }
+
     dispatch({ type: 'downloadCompleted', payload: response.created })
   }
 
+  const goBack = (
+    <button
+      type="button"
+      className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 mt-4"
+      onClick={() => dispatch({ type: 'reset' })}
+    >
+      Go back
+    </button>
+  )
+
   return (
     <div className="fixed bottom-4 right-4 w-64 h-32 font-sans rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 p-4">
-      {state.error && 'Failed to fetch invoices'}
+      {state.error && (
+        <>
+          <div>{state.error}</div>
+          {goBack}
+        </>
+      )}
       {!state.error && (
         <>
           {state.state === 'initial' && 'Attempting to fetch invoices...'}
@@ -163,7 +198,7 @@ export default function Download({ getDownloads, requestInit }: Props) {
               onClick={onClick}
               disabled={state.state === 'downloading'}
             >
-              {state.state !== 'downloading' && (
+              {state.state === 'foundUrls' && (
                 <>Download {state.downloads.length} invoices</>
               )}
               {state.state === 'downloading' && (
@@ -178,33 +213,27 @@ export default function Download({ getDownloads, requestInit }: Props) {
             <>
               <table>
                 <thead>
-                <tr>
-                  <th className="pr-4 text-xs font-semibold text-gray-900">
-                    Downloaded
-                  </th>
-                  <th className="text-xs font-semibold text-gray-900">
-                    Created
-                  </th>
-                </tr>
+                  <tr>
+                    <th className="pr-4 text-xs font-semibold text-gray-900">
+                      Downloaded
+                    </th>
+                    <th className="text-xs font-semibold text-gray-900">
+                      Created
+                    </th>
+                  </tr>
                 </thead>
                 <tbody>
-                <tr>
-                  <td className="pr-4 text-center text-lg text-gray-500">
-                    {state.downloads.length}
-                  </td>
-                  <td className="text-center text-lg text-gray-500">
-                    {state.created}
-                  </td>
-                </tr>
+                  <tr>
+                    <td className="pr-4 text-center text-lg text-gray-500">
+                      {state.downloads.length}
+                    </td>
+                    <td className="text-center text-lg text-gray-500">
+                      {state.created}
+                    </td>
+                  </tr>
                 </tbody>
               </table>
-              <button
-                type="button"
-                className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 mt-4"
-                onClick={() => dispatch({ type: 'reset' })}
-              >
-                Go back
-              </button>
+              {goBack}
             </>
           )}
         </>

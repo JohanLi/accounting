@@ -1,6 +1,6 @@
 import type { PlasmoMessaging } from '@plasmohq/messaging'
 
-type UploadFile = {
+export type UploadFile = {
   extension: string
   data: string
 }
@@ -9,14 +9,20 @@ export type RequestBody = {
   uploadFiles: UploadFile[]
 }
 
-export type ResponseBody = {
-  created: number
-}
+export type ResponseBody =
+  | {
+      created: number
+      error?: never
+    }
+  | {
+      created?: never
+      error: string
+    }
 
 const handler: PlasmoMessaging.MessageHandler<
   RequestBody,
   ResponseBody
-  > = async (req, res) => {
+> = async (req, res) => {
   const { uploadFiles } = req.body
 
   const response = await fetch('http://localhost:3000/api/upload', {
@@ -27,8 +33,15 @@ const handler: PlasmoMessaging.MessageHandler<
     body: JSON.stringify(uploadFiles),
   })
 
+  if (!response.ok) {
+    res.send({
+      error: `${response.status} ${response.statusText}`,
+    })
+    return
+  }
+
   res.send({
-    created: (await response.json()).length
+    created: (await response.json()).length,
   })
 }
 
