@@ -193,7 +193,7 @@ export default function Download({ getDownloads, requestInit }: Props) {
               type="button"
               className={classNames(
                 'inline-flex rounded bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600',
-                state.state === 'downloading' ? 'cursor-not-allowed' : '',
+                state.state === 'downloading' ? 'opacity-50 cursor-not-allowed' : '',
               )}
               onClick={onClick}
               disabled={state.state === 'downloading'}

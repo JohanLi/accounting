@@ -49,3 +49,7 @@ export function withinFiscalYear(
 export async function md5(buffer: Buffer) {
   return crypto.createHash('md5').update(buffer).digest('hex')
 }
+
+export function formatNumber(number: number) {
+  return number.toLocaleString('en-US')
+}

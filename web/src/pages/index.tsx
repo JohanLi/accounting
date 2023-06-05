@@ -3,6 +3,7 @@ import Accounts from '../components/Accounts'
 import Verifications from '../components/Verifications'
 import Totals from '../components/Totals'
 import Upload from '../components/Upload'
+import Actions from '../components/Actions'
 
 export default function Home() {
   return (
@@ -23,6 +24,7 @@ export default function Home() {
           <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
             <Upload />
             <Totals />
+            <Actions />
             <Verifications />
             <Accounts />
           </div>
