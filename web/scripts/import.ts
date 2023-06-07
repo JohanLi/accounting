@@ -1,7 +1,7 @@
 // Throwaway code to import verifications and their documents
 
 import { readdir, readFile, mkdir } from 'fs/promises'
-import { getFiscalYear, md5 } from '../src/utils'
+import { getFiscalYear } from '../src/utils'
 import iconv from 'iconv-lite'
 import {
   extractVerifications,
@@ -10,6 +10,7 @@ import {
   markDeletedAndRemoveNegations,
 } from './sie'
 import { prisma } from '../src/db'
+import { getHash } from '../src/pages/api/upload'
 
 async function importVerifications(year: number) {
   const sieFile = iconv.decode(
@@ -79,15 +80,20 @@ async function importDocuments(year: number) {
 
     const { start, end } = getFiscalYear(year)
 
-    const { id: verificationId } = await prisma.verification.findFirstOrThrow({
-      where: {
-        oldId: Number(id),
-        date: {
-          gte: start,
-          lte: end,
+    const { id: verificationId, deletedAt } =
+      await prisma.verification.findFirstOrThrow({
+        where: {
+          oldId: Number(id),
+          date: {
+            gte: start,
+            lte: end,
+          },
         },
-      },
-    })
+      })
+
+    if (deletedAt) {
+      continue
+    }
 
     const extension = fileName.split('.').pop()
 
@@ -96,16 +102,33 @@ async function importDocuments(year: number) {
     }
 
     const data = await readFile(`${directory}/${fileName}`)
-    const hash = await md5(data)
+    const hash = await getHash(data, extension)
 
-    await prisma.document.create({
-      data: {
-        extension,
-        hash,
-        data,
-        verificationId,
-      },
-    })
+    try {
+      await prisma.document.create({
+        data: {
+          extension,
+          hash,
+          data,
+          verificationId,
+        },
+      })
+    } catch (e: any) {
+      if (e.code !== 'P2002') {
+        throw new Error(e)
+      }
+
+      /*
+        There are two entries that result in this: the May 2022 and June 2022 invoices.
+        Because of a special rule (end of fiscal year), each invoice needs
+        two accounting entries (going from kontantmetoden to fakturametoden).
+
+        I don't think the second entry strictly needs the same document attached to it.
+       */
+      console.log(
+        `${directory}/${fileName} with the hash '${hash}' belonging to verificationId ${verificationId} already exists`,
+      )
+    }
   }
 }
 

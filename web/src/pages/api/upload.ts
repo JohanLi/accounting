@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { md5 } from '../../utils'
 import { getPDFStrings, parse, receiptToTransaction } from '../../receipt'
 import { prisma } from '../../db'
+import crypto from 'crypto'
 
 export const config = {
   api: {
@@ -9,6 +9,10 @@ export const config = {
       sizeLimit: '100mb',
     },
   },
+}
+
+async function md5(buffer: Buffer) {
+  return crypto.createHash('md5').update(buffer).digest('hex')
 }
 
 export type UploadFile = {
@@ -22,7 +26,7 @@ export type UploadFile = {
 
   Because of this, the hash is instead based on the PDF strings.
  */
-async function getHash(data: Buffer, extension: string) {
+export async function getHash(data: Buffer, extension: string) {
   if (extension !== 'pdf') {
     return md5(data)
   }

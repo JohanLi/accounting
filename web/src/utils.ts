@@ -1,5 +1,4 @@
 import { VerificationWithTransactionsAndDocuments } from './pages/api/verifications'
-import crypto from 'crypto'
 
 export function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
@@ -44,10 +43,6 @@ export function withinFiscalYear(
   return (
     new Date(verification.date) >= start && new Date(verification.date) <= end
   )
-}
-
-export async function md5(buffer: Buffer) {
-  return crypto.createHash('md5').update(buffer).digest('hex')
 }
 
 export function formatNumber(number: number) {
