@@ -3,7 +3,7 @@ import {
   extractVerifications,
   getUniqueAccountCodes,
   markDeletedAndRemoveNegations,
-  VerificationInsert,
+  Verification,
 } from './sie'
 
 test('extractVerifications', () => {
@@ -26,7 +26,7 @@ b
 `),
   ).toEqual([
     {
-      id: 1,
+      oldId: 1,
       date: new Date('2023-01-02'),
       description: 'Friskvård',
       createdAt: new Date('2023-01-10'),
@@ -45,10 +45,9 @@ b
           amount: 22642,
         },
       ],
-      oldId: 1,
     },
     {
-      id: 2,
+      oldId: 2,
       date: new Date('2023-01-05'),
       description: 'Insättning till skattekonto',
       createdAt: new Date('2023-01-10'),
@@ -63,7 +62,6 @@ b
           amount: -10000000,
         },
       ],
-      oldId: 2,
     },
   ])
 })
@@ -95,7 +93,7 @@ test('getUniqueAccountCodes', () => {
           },
         ],
       },
-    ] as VerificationInsert[]),
+    ] as Verification[]),
   ).toEqual([2640, 1630, 1930])
 })
 
@@ -110,27 +108,27 @@ test('markDeletedAndRemoveNegations', () => {
   expect(
     markDeletedAndRemoveNegations([
       {
-        id: 1,
+        oldId: 1,
         description: 'Friskvård',
       },
       {
-        id: 2,
+        oldId: 2,
         description: 'Insättning till skattekonto',
       },
       {
-        id: 3,
+        oldId: 3,
         description: 'Annullering av V1',
         createdAt: new Date('2023-02-01'),
       },
-    ] as VerificationInsert[]),
+    ] as Verification[]),
   ).toEqual([
     {
-      id: 1,
+      oldId: 1,
       description: 'Friskvård',
       deletedAt: new Date('2023-02-01'),
     },
     {
-      id: 2,
+      oldId: 2,
       description: 'Insättning till skattekonto',
     },
   ])

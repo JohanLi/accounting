@@ -1,8 +1,14 @@
-import { prisma } from '../src/db'
+import { migrate } from 'drizzle-orm/postgres-js/migrator'
+import db from '../../src/db'
+import { Accounts } from '../../src/schema'
+import { sql } from 'drizzle-orm'
 
 async function main() {
-  await prisma.account.createMany({
-    data: [
+  await migrate(db, { migrationsFolder: 'drizzle' })
+
+  await db
+    .insert(Accounts)
+    .values([
       {
         code: 1630,
         description: 'Skattekonto',
@@ -59,16 +65,17 @@ async function main() {
         code: 7699,
         description: 'Övriga personalkostnader',
       },
-    ],
-  })
+    ])
+    .onConflictDoUpdate({
+      target: Accounts.code,
+      // https://stackoverflow.com/a/36930792
+      set: { description: sql`excluded.description` },
+    })
+
+  process.exit(0)
 }
 
-main()
-  .then(async () => {
-    await prisma.$disconnect()
-  })
-  .catch(async (e) => {
-    console.error(e)
-    await prisma.$disconnect()
-    process.exit(1)
-  })
+main().catch((e) => {
+  console.error(e)
+  process.exit(1)
+})

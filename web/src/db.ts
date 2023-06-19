@@ -1,11 +1,11 @@
-// https://www.prisma.io/docs/guides/other/troubleshooting-orm/help-articles/nextjs-prisma-client-dev-practices
+import { drizzle } from 'drizzle-orm/postgres-js'
+import postgres from 'postgres'
+import 'dotenv/config'
+import * as schema from './schema'
 
-import { PrismaClient } from '@prisma/client'
+const client = postgres(
+  `postgresql://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@${process.env.POSTGRES_HOST}:${process.env.POSTGRES_PORT}`,
+  { max: 1 },
+)
 
-const globalForPrisma = global as unknown as {
-  prisma: PrismaClient | undefined
-}
-
-export const prisma = globalForPrisma.prisma ?? new PrismaClient()
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+export default drizzle(client, { schema })

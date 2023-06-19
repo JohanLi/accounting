@@ -1,7 +1,4 @@
-// Throwaway code to import verifications and their documents
-
 import { readdir, readFile, mkdir } from 'fs/promises'
-import { getFiscalYear } from '../src/utils'
 import iconv from 'iconv-lite'
 import {
   extractVerifications,
@@ -9,8 +6,10 @@ import {
   getUniqueAccountCodes,
   markDeletedAndRemoveNegations,
 } from './sie'
-import { prisma } from '../src/db'
 import { getHash } from '../src/pages/api/upload'
+import db from '../src/db'
+import { Accounts, Documents, Transactions, Verifications } from '../src/schema'
+import { sql } from 'drizzle-orm'
 
 async function importVerifications(year: number) {
   const sieFile = iconv.decode(
@@ -29,37 +28,45 @@ async function importVerifications(year: number) {
     description: accountMap[code],
   }))
 
-  // https://stackoverflow.com/a/71409459
-  await prisma.$transaction(
-    accounts.map((account) =>
-      prisma.account.upsert({
-        where: { code: account.code },
-        update: {
-          description: account.description,
-        },
-        create: account,
-      }),
-    ),
+  await db
+    .insert(Accounts)
+    .values(accounts)
+    .onConflictDoUpdate({
+      target: Accounts.code,
+      // https://stackoverflow.com/a/36930792
+      set: { description: sql`excluded.description` },
+    })
+
+  const insertedVerifications = await db
+    .insert(Verifications)
+    .values(verifications)
+    .returning()
+
+  const oldIdToId = Object.fromEntries(
+    insertedVerifications.map(({ oldId, id, deletedAt }) => [
+      oldId,
+      { id, deletedAt },
+    ]),
   )
 
-  for (const verification of verifications) {
-    await prisma.verification.create({
-      data: {
-        ...verification,
-        transactions: {
-          create: verification.transactions,
-        },
-        /*
-          Verification IDs in SIE seem to start from 1 for each fiscal year,
-          and likely don't have any intrinsic meaning
-         */
-        id: undefined,
-      },
-    })
-  }
+  await db.insert(Transactions).values(
+    verifications
+      .map(({ transactions, oldId }) =>
+        transactions.map((transaction) => ({
+          ...transaction,
+          verificationId: oldIdToId[oldId].id,
+        })),
+      )
+      .flat(),
+  )
+
+  return oldIdToId
 }
 
-async function importDocuments(year: number) {
+async function importDocuments(
+  year: number,
+  oldIdToId: Record<number, { id: number; deletedAt: Date | null }>,
+) {
   const destination = `${__dirname}/../public/documents`
 
   await mkdir(destination, { recursive: true })
@@ -78,18 +85,7 @@ async function importDocuments(year: number) {
     // the ordering of documents for a given verification is not handled for now
     const [, id, i] = found
 
-    const { start, end } = getFiscalYear(year)
-
-    const { id: verificationId, deletedAt } =
-      await prisma.verification.findFirstOrThrow({
-        where: {
-          oldId: Number(id),
-          date: {
-            gte: start,
-            lte: end,
-          },
-        },
-      })
+    const { id: verificationId, deletedAt } = oldIdToId[Number(id)]
 
     if (deletedAt) {
       continue
@@ -105,16 +101,14 @@ async function importDocuments(year: number) {
     const hash = await getHash(data, extension)
 
     try {
-      await prisma.document.create({
-        data: {
-          extension,
-          hash,
-          data,
-          verificationId,
-        },
+      await db.insert(Documents).values({
+        extension,
+        hash,
+        data,
+        verificationId,
       })
     } catch (e: any) {
-      if (e.code !== 'P2002') {
+      if (e.code !== '23505') {
         throw new Error(e)
       }
 
@@ -133,15 +127,15 @@ async function importDocuments(year: number) {
 }
 
 async function main() {
-  try {
-    for (const year of [2021, 2022, 2023]) {
-      await importVerifications(year)
-      await importDocuments(year)
-    }
-  } catch (e) {
-    console.error(e)
-    process.exit(1)
+  for (const year of [2021, 2022, 2023]) {
+    const oldIdToId = await importVerifications(year)
+    await importDocuments(year, oldIdToId)
   }
+
+  process.exit(0)
 }
 
-main().then(() => console.log('done'))
+main().catch((e) => {
+  console.error(e)
+  process.exit(1)
+})

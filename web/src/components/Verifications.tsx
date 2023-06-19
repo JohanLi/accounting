@@ -4,10 +4,10 @@ import Dropdown from './Dropdown'
 import { getCurrentFiscalYear, withinFiscalYear } from '../utils'
 import { useState } from 'react'
 import Documents from './Documents'
-import { VerificationWithTransactionsAndDocuments } from '../pages/api/verifications'
+import { Verification } from '../pages/api/verifications'
 
 export default function Verifications() {
-  const verifications = useQuery<VerificationWithTransactionsAndDocuments[]>({
+  const verifications = useQuery<Verification[]>({
     queryKey: ['verifications'],
     queryFn: () => fetch('/api/verifications').then((res) => res.json()),
   })

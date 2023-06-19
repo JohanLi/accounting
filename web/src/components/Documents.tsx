@@ -1,7 +1,7 @@
-import { VerificationWithTransactionsAndDocuments } from '../pages/api/verifications'
+import type { Verification } from '../pages/api/verifications'
 
 type Props = {
-  documents: VerificationWithTransactionsAndDocuments['documents']
+  documents: Verification['documents']
 }
 
 export default function Documents({ documents }: Props) {

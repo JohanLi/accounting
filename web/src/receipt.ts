@@ -236,7 +236,7 @@ function getDates(strings: string[]) {
     })
 }
 
-export function receiptToTransaction(receipt: Receipt) {
+export function receiptToTransactions(receipt: Receipt) {
   const { total, vat, type } = receipt
   const { debit, credit, vatRate } = types[type]
 

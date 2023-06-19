@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { parse, Receipt, receiptToTransaction } from './receipt'
+import { parse, Receipt, receiptToTransactions } from './receipt'
 import { readFile } from 'fs/promises'
 
 test('parse', async () => {
@@ -51,7 +51,7 @@ test('parse', async () => {
 
 test('receiptToTransaction', () => {
   expect(
-    receiptToTransaction({
+    receiptToTransactions({
       total: 100,
       vat: 25,
       type: 'INCOME',
@@ -72,7 +72,7 @@ test('receiptToTransaction', () => {
   ])
 
   expect(
-    receiptToTransaction({
+    receiptToTransactions({
       total: 100,
       vat: 0,
       type: 'BANKING_COSTS',
@@ -89,7 +89,7 @@ test('receiptToTransaction', () => {
   ])
 
   expect(
-    receiptToTransaction({
+    receiptToTransactions({
       total: 100,
       vat: 25,
       type: 'MOBILE_PROVIDER',
@@ -110,7 +110,7 @@ test('receiptToTransaction', () => {
   ])
 
   expect(
-    receiptToTransaction({
+    receiptToTransactions({
       total: 100,
       vat: 6,
       type: 'WELLNESS',

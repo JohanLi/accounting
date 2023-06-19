@@ -28,8 +28,5 @@ next-env.d.ts
 /tests/report
 /tests/results
 
-# will be added later
-/prisma/migrations/
-
 # turbo
 .turbo

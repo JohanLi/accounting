@@ -2,8 +2,12 @@
   "$schema": "https://turbo.build/schema.json",
   "pipeline": {
     "setup": {},
-    "test": {},
-    "test-e2e": {},
+    "test": {
+      "cache": false
+    },
+    "test-e2e": {
+      "cache": false
+    },
     "pre-commit": {
       "cache": false
     },

@@ -16,5 +16,5 @@ Make sure `~/.config/rclone/rclone.conf` is set up.
 ### Importing old invoices and receipts
 
 ```
-pnpm run node scripts/import.ts
+pnpm run import
 ```

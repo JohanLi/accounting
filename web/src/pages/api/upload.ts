@@ -1,7 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { getPDFStrings, parse, receiptToTransaction } from '../../receipt'
-import { prisma } from '../../db'
+import { getPDFStrings, parse, receiptToTransactions } from '../../receipt'
 import crypto from 'crypto'
+import db from '../../db'
+import { Documents, Transactions, Verifications } from '../../schema'
+import { inArray } from 'drizzle-orm'
 
 export const config = {
   api: {
@@ -55,15 +57,23 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     }),
   )
 
+  /*
+    TODO
+      Rethink this approach. Basically, the reason document hashes
+      are explicitly checked for is because we repeatedly download
+      old documents through the Chrome extension.
+   */
+
   const hashes = (
-    await prisma.document.findMany({
-      select: {
-        hash: true,
-      },
-      where: {
-        hash: { in: documents.map((document) => document.hash) },
-      },
-    })
+    await db
+      .select({ hash: Documents.hash })
+      .from(Documents)
+      .where(
+        inArray(
+          Documents.hash,
+          documents.map((document) => document.hash),
+        ),
+      )
   ).map((document) => document.hash)
 
   const verifications = await Promise.all(
@@ -73,28 +83,48 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         const receipt = await parse(document.data)
 
         return {
-          data: {
-            date: receipt.date,
-            description: receipt.description,
-            transactions: {
-              create: receiptToTransaction(receipt),
-            },
-            documents: {
-              create: document,
-            },
-          },
+          date: receipt.date,
+          description: receipt.description,
+          transactions: receiptToTransactions(receipt),
+          documents: document,
         }
       }),
   )
 
+  if (!verifications.length) {
+    res.status(200).json([])
+    return
+  }
+
   try {
-    // createMany is not possible https://github.com/prisma/prisma/issues/5455
-    const createdVerifications = await prisma.$transaction(
-      verifications.map((verification) =>
-        prisma.verification.create(verification),
-      ),
-    )
-    res.status(200).json(createdVerifications)
+    const insertedVerifications = await db
+      .insert(Verifications)
+      .values(
+        verifications.map((verification) => ({
+          date: verification.date,
+          description: verification.description,
+        })),
+      )
+      .returning()
+
+    const transactions = verifications
+      .map((verification, i) =>
+        verification.transactions.map((transaction) => ({
+          ...transaction,
+          verificationId: insertedVerifications[i].id,
+        })),
+      )
+      .flat()
+
+    const documents = verifications.map((verification, i) => ({
+      ...verification.documents,
+      verificationId: insertedVerifications[i].id,
+    }))
+
+    await db.insert(Transactions).values(transactions)
+    await db.insert(Documents).values(documents)
+
+    res.status(200).json(insertedVerifications)
   } catch (e) {
     console.error(e)
     res.status(500).json({})

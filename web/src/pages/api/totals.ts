@@ -1,5 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { prisma } from '../../db'
+import { asc, eq, isNull, sql } from 'drizzle-orm'
+import db from '../../db'
+import { Transactions, Verifications } from '../../schema'
 
 export type Total = {
   accountCode: number
@@ -8,28 +10,22 @@ export type Total = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse,
+  res: NextApiResponse<Total[]>,
 ) {
   if (req.method === 'GET') {
-    const totals: Total[] = (
-      await prisma.transaction.groupBy({
-        by: ['accountCode'],
-        _sum: {
-          amount: true,
-        },
-        where: {
-          verification: {
-            deletedAt: null,
-          },
-        },
-        orderBy: {
-          accountCode: 'asc',
-        },
+    const totals = await db
+      .select({
+        accountCode: Transactions.accountCode,
+        amount: sql<number>`sum(amount)`,
       })
-    ).map((total) => ({
-      accountCode: total.accountCode,
-      amount: total._sum.amount || 0,
-    }))
+      .from(Transactions)
+      .leftJoin(
+        Verifications,
+        eq(Transactions.verificationId, Verifications.id),
+      )
+      .groupBy(Transactions.accountCode)
+      .where(isNull(Verifications.deletedAt))
+      .orderBy(asc(Transactions.accountCode))
 
     res.status(200).json(totals)
     return

@@ -1,6 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import mime from 'mime-types'
-import { prisma } from '../../db'
+import db from '../../db'
+import { eq } from 'drizzle-orm'
+import { Documents } from '../../schema'
 
 export default async function handler(
   req: NextApiRequest,
@@ -9,11 +11,13 @@ export default async function handler(
   if (req.method === 'GET') {
     const id = parseInt(req.query.id as string)
 
-    const document = await prisma.document.findFirstOrThrow({
-      where: {
-        id,
-      },
+    const document = await db.query.Documents.findFirst({
+      where: eq(Documents.id, id),
     })
+
+    if (!document) {
+      throw Error(`Could not find document with id: ${id}`)
+    }
 
     const contentType = mime.lookup(document.extension)
 

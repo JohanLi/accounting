@@ -1,5 +1,9 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { Account } from '@prisma/client'
+
+type Account = {
+  code: string
+  description: string
+}
 
 export default function Accounts() {
   const accounts = useQuery<Account[]>({

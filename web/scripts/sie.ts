@@ -1,9 +1,3 @@
-import { Transaction, Verification } from '@prisma/client'
-
-export type VerificationInsert = Verification & {
-  transactions: Pick<Transaction, 'accountCode' | 'amount'>[]
-}
-
 function removeQuotes(input: string) {
   if (input.startsWith('"') && input.endsWith('"')) {
     return input.slice(1, -1)
@@ -44,8 +38,22 @@ export function extractDate(input: string) {
   return new Date(input.replace(/(\d+)(\d{2})(\d{2})/g, '$1-$2-$3'))
 }
 
+type Transaction = {
+  accountCode: number
+  amount: number
+}
+
+export type Verification = {
+  oldId: number
+  date: Date
+  description: string
+  createdAt: Date
+  deletedAt: Date | null
+  transactions: Transaction[]
+}
+
 export function extractVerifications(input: string) {
-  const verifications: VerificationInsert[] = []
+  const verifications: Verification[] = []
 
   const lines = input.split('\n')
 
@@ -60,14 +68,13 @@ export function extractVerifications(input: string) {
 
       const [, , number, date, description, createdAt] = found.map(removeQuotes)
 
-      const verification: VerificationInsert = {
-        id: parseInt(number),
+      const verification: Verification = {
+        oldId: parseInt(number),
         date: extractDate(date),
         description,
         createdAt: extractDate(createdAt),
         deletedAt: null,
         transactions: [],
-        oldId: parseInt(number),
       }
 
       if (!lines[i + 1].startsWith('{')) {
@@ -99,7 +106,7 @@ export function extractVerifications(input: string) {
   return verifications
 }
 
-export function getUniqueAccountCodes(verifications: VerificationInsert[]) {
+export function getUniqueAccountCodes(verifications: Verification[]) {
   const accountCodes: number[] = []
 
   for (const verification of verifications) {
@@ -113,9 +120,7 @@ export function getUniqueAccountCodes(verifications: VerificationInsert[]) {
   return accountCodes
 }
 
-export function markDeletedAndRemoveNegations(
-  verifications: VerificationInsert[],
-) {
+export function markDeletedAndRemoveNegations(verifications: Verification[]) {
   const deletedIdsAndDate: { [id: number]: Date } = {}
 
   const removedNegations = verifications.filter((verification) => {
@@ -130,7 +135,7 @@ export function markDeletedAndRemoveNegations(
   })
 
   return removedNegations.map((verification) => {
-    const deletedAt = deletedIdsAndDate[verification.id]
+    const deletedAt = deletedIdsAndDate[verification.oldId]
 
     if (deletedAt) {
       verification.deletedAt = deletedAt

@@ -1,4 +1,4 @@
-import { VerificationWithTransactionsAndDocuments } from './pages/api/verifications'
+import { Verification } from './pages/api/verifications'
 
 export function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
@@ -35,10 +35,7 @@ export function getFiscalYear(year: number) {
   }
 }
 
-export function withinFiscalYear(
-  verification: VerificationWithTransactionsAndDocuments,
-  year: number,
-) {
+export function withinFiscalYear(verification: Verification, year: number) {
   const { start, end } = getFiscalYear(year)
   return (
     new Date(verification.date) >= start && new Date(verification.date) <= end

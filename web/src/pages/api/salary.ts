@@ -1,7 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { z } from 'zod'
-import { prisma } from '../../db'
 import { getSalaryTaxes } from '../../tax'
+import db from '../../db'
+import { Transactions, Verifications } from '../../schema'
 
 const SalaryRequest = z.object({
   amount: z.number(),
@@ -24,81 +25,83 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   try {
     // https://www.fortnox.se/fortnox-foretagsguide/bokforingstips/loneutbetalning
-    const createdVerifications = await prisma.$transaction([
-      prisma.verification.create({
-        data: {
+    const insertedVerifications = await db
+      .insert(Verifications)
+      .values([
+        {
           date,
-          // löneutbetalning
           description: 'Lön',
-          transactions: {
-            create: [
-              {
-                accountCode: 1930, // Bankkonto
-                amount: -(amount - personalIncomeTax),
-              },
-              {
-                accountCode: 7210, // Löner till tjänstemän
-                amount,
-              },
-              {
-                accountCode: 2710, // Personalskatt
-                amount: -personalIncomeTax,
-              },
-              {
-                accountCode: 7510, // Arbetsgivaravgifter
-                amount: payrollTax,
-              },
-              {
-                accountCode: 2731, // Avräkning lagstadgade sociala avgifter
-                amount: -payrollTax,
-              },
-            ],
-          },
         },
-      }),
-      prisma.verification.create({
-        data: {
+        {
           date,
-          // efter inlämnad arbetsgivardeklaration
           description: 'Lön (skuld till Skatteverket)',
-          transactions: {
-            create: [
-              {
-                accountCode: 1630, // Skattekonto
-                amount: -(personalIncomeTax + payrollTax),
-              },
-              {
-                accountCode: 2710, // Personalskatt
-                amount: personalIncomeTax,
-              },
-              {
-                accountCode: 2731, // Avräkning lagstadgade sociala avgifter
-                amount: payrollTax,
-              },
-            ],
-          },
         },
-      }),
-      prisma.verification.create({
-        data: {
+        {
           date,
           description: 'Lön (betalning till Skatteverket)',
-          transactions: {
-            create: [
-              {
-                accountCode: 1630, // Skattekonto
-                amount: personalIncomeTax + payrollTax,
-              },
-              {
-                accountCode: 1930, // Företagskonto
-                amount: -(personalIncomeTax + payrollTax),
-              },
-            ],
-          },
         },
-      }),
-    ])
-    res.json(createdVerifications)
+      ])
+      .returning({ id: Verifications.id })
+
+    const transactions = [
+      [
+        {
+          accountCode: 1930, // Bankkonto
+          amount: -(amount - personalIncomeTax),
+        },
+        {
+          accountCode: 7210, // Löner till tjänstemän
+          amount,
+        },
+        {
+          accountCode: 2710, // Personalskatt
+          amount: -personalIncomeTax,
+        },
+        {
+          accountCode: 7510, // Arbetsgivaravgifter
+          amount: payrollTax,
+        },
+        {
+          accountCode: 2731, // Avräkning lagstadgade sociala avgifter
+          amount: -payrollTax,
+        },
+      ],
+      [
+        {
+          accountCode: 1630, // Skattekonto
+          amount: -(personalIncomeTax + payrollTax),
+        },
+        {
+          accountCode: 2710, // Personalskatt
+          amount: personalIncomeTax,
+        },
+        {
+          accountCode: 2731, // Avräkning lagstadgade sociala avgifter
+          amount: payrollTax,
+        },
+      ],
+      [
+        {
+          accountCode: 1630, // Skattekonto
+          amount: personalIncomeTax + payrollTax,
+        },
+        {
+          accountCode: 1930, // Företagskonto
+          amount: -(personalIncomeTax + payrollTax),
+        },
+      ],
+    ]
+
+    for (const [i, verification] of insertedVerifications.entries()) {
+      await db.insert(Transactions).values(
+        transactions[i].map((transaction) => ({
+          ...transaction,
+          verificationId: verification.id,
+        })),
+      )
+    }
+
+    res.json(insertedVerifications)
   } catch (e) {
     console.error(e)
     res.status(500).json({})
