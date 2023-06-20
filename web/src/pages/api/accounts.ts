@@ -1,36 +1,36 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { asc } from 'drizzle-orm'
+import { asc, eq, isNull, sql } from 'drizzle-orm'
 import db from '../../db'
-import { Accounts } from '../../schema'
+import { Accounts, Transactions, Verifications } from '../../schema'
+
+export type AccountsResponse = {
+  code: number
+  description: string
+  total: number
+}[]
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse,
+  res: NextApiResponse<AccountsResponse>,
 ) {
   if (req.method === 'GET') {
-    const accounts = await db.query.Accounts.findMany({
-      orderBy: asc(Accounts.code),
-    })
+    const accounts = await db
+      .select({
+        code: Accounts.code,
+        description: Accounts.description,
+        total: sql<number>`sum(amount)`,
+      })
+      .from(Accounts)
+      .leftJoin(Transactions, eq(Accounts.code, Transactions.accountCode))
+      .leftJoin(
+        Verifications,
+        eq(Transactions.verificationId, Verifications.id),
+      )
+      .groupBy(Accounts.code)
+      .where(isNull(Verifications.deletedAt))
+      .orderBy(asc(Accounts.code))
 
     res.status(200).json(accounts)
-    return
-  }
-
-  if (req.method === 'PUT') {
-    const { code, description } = req.body
-
-    const account = (
-      await db
-        .insert(Accounts)
-        .values({ code, description })
-        .onConflictDoUpdate({
-          target: Accounts.code,
-          set: { description },
-        })
-        .returning()
-    )[0]
-
-    res.status(200).json({ account })
     return
   }
 

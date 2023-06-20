@@ -21,6 +21,12 @@ async function importVerifications(year: number) {
     extractVerifications(sieFile),
   )
 
+  /*
+    Creating accounts ahead of time is no longer necessary, because the
+    database setup script does it. Although it won't occur with this
+    particular import, it might be worth properly logging any
+    missing accounts
+   */
   const accountMap = getAccountMap(sieFile)
   const uniqueAccountCodes = getUniqueAccountCodes(verifications)
   const accounts = uniqueAccountCodes.map((code) => ({
