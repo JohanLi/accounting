@@ -7,6 +7,7 @@ import {
   text,
   timestamp,
   uniqueIndex,
+  varchar,
 } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 
@@ -55,11 +56,9 @@ export const Documents = pgTable(
       .notNull()
       .references(() => Verifications.id),
   },
-  (documents) => {
-    return {
-      hashIndex: uniqueIndex('hash_idx').on(documents.hash),
-    }
-  },
+  (documents) => ({
+    hashIndex: uniqueIndex('hash_idx').on(documents.hash),
+  }),
 )
 
 export const DocumentsRelations = relations(Documents, ({ one }) => ({
@@ -83,28 +82,21 @@ export const VerificationsRelations = relations(Verifications, ({ many }) => ({
   documents: many(Documents),
 }))
 
-export const BankTransactions = pgTable(
-  'bank_transactions',
+export const TransactionsBank = pgTable(
+  'transactions_bank',
   {
     id: serial('id').primaryKey(),
-    externalId: text('external_id').notNull(),
-    date: timestamp('date').notNull(),
+    bookedDate: timestamp('booked_date').notNull(),
+    valueDate: timestamp('value_date').notNull(),
+    description: text('description').notNull(),
     amount: integer('amount').notNull(),
     balance: integer('balance').notNull(),
-    description: text('description').notNull(),
+    externalId: varchar('external_id', { length: 1000 }).notNull(),
+    accountId: text('account_id').notNull(),
   },
-  (transactions) => {
-    /*
-     Two transactions can actually have the same "externalId" + "date".
-     An example: two transfers on the same day to the tax account.
-     Hence, balance is part of the index as well.
-     */
-    return {
-      bankTransactionsIndex: uniqueIndex('bank_transactions_idx').on(
-        transactions.externalId,
-        transactions.date,
-        transactions.balance,
-      ),
-    }
-  },
+  (transactions) => ({
+    transactionsBankIndex: uniqueIndex('external_id_idx').on(
+      transactions.externalId,
+    ),
+  }),
 )

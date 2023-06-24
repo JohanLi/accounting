@@ -1,4 +1,3 @@
-import pLimit from 'p-limit'
 import { useEffect, useReducer } from 'react'
 
 import { sendToBackground } from '@plasmohq/messaging'
@@ -6,36 +5,25 @@ import { sendToBackground } from '@plasmohq/messaging'
 import type {
   RequestBody,
   ResponseBody,
-  UploadFile,
-} from './background/messages/download'
+  Transactions,
+} from './background/messages/transactions'
 import { classNames } from './utils'
 import LoadingSpinner from './loadingSpinner'
 
-/*
- For SEB, downloading too many in parallel seems to cause the server to
- error out. It's probably a good idea to do this in general, though.
- */
-const limit = pLimit(5)
-
-export type DownloadType = {
-  url: string
-  filename: string
-}
-
 type Props = {
-  getDownloads: () => Promise<DownloadType[]>
+  getDownloads: () => Promise<Transactions>
   requestInit?: RequestInit
 }
 
 type State = {
   state: 'initial' | 'foundUrls' | 'downloading' | 'downloaded'
-  downloads: DownloadType[]
+  downloads: Transactions
   created: number
   error: string
 }
 
 export type Action =
-  | { type: 'foundDownloads'; payload: DownloadType[] }
+  | { type: 'foundDownloads'; payload: Transactions }
   | { type: 'downloadStarted' }
   | { type: 'downloadCompleted'; payload: number }
   | { type: 'reset' }
@@ -82,7 +70,7 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-export default function Download({ getDownloads, requestInit }: Props) {
+export default function DownloadTransactions({ getDownloads, requestInit }: Props) {
   const [state, dispatch] = useReducer(reducer, initialState)
 
   useEffect(() => {
@@ -103,30 +91,10 @@ export default function Download({ getDownloads, requestInit }: Props) {
   const onClick = async () => {
     dispatch({ type: 'downloadStarted' })
 
-    let uploadFiles: UploadFile[]
-
-    try {
-      uploadFiles = await Promise.all(
-        state.downloads.map(async (download) => {
-          const response = await limit(() => fetch(download.url, requestInit))
-          const buffer = await response.arrayBuffer()
-          const data = Buffer.from(buffer).toString('base64')
-          return {
-            data,
-            extension: 'pdf',
-          }
-        }),
-      )
-    } catch (e) {
-      console.error(e)
-      dispatch({ type: 'error', payload: 'Failed to download' })
-      return
-    }
-
     const response = await sendToBackground<RequestBody, ResponseBody>({
-      name: 'download',
+      name: 'transactions',
       body: {
-        uploadFiles,
+        transactions: state.downloads,
       },
     })
 
@@ -161,7 +129,7 @@ export default function Download({ getDownloads, requestInit }: Props) {
       )}
       {!state.error && (
         <>
-          {state.state === 'initial' && 'Attempting to fetch invoices...'}
+          {state.state === 'initial' && 'Attempting to fetch transactions...'}
           {(state.state === 'foundUrls' || state.state === 'downloading') && (
             <button
               type="button"
@@ -173,7 +141,7 @@ export default function Download({ getDownloads, requestInit }: Props) {
               disabled={state.state === 'downloading'}
             >
               {state.state === 'foundUrls' && (
-                <>Download {state.downloads.length} invoices</>
+                <>Download {state.downloads.length} transactions</>
               )}
               {state.state === 'downloading' && (
                 <>
