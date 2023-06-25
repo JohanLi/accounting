@@ -45,7 +45,7 @@ export default function Accounts() {
                 <td className="whitespace-nowrap py-4 pr-3">
                   {account.description}
                 </td>
-                <td className="whitespace-nowrap py-4 text-sm text-gray-500 text-right">
+                <td className="whitespace-nowrap py-4 text-right text-sm text-gray-500">
                   <Amount amount={account.total} />
                 </td>
               </tr>

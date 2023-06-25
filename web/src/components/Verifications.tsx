@@ -46,19 +46,19 @@ export default function Verifications() {
             </th>
             <th
               scope="col"
-              className="py-3.5 px-3 text-left text-sm font-semibold text-gray-900"
+              className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
             >
               Description
             </th>
             <th
               scope="col"
-              className="py-3.5 px-3 text-left text-sm font-semibold text-gray-900"
+              className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
             >
               Transactions
             </th>
             <th
               scope="col"
-              className="py-3.5 px-3 text-left text-sm font-semibold text-gray-900"
+              className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
             >
               Documents
             </th>
@@ -70,10 +70,10 @@ export default function Verifications() {
               <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
                 {new Date(verification.date).toLocaleDateString('sv-SE')}
               </td>
-              <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-500">
+              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                 {verification.description}
               </td>
-              <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-500">
+              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                 {verification.transactions.length && (
                   <table className="min-w-full divide-y divide-gray-300">
                     <tbody className="divide-y divide-gray-200 bg-white">
@@ -91,14 +91,14 @@ export default function Verifications() {
                   </table>
                 )}
               </td>
-              <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-500">
+              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                 <Documents documents={verification.documents} />
               </td>
             </tr>
           ))}
           {filteredVerifications.length === 0 && (
             <tr>
-              <td colSpan={3} className="py-4 px-3 text-sm text-gray-500">
+              <td colSpan={3} className="px-3 py-4 text-sm text-gray-500">
                 No verifications found. Import an SIE file first.
               </td>
             </tr>

@@ -85,30 +85,30 @@ export default function Actions() {
         <table className="my-4 w-full border-spacing-4">
           <tbody>
             <tr>
-              <td className="text-sm text-gray-500 py-2">
+              <td className="py-2 text-sm text-gray-500">
                 <div>Personal income tax</div>
                 <div className="text-xs text-gray-500">
                   based on an annual salary of {PERSONAL_TAX.annualSalary}
                 </div>
               </td>
-              <td className="text-sm text-gray-900 pl-4 text-right  py-2">
+              <td className="py-2 pl-4 text-right text-sm  text-gray-900">
                 {amount ? formatNumber(personalIncomeTax) : '0'}
               </td>
             </tr>
             <tr>
-              <td className="text-sm text-gray-500  py-2">Payroll tax</td>
-              <td className="text-sm text-gray-900 pl-4 text-right py-2">
+              <td className="py-2 text-sm  text-gray-500">Payroll tax</td>
+              <td className="py-2 pl-4 text-right text-sm text-gray-900">
                 {amount ? formatNumber(payrollTax) : '0'}
               </td>
             </tr>
             <tr>
-              <td className="text-sm text-gray-500 py-2">
+              <td className="py-2 text-sm text-gray-500">
                 <div>Total</div>
                 <div className="text-xs text-gray-500">
                   to transfer to tax account
                 </div>
               </td>
-              <td className="text-sm text-gray-900 pl-4 text-right py-2">
+              <td className="py-2 pl-4 text-right text-sm text-gray-900">
                 {formatNumber(personalIncomeTax + payrollTax)}
               </td>
             </tr>
@@ -118,7 +118,7 @@ export default function Actions() {
           type="button"
           className={classNames(
             'inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:col-start-2',
-            disabled ? 'opacity-50 cursor-not-allowed' : '',
+            disabled ? 'cursor-not-allowed opacity-50' : '',
           )}
           onClick={() => onCreate()}
           disabled={disabled}

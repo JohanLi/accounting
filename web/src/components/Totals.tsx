@@ -35,7 +35,7 @@ export default function Totals() {
             </th>
             <th
               scope="col"
-              className="py-3.5 px-3 text-left text-sm font-semibold text-gray-900"
+              className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
             >
               Amount
             </th>
@@ -49,7 +49,7 @@ export default function Totals() {
                 <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
                   {accountsOfInterest[total.accountCode]}
                 </td>
-                <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-500">
+                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                   <Amount amount={total.amount} />
                 </td>
               </tr>
