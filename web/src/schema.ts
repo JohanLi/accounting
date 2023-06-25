@@ -100,3 +100,22 @@ export const TransactionsBank = pgTable(
     ),
   }),
 )
+
+export const TransactionsTax = pgTable(
+  'transactions_tax',
+  {
+    id: serial('id').primaryKey(),
+    date: timestamp('date').notNull(),
+    description: text('description').notNull(),
+    amount: integer('amount').notNull(),
+    balance: integer('balance').notNull(),
+  },
+  (transactions) => ({
+    // TODO we should keep track of when the last import was done instead of relying ON CONFLICT
+    bankTransactionsIndex: uniqueIndex('transactions_tax_idx').on(
+      transactions.date,
+      transactions.amount,
+      transactions.balance,
+    ),
+  }),
+)

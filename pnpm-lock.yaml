@@ -20,6 +20,9 @@ importers:
       '@plasmohq/messaging':
         specifier: ^0.3.3
         version: 0.3.3(react@18.2.0)
+      iconv-lite:
+        specifier: ^0.6.3
+        version: 0.6.3
       p-limit:
         specifier: ^4.0.0
         version: 4.0.0

@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "@plasmohq/messaging": "^0.3.3",
+    "iconv-lite": "^0.6.3",
     "p-limit": "^4.0.0",
     "plasmo": "0.76.3",
     "react": "18.2.0",

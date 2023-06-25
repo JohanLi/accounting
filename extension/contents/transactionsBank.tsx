@@ -2,7 +2,7 @@ import cssText from 'data-text:./style.css'
 import type { PlasmoCSConfig } from 'plasmo'
 
 import DownloadTransactions from '../downloadTransactions'
-import { transactionSchema } from 'web/src/pages/api/transactions'
+import { bankTransactionSchema } from 'web/src/pages/api/transactions'
 
 export const config: PlasmoCSConfig = {
   matches: ['https://apps.seb.se/ccs/accounts/accounts-and-balances/*'],
@@ -72,9 +72,9 @@ async function getDownloads() {
     throw new Error('Failed to download bank transactions')
   }
 
-  return transactionSchema.parse(await response.json()).transactions
+  return bankTransactionSchema.parse(await response.json()).transactions
 }
 
-export default function BankTransactions() {
+export default function TransactionsBank() {
   return <DownloadTransactions getDownloads={getDownloads} />
 }

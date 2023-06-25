@@ -12,7 +12,6 @@ import LoadingSpinner from './loadingSpinner'
 
 type Props = {
   getDownloads: () => Promise<Transactions>
-  requestInit?: RequestInit
 }
 
 type State = {
@@ -70,7 +69,7 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-export default function DownloadTransactions({ getDownloads, requestInit }: Props) {
+export default function DownloadTransactions({ getDownloads }: Props) {
   const [state, dispatch] = useReducer(reducer, initialState)
 
   useEffect(() => {
