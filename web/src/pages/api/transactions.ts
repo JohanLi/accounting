@@ -48,27 +48,42 @@ export type TransactionsResponse = {
   tax: InferModel<typeof TransactionsTax>[]
 }
 
+function throwIfWrongSequence(
+  transactions: { amount: number; balance: number }[],
+) {
+  if (transactions.length === 0) {
+    return
+  }
+
+  let balance = 0
+
+  transactions.forEach((transaction) => {
+    balance += transaction.amount
+
+    if (transaction.balance !== balance) {
+      throw new Error(
+        'The transactions do not appear to be in the correct sequence',
+      )
+    }
+  })
+}
+
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'GET') {
-    /*
-      TODO
-        Need to figure out how to handle bookedDate and valueDate, particularly when sorting.
-        Take special note of transactions that occur on the same day, and the balance
-     */
     const bankTransactions = await db
       .select()
       .from(TransactionsBank)
       .where(eq(TransactionsBank.accountId, '1'))
-      .orderBy(desc(TransactionsBank.valueDate))
+      .orderBy(desc(TransactionsBank.id))
     const bankSavingsTransactions = await db
       .select()
       .from(TransactionsBank)
       .where(eq(TransactionsBank.accountId, '2'))
-      .orderBy(desc(TransactionsBank.valueDate))
+      .orderBy(desc(TransactionsBank.id))
     const taxTransactions = await db
       .select()
       .from(TransactionsTax)
-      .orderBy(desc(TransactionsTax.date))
+      .orderBy(desc(TransactionsTax.id))
 
     res.status(200).json({
       regular: bankTransactions,
@@ -85,29 +100,37 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         .safeParse(req.body)
 
       if (bankTransactions.success) {
+        /*
+          TODO
+            It might be advisable to have less "predefined" columns. E.g.,
+            use "date" instead of "bookedDate" and "valueDate", and remove "externalId".
+            Instead, have a JSON column that stores the entire transaction.
+         */
+        const transactions = bankTransactions.data.map((transaction) => ({
+          bookedDate: new Date(transaction.bookedDate),
+          valueDate: new Date(transaction.valueDate),
+          description: transaction.text,
+          amount: krToOre(
+            'outgoingAmount' in transaction
+              ? transaction.outgoingAmount
+              : transaction.ingoingAmount,
+          ),
+          balance: krToOre(transaction.availableBalance),
+          externalId: transaction.id,
+          accountId: transaction.accountId,
+        }))
+
+        transactions.reverse()
+        throwIfWrongSequence(
+          transactions.filter((transaction) => transaction.accountId === '1'),
+        )
+        throwIfWrongSequence(
+          transactions.filter((transaction) => transaction.accountId === '2'),
+        )
+
         const insertedTransactions = await db
           .insert(TransactionsBank)
-          .values(
-            bankTransactions.data
-              .sort(
-                (a, b) =>
-                  new Date(a.bookedDate).getTime() -
-                  new Date(b.bookedDate).getTime(),
-              )
-              .map((transaction) => ({
-                bookedDate: new Date(transaction.bookedDate),
-                valueDate: new Date(transaction.valueDate),
-                description: transaction.text,
-                amount: krToOre(
-                  'outgoingAmount' in transaction
-                    ? transaction.outgoingAmount
-                    : transaction.ingoingAmount,
-                ),
-                balance: krToOre(transaction.availableBalance),
-                externalId: transaction.id,
-                accountId: transaction.accountId,
-              })),
-          )
+          .values(transactions)
           .onConflictDoNothing()
           .returning()
 
@@ -115,18 +138,20 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         return
       }
 
-      const taxTransactions = taxTransactionSchema.parse(req.body)
+      const taxTransactions = taxTransactionSchema
+        .parse(req.body)
+        .map((transaction) => ({
+          date: new Date(transaction.date),
+          description: transaction.description,
+          amount: krToOre(transaction.amount),
+          balance: krToOre(transaction.balance),
+        }))
+
+      throwIfWrongSequence(taxTransactions)
 
       const insertedTransactions = await db
         .insert(TransactionsTax)
-        .values(
-          taxTransactions.map((transaction) => ({
-            date: new Date(transaction.date),
-            description: transaction.description,
-            amount: krToOre(transaction.amount),
-            balance: krToOre(transaction.balance),
-          })),
-        )
+        .values(taxTransactions)
         .onConflictDoNothing()
         .returning()
 
