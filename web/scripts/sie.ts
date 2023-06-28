@@ -1,3 +1,5 @@
+import { krToOre } from '../src/utils'
+
 function removeQuotes(input: string) {
   if (input.startsWith('"') && input.endsWith('"')) {
     return input.slice(1, -1)
@@ -93,7 +95,7 @@ export function extractVerifications(input: string) {
 
         verification.transactions.push({
           accountCode: parseInt(accountCode),
-          amount: Math.round(parseFloat(amount) * 100),
+          amount: krToOre(amount),
         })
 
         i++

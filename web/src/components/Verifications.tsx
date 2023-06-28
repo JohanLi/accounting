@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Amount } from './Amount'
 import Dropdown from './Dropdown'
-import { getCurrentFiscalYear, withinFiscalYear } from '../utils'
+import { formatDate, getCurrentFiscalYear, withinFiscalYear } from '../utils'
 import { useState } from 'react'
 import Documents from './Documents'
 import { Verification } from '../pages/api/verifications'
@@ -67,8 +67,8 @@ export default function Verifications() {
         <tbody className="divide-y divide-gray-200">
           {filteredVerifications.map((verification) => (
             <tr key={verification.id}>
-              <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
-                {new Date(verification.date).toLocaleDateString('sv-SE')}
+              <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-gray-500 sm:pl-0">
+                {formatDate(verification.date)}
               </td>
               <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                 {verification.description}

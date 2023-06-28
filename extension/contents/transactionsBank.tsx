@@ -1,8 +1,8 @@
 import cssText from 'data-text:./style.css'
 import type { PlasmoCSConfig } from 'plasmo'
+import { bankTransactionSchema } from 'web/src/pages/api/transactions'
 
 import DownloadTransactions from '../downloadTransactions'
-import { bankTransactionSchema } from 'web/src/pages/api/transactions'
 
 export const config: PlasmoCSConfig = {
   matches: ['https://apps.seb.se/ccs/accounts/accounts-and-balances/*'],
@@ -41,15 +41,15 @@ const COMPANY_START_DATE = '2020-10-01'
 
 // by ChatGPT
 function getTomorrow() {
-  const currentDate = new Date();
+  const currentDate = new Date()
 
-  currentDate.setDate(currentDate.getDate() + 1);
+  currentDate.setDate(currentDate.getDate() + 1)
 
-  const year = currentDate.getFullYear();
-  const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-  const day = String(currentDate.getDate()).padStart(2, '0');
+  const year = currentDate.getFullYear()
+  const month = String(currentDate.getMonth() + 1).padStart(2, '0')
+  const day = String(currentDate.getDate()).padStart(2, '0')
 
-  return `${year}-${month}-${day}`;
+  return `${year}-${month}-${day}`
 }
 
 async function getDownloads() {
@@ -72,7 +72,17 @@ async function getDownloads() {
     throw new Error('Failed to download bank transactions')
   }
 
-  return bankTransactionSchema.parse(await response.json()).transactions
+  const accountIdMap = accountIds.reduce((obj, key, i) => {
+    obj[key] = `${i + 1}`
+    return obj
+  }, {})
+
+  return bankTransactionSchema
+    .parse(await response.json())
+    .transactions.map((transaction) => {
+      transaction.accountId = accountIdMap[transaction.accountId]
+      return transaction
+    })
 }
 
 export default function TransactionsBank() {

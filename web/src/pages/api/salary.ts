@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { getSalaryTaxes } from '../../tax'
 import db from '../../db'
 import { Transactions, Verifications } from '../../schema'
+import { krToOre } from '../../utils'
 
 const SalaryRequest = z.object({
   amount: z.number(),
@@ -16,8 +17,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     return
   }
 
-  // TODO: the business logic of storing amounts in ören should be centralized
-  const amount = SalaryRequest.parse(req.body).amount * 100
+  const amount = krToOre(SalaryRequest.parse(req.body).amount)
 
   const { personalIncomeTax, payrollTax } = getSalaryTaxes(amount)
 

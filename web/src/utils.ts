@@ -1,4 +1,5 @@
 import { Verification } from './pages/api/verifications'
+import Decimal from 'decimal.js'
 
 export function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
@@ -44,4 +45,12 @@ export function withinFiscalYear(verification: Verification, year: number) {
 
 export function formatNumber(number: number) {
   return number.toLocaleString('en-US')
+}
+
+export function formatDate(date: string | Date) {
+  return new Date(date).toLocaleDateString('sv-SE')
+}
+
+export function krToOre(kr: string | number) {
+  return Decimal.mul(kr, 100).round().toNumber()
 }
