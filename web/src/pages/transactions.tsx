@@ -49,10 +49,10 @@ export default function Accounts() {
             <tbody className="divide-y divide-gray-200">
               {transactions.data?.regular.map((transaction) => (
                 <tr key={transaction.id}>
-                  <td className="whitespace-nowrap py-4 pr-3 text-sm">
+                  <td className="whitespace-nowrap py-4 pr-3 text-xs text-gray-500">
                     <DateFormatted date={transaction.bookedDate} />
                   </td>
-                  <td className="whitespace-nowrap py-4 pr-3 text-sm text-gray-500">
+                  <td className="whitespace-nowrap py-4 pr-3 text-sm font-medium text-gray-900">
                     {transaction.description}
                   </td>
                   <td className="whitespace-nowrap py-4 text-right text-sm">
@@ -102,10 +102,10 @@ export default function Accounts() {
             <tbody className="divide-y divide-gray-200">
               {transactions.data?.savings.map((transaction) => (
                 <tr key={transaction.id}>
-                  <td className="whitespace-nowrap py-4 pr-3 text-sm">
+                  <td className="whitespace-nowrap py-4 pr-3 text-xs text-gray-500">
                     <DateFormatted date={transaction.bookedDate} />
                   </td>
-                  <td className="whitespace-nowrap py-4 pr-3 text-sm text-gray-500">
+                  <td className="whitespace-nowrap py-4 pr-3 text-sm font-medium text-gray-900">
                     {transaction.description}
                   </td>
                   <td className="whitespace-nowrap py-4 text-right text-sm">
@@ -155,10 +155,10 @@ export default function Accounts() {
             <tbody className="divide-y divide-gray-200">
               {transactions.data?.tax.map((transaction) => (
                 <tr key={transaction.id}>
-                  <td className="whitespace-nowrap py-4 pr-3 text-sm">
+                  <td className="whitespace-nowrap py-4 pr-3 text-xs text-gray-500">
                     <DateFormatted date={transaction.date} />
                   </td>
-                  <td className="whitespace-nowrap py-4 pr-3 text-sm text-gray-500">
+                  <td className="whitespace-nowrap py-4 pr-3 text-sm font-medium text-gray-900">
                     {transaction.description}
                   </td>
                   <td className="whitespace-nowrap py-4 text-right text-sm">

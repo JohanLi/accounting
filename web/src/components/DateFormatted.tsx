@@ -1,6 +1,6 @@
 export function DateFormatted({ date }: { date: string | Date }) {
   return (
-    <span className="font-mono text-gray-500">
+    <span className="font-mono">
       {new Date(date).toLocaleDateString('sv-SE')}
     </span>
   )

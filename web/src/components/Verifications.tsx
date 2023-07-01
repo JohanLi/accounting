@@ -40,25 +40,25 @@ export default function Verifications() {
           <tr>
             <th
               scope="col"
-              className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0"
+              className="w-32 py-3.5 pr-3 text-left text-sm font-semibold text-gray-900"
             >
               Date
             </th>
             <th
               scope="col"
-              className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+              className="py-3.5 pr-3 text-left text-sm font-semibold text-gray-900"
             >
               Description
             </th>
             <th
               scope="col"
-              className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+              className="w-48 py-3.5 pr-3 text-left text-sm font-semibold text-gray-900"
             >
               Transactions
             </th>
             <th
               scope="col"
-              className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+              className="py-3.5 pr-3 text-left text-sm font-semibold text-gray-900"
             >
               Documents
             </th>
@@ -67,22 +67,22 @@ export default function Verifications() {
         <tbody className="divide-y divide-gray-200">
           {filteredVerifications.map((verification) => (
             <tr key={verification.id}>
-              <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-0">
+              <td className="whitespace-nowrap py-4 pr-3 text-xs text-gray-500">
                 <DateFormatted date={verification.date} />
               </td>
-              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+              <td className="whitespace-nowrap py-4 pr-3 text-sm font-medium text-gray-900">
                 {verification.description}
               </td>
-              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+              <td className="whitespace-nowrap py-4 pr-3 text-sm text-gray-500">
                 {verification.transactions.length && (
                   <table className="min-w-full divide-y divide-gray-300">
                     <tbody className="divide-y divide-gray-200 bg-white">
                       {verification.transactions.map((transaction) => (
                         <tr key={transaction.id}>
-                          <td className="w-16 py-2 pl-4 pr-3 text-sm text-gray-500 sm:pl-0">
+                          <td className="w-16 py-2 pr-3 text-sm text-gray-500">
                             {transaction.accountCode}
                           </td>
-                          <td className="px-2 py-2 text-sm font-medium">
+                          <td className="px-2 py-2 text-right text-sm font-medium">
                             <Amount amount={transaction.amount} />
                           </td>
                         </tr>
