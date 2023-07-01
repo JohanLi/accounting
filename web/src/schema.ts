@@ -109,6 +109,9 @@ export const TransactionsTax = pgTable(
     description: text('description').notNull(),
     amount: integer('amount').notNull(),
     balance: integer('balance').notNull(),
+    verificationId: integer('verification_id').references(
+      () => Verifications.id,
+    ),
   },
   (transactions) => ({
     // TODO we should keep track of when the last import was done instead of relying ON CONFLICT

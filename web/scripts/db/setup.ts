@@ -154,6 +154,10 @@ async function main() {
         description: 'Övriga externa kostnader, avdragsgilla',
       },
       {
+        code: 6992,
+        description: 'Övriga externa kostnader, ej avdragsgilla',
+      },
+      {
         code: 7210,
         description: 'Löner till tjänstemän',
       },
@@ -164,6 +168,10 @@ async function main() {
       {
         code: 7699,
         description: 'Övriga personalkostnader',
+      },
+      {
+        code: 8314,
+        description: 'Skattefria ränteintäkter',
       },
       {
         code: 8423,

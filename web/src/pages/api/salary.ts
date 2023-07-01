@@ -66,30 +66,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           amount: -payrollTax,
         },
       ],
-      [
-        {
-          accountCode: 1630, // Skattekonto
-          amount: -(personalIncomeTax + payrollTax),
-        },
-        {
-          accountCode: 2710, // Personalskatt
-          amount: personalIncomeTax,
-        },
-        {
-          accountCode: 2731, // Avräkning lagstadgade sociala avgifter
-          amount: payrollTax,
-        },
-      ],
-      [
-        {
-          accountCode: 1630, // Skattekonto
-          amount: personalIncomeTax + payrollTax,
-        },
-        {
-          accountCode: 1930, // Företagskonto
-          amount: -(personalIncomeTax + payrollTax),
-        },
-      ],
     ]
 
     for (const [i, verification] of insertedVerifications.entries()) {

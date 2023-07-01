@@ -9,3 +9,10 @@ const client = postgres(
 )
 
 export default drizzle(client, { schema })
+
+export function logPostgresError(e: unknown) {
+  if (e instanceof postgres.PostgresError) {
+    console.info(e.query)
+    console.info(e.parameters)
+  }
+}
