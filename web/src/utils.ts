@@ -47,10 +47,6 @@ export function formatNumber(number: number) {
   return number.toLocaleString('en-US')
 }
 
-export function formatDate(date: string | Date) {
-  return new Date(date).toLocaleDateString('sv-SE')
-}
-
 export function krToOre(kr: string | number) {
   return Decimal.mul(kr, 100).round().toNumber()
 }

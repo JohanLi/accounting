@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { Amount } from './Amount'
 import Dropdown from './Dropdown'
-import { formatDate, getCurrentFiscalYear, withinFiscalYear } from '../utils'
+import { getCurrentFiscalYear, withinFiscalYear } from '../utils'
 import { useState } from 'react'
 import Documents from './Documents'
 import { Verification } from '../pages/api/verifications'
+import { DateFormatted } from './DateFormatted'
 
 export default function Verifications() {
   const verifications = useQuery<Verification[]>({
@@ -12,9 +13,8 @@ export default function Verifications() {
     queryFn: () => fetch('/api/verifications').then((res) => res.json()),
   })
 
-  const [selectedFiscalYear, setSelectedFiscalYear] = useState(
-    getCurrentFiscalYear(),
-  )
+  // TODO hardcoded to 2023 right now, as no entries exist for 2024 yet
+  const [selectedFiscalYear, setSelectedFiscalYear] = useState(2023)
 
   const filteredVerifications =
     verifications.data?.filter((verification) =>
@@ -67,8 +67,8 @@ export default function Verifications() {
         <tbody className="divide-y divide-gray-200">
           {filteredVerifications.map((verification) => (
             <tr key={verification.id}>
-              <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-gray-500 sm:pl-0">
-                {formatDate(verification.date)}
+              <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-0">
+                <DateFormatted date={verification.date} />
               </td>
               <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                 {verification.description}

@@ -91,7 +91,7 @@ export function extractVerifications(input: string) {
         }
 
         // "dimensions" comes after accountCode, but it's not used in my bookkeeping
-        const [, accountCode, , amount] = lines[i].split(' ')
+        const [, accountCode, , amount] = lines[i].trim().split(' ')
 
         verification.transactions.push({
           accountCode: parseInt(accountCode),

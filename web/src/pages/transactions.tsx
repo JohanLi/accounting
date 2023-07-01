@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import Layout from '../components/Layout'
 import { Amount } from '../components/Amount'
 import { TransactionsResponse } from './api/transactions'
-import { formatDate } from '../utils'
+import { DateFormatted } from '../components/DateFormatted'
 
 export default function Accounts() {
   const transactions = useQuery<TransactionsResponse>({
@@ -49,8 +49,8 @@ export default function Accounts() {
             <tbody className="divide-y divide-gray-200">
               {transactions.data?.regular.map((transaction) => (
                 <tr key={transaction.id}>
-                  <td className="whitespace-nowrap py-4 pr-3 text-sm text-gray-500">
-                    {formatDate(transaction.bookedDate)}
+                  <td className="whitespace-nowrap py-4 pr-3 text-sm">
+                    <DateFormatted date={transaction.bookedDate} />
                   </td>
                   <td className="whitespace-nowrap py-4 pr-3 text-sm text-gray-500">
                     {transaction.description}
@@ -102,8 +102,8 @@ export default function Accounts() {
             <tbody className="divide-y divide-gray-200">
               {transactions.data?.savings.map((transaction) => (
                 <tr key={transaction.id}>
-                  <td className="whitespace-nowrap py-4 pr-3 text-sm text-gray-500">
-                    {formatDate(transaction.bookedDate)}
+                  <td className="whitespace-nowrap py-4 pr-3 text-sm">
+                    <DateFormatted date={transaction.bookedDate} />
                   </td>
                   <td className="whitespace-nowrap py-4 pr-3 text-sm text-gray-500">
                     {transaction.description}
@@ -155,8 +155,8 @@ export default function Accounts() {
             <tbody className="divide-y divide-gray-200">
               {transactions.data?.tax.map((transaction) => (
                 <tr key={transaction.id}>
-                  <td className="whitespace-nowrap py-4 pr-3 text-sm text-gray-500">
-                    {formatDate(transaction.date)}
+                  <td className="whitespace-nowrap py-4 pr-3 text-sm">
+                    <DateFormatted date={transaction.date} />
                   </td>
                   <td className="whitespace-nowrap py-4 pr-3 text-sm text-gray-500">
                     {transaction.description}
