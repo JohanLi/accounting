@@ -93,6 +93,9 @@ export const TransactionsBank = pgTable(
     balance: integer('balance').notNull(),
     externalId: varchar('external_id', { length: 1000 }).notNull(),
     accountId: text('account_id').notNull(),
+    verificationId: integer('verification_id').references(
+      () => Verifications.id,
+    ),
   },
   (transactions) => ({
     transactionsBankIndex: uniqueIndex('external_id_idx').on(

@@ -1,37 +1,15 @@
-import { useQuery } from '@tanstack/react-query'
 import { Amount } from './Amount'
-import Dropdown from './Dropdown'
-import { getCurrentFiscalYear, withinFiscalYear } from '../utils'
-import { useState } from 'react'
 import Documents from './Documents'
 import { Verification } from '../pages/api/verifications'
 import { DateFormatted } from './DateFormatted'
 
-export default function Verifications() {
-  const verifications = useQuery<Verification[]>({
-    queryKey: ['verifications'],
-    queryFn: () => fetch('/api/verifications').then((res) => res.json()),
-  })
+type Props = {
+  verifications: Verification[]
+}
 
-  // TODO hardcoded to 2023 right now, as no entries exist for 2024 yet
-  const [selectedFiscalYear, setSelectedFiscalYear] = useState(2023)
-
-  const filteredVerifications =
-    verifications.data?.filter((verification) =>
-      withinFiscalYear(verification, selectedFiscalYear),
-    ) || []
-
+export default function Verifications({ verifications }: Props) {
   return (
-    <div className="mt-8">
-      <div className="flex justify-end">
-        <div className="flex items-center space-x-4">
-          <div className="text-gray-500">FY</div>
-          <Dropdown
-            selectedFiscalYear={selectedFiscalYear}
-            setSelectedFiscalYear={setSelectedFiscalYear}
-          />
-        </div>
-      </div>
+    <div>
       <h1 className="text-base font-semibold leading-6 text-gray-900">
         Verifications
       </h1>
@@ -65,7 +43,7 @@ export default function Verifications() {
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
-          {filteredVerifications.map((verification) => (
+          {verifications.map((verification) => (
             <tr key={verification.id}>
               <td className="whitespace-nowrap py-4 pr-3 text-xs text-gray-500">
                 <DateFormatted date={verification.date} />
@@ -96,13 +74,6 @@ export default function Verifications() {
               </td>
             </tr>
           ))}
-          {filteredVerifications.length === 0 && (
-            <tr>
-              <td colSpan={3} className="px-3 py-4 text-sm text-gray-500">
-                No verifications found. Import an SIE file first.
-              </td>
-            </tr>
-          )}
         </tbody>
       </table>
     </div>

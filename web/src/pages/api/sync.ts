@@ -1,7 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import db, { logPostgresError } from '../../db'
-import { Transactions, TransactionsTax, Verifications } from '../../schema'
-import { asc, eq, InferModel, isNull } from 'drizzle-orm'
+import {
+  Transactions,
+  TransactionsBank,
+  TransactionsTax,
+  Verifications,
+} from '../../schema'
+import { and, asc, eq, InferModel, isNotNull, isNull, like } from 'drizzle-orm'
 
 /*
   Some of the existing accounting entries for FY 2023 need to be revised.
@@ -216,6 +221,64 @@ function taxTransactionToVerification(
   return { verification, transactions: verificationTransactions }
 }
 
+async function linkDeposits() {
+  const transactionsLackingEntries = await db
+    .select()
+    .from(TransactionsTax)
+    .where(
+      and(
+        like(TransactionsTax.description, 'Inbetalning bokförd %'),
+        isNotNull(TransactionsTax.verificationId),
+      ),
+    )
+    .orderBy(asc(TransactionsTax.id))
+
+  for (const entry of transactionsLackingEntries) {
+    const depositedFromPersonalAccount = entry.date < new Date('2021-09-01')
+    const depositedFromNoLongerUsedBank =
+      entry.date >= new Date('2022-10-10') &&
+      entry.date < new Date('2023-03-01')
+
+    if (depositedFromPersonalAccount || depositedFromNoLongerUsedBank) {
+      continue
+    }
+
+    const yesterday = new Date(entry.date)
+    yesterday.setDate(yesterday.getDate() - 1)
+
+    const bankTransactions = await db
+      .select()
+      .from(TransactionsBank)
+      .where(
+        and(
+          eq(TransactionsBank.bookedDate, yesterday),
+          eq(TransactionsBank.amount, -entry.amount),
+        ),
+      )
+
+    if (!bankTransactions.length) {
+      throw new Error(
+        `Could not find bank transaction for ${JSON.stringify(entry, null, 2)}`,
+      )
+    }
+
+    if (bankTransactions.length > 1) {
+      throw new Error(
+        `Found multiple bank transactions for ${JSON.stringify(
+          entry,
+          null,
+          2,
+        )}`,
+      )
+    }
+
+    await db
+      .update(TransactionsBank)
+      .set({ verificationId: entry.verificationId })
+      .where(eq(TransactionsBank.id, bankTransactions[0].id))
+  }
+}
+
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'PUT') {
     const transactionsLackingEntries = await db
@@ -249,6 +312,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             .where(eq(TransactionsTax.id, transaction.id))
         }
       })
+
+      await linkDeposits()
     } catch (e) {
       console.error(e)
       logPostgresError(e)
