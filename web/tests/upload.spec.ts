@@ -27,11 +27,11 @@ test.describe.serial('upload', () => {
 
     const bankRow = page.locator('tr:has-text("Bank 1") td:last-child')
 
-    await expect(bankRow).toHaveText('206,720')
+    await expect(bankRow).toHaveText('206 720')
 
     const invoicedRow = page.locator('tr:has-text("Invoiced") td:last-child')
 
-    await expect(invoicedRow).toHaveText('-165,480')
+    await expect(invoicedRow).toHaveText('−165 480')
   })
 
   test('nothing should happen when uploading a document that already exists', async ({
