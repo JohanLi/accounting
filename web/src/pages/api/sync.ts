@@ -1,11 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import db, { logPostgresError } from '../../db'
-import {
-  Transactions,
-  TransactionsBank,
-  TransactionsTax,
-  Verifications,
-} from '../../schema'
+import { Transactions, TransactionsBankTax, Verifications } from '../../schema'
 import { and, asc, eq, InferModel, isNotNull, isNull, like } from 'drizzle-orm'
 
 /*
@@ -19,7 +14,7 @@ import { and, asc, eq, InferModel, isNotNull, isNull, like } from 'drizzle-orm'
   they actually show up as separate transactions.
  */
 function taxTransactionToVerification(
-  transaction: InferModel<typeof TransactionsTax>,
+  transaction: InferModel<typeof TransactionsBankTax>,
 ) {
   const { date, description, amount } = transaction
 
@@ -224,14 +219,15 @@ function taxTransactionToVerification(
 async function linkDeposits() {
   const transactionsLackingEntries = await db
     .select()
-    .from(TransactionsTax)
+    .from(TransactionsBankTax)
     .where(
       and(
-        like(TransactionsTax.description, 'Inbetalning bokförd %'),
-        isNotNull(TransactionsTax.verificationId),
+        eq(TransactionsBankTax.type, 'tax'),
+        like(TransactionsBankTax.description, 'Inbetalning bokförd %'),
+        isNotNull(TransactionsBankTax.verificationId),
       ),
     )
-    .orderBy(asc(TransactionsTax.id))
+    .orderBy(asc(TransactionsBankTax.id))
 
   for (const entry of transactionsLackingEntries) {
     const depositedFromPersonalAccount = entry.date < new Date('2021-09-01')
@@ -248,11 +244,12 @@ async function linkDeposits() {
 
     const bankTransactions = await db
       .select()
-      .from(TransactionsBank)
+      .from(TransactionsBankTax)
       .where(
         and(
-          eq(TransactionsBank.bookedDate, yesterday),
-          eq(TransactionsBank.amount, -entry.amount),
+          eq(TransactionsBankTax.type, 'bankRegular'),
+          eq(TransactionsBankTax.date, yesterday),
+          eq(TransactionsBankTax.amount, -entry.amount),
         ),
       )
 
@@ -273,9 +270,9 @@ async function linkDeposits() {
     }
 
     await db
-      .update(TransactionsBank)
+      .update(TransactionsBankTax)
       .set({ verificationId: entry.verificationId })
-      .where(eq(TransactionsBank.id, bankTransactions[0].id))
+      .where(eq(TransactionsBankTax.id, bankTransactions[0].id))
   }
 }
 
@@ -283,9 +280,14 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'PUT') {
     const transactionsLackingEntries = await db
       .select()
-      .from(TransactionsTax)
-      .where(isNull(TransactionsTax.verificationId))
-      .orderBy(asc(TransactionsTax.id))
+      .from(TransactionsBankTax)
+      .where(
+        and(
+          eq(TransactionsBankTax.type, 'tax'),
+          isNull(TransactionsBankTax.verificationId),
+        ),
+      )
+      .orderBy(asc(TransactionsBankTax.id))
 
     try {
       await db.transaction(async (tx) => {
@@ -305,11 +307,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           )
 
           await tx
-            .update(TransactionsTax)
+            .update(TransactionsBankTax)
             .set({
               verificationId: insertedVerification[0].id,
             })
-            .where(eq(TransactionsTax.id, transaction.id))
+            .where(eq(TransactionsBankTax.id, transaction.id))
         }
       })
 

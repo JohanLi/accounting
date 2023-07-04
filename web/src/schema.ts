@@ -1,13 +1,15 @@
 import {
+  char,
   customType,
   integer,
+  jsonb,
+  pgEnum,
   pgTable,
   serial,
   smallint,
   text,
   timestamp,
   uniqueIndex,
-  varchar,
 } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 
@@ -82,46 +84,44 @@ export const VerificationsRelations = relations(Verifications, ({ many }) => ({
   documents: many(Documents),
 }))
 
-export const TransactionsBank = pgTable(
-  'transactions_bank',
-  {
-    id: serial('id').primaryKey(),
-    bookedDate: timestamp('booked_date').notNull(),
-    valueDate: timestamp('value_date').notNull(),
-    description: text('description').notNull(),
-    amount: integer('amount').notNull(),
-    balance: integer('balance').notNull(),
-    externalId: varchar('external_id', { length: 1000 }).notNull(),
-    accountId: text('account_id').notNull(),
-    verificationId: integer('verification_id').references(
-      () => Verifications.id,
-    ),
-  },
-  (transactions) => ({
-    transactionsBankIndex: uniqueIndex('external_id_idx').on(
-      transactions.externalId,
-    ),
-  }),
-)
+/*
+  https://github.com/drizzle-team/drizzle-orm/issues/646#issuecomment-1586349095
+  Whether intentional or not, it appears enums must be exported
+ */
+export const transactionBankTaxTypeEnum = pgEnum('transactionBankTaxType', [
+  'bankRegular',
+  'bankSavings',
+  'tax',
+])
 
-export const TransactionsTax = pgTable(
-  'transactions_tax',
+export const TransactionsBankTax = pgTable(
+  'transactions_bank_tax',
   {
     id: serial('id').primaryKey(),
+    type: transactionBankTaxTypeEnum('type').notNull(),
     date: timestamp('date').notNull(),
     description: text('description').notNull(),
     amount: integer('amount').notNull(),
     balance: integer('balance').notNull(),
+    raw: jsonb('raw').notNull(),
+    /*
+      Tax account transactions, at least through the web UI, do not appear
+      to contain an ID. This might change once/if I get access to Skatteverket's
+      official API.
+
+      SEB transactions do contain IDs, but some of them exceed 600 characters.
+
+      While one approach is using partial indexes, I think a more pragmatic
+      solution is generating an ID in the application layer.
+     */
+    externalId: char('external_id', { length: 64 }).notNull(),
     verificationId: integer('verification_id').references(
       () => Verifications.id,
     ),
   },
   (transactions) => ({
-    // TODO we should keep track of when the last import was done instead of relying ON CONFLICT
-    bankTransactionsIndex: uniqueIndex('transactions_tax_idx').on(
-      transactions.date,
-      transactions.amount,
-      transactions.balance,
-    ),
+    transactionsBankTaxIndex: uniqueIndex(
+      'transactions_bank_tax_external_id_idx',
+    ).on(transactions.type, transactions.externalId),
   }),
 )

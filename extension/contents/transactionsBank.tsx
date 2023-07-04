@@ -1,6 +1,5 @@
 import cssText from 'data-text:./style.css'
 import type { PlasmoCSConfig } from 'plasmo'
-import { bankTransactionSchema } from 'web/src/pages/api/transactions'
 
 import DownloadTransactions from '../downloadTransactions'
 
@@ -21,10 +20,15 @@ const API_BASE_URL =
  Having these in public should not matter, but I wouldn't be surprised if
  there's some "Broken Access Control" going on for an endpoint like this.
  */
-const accountIds = process.env.PLASMO_PUBLIC_SEB_ACCOUNT_IDS.split(',')
+const regularAccountId = process.env.PLASMO_PUBLIC_SEB_REGULAR_ACCOUNT_ID
+const savingsAccountId = process.env.PLASMO_PUBLIC_SEB_SAVINGS_ACCOUNT_ID
 
-if (!accountIds.length) {
-  throw new Error('Missing PLASMO_PUBLIC_SEB_ACCOUNT_IDS')
+if (!regularAccountId) {
+  throw new Error('Missing PLASMO_PUBLIC_SEB_REGULAR_ACCOUNT_ID')
+}
+
+if (!savingsAccountId) {
+  throw new Error('Missing PLASMO_PUBLIC_SEB_SAVINGS_ACCOUNT_ID')
 }
 
 /*
@@ -61,7 +65,7 @@ async function getDownloads() {
       'organization-id': organizationId,
     },
     body: JSON.stringify({
-      accountIds,
+      accountIds: [regularAccountId, savingsAccountId],
       dateFrom: COMPANY_START_DATE,
       dateTo: getTomorrow(),
       paginatingSize: 500,
@@ -72,15 +76,16 @@ async function getDownloads() {
     throw new Error('Failed to download bank transactions')
   }
 
-  const accountIdMap = accountIds.reduce((obj, key, i) => {
-    obj[key] = `${i + 1}`
-    return obj
-  }, {})
-
-  return bankTransactionSchema
-    .parse(await response.json())
+  return (await response.json())
     .transactions.map((transaction) => {
-      transaction.accountId = accountIdMap[transaction.accountId]
+      if (transaction.accountId === regularAccountId) {
+        transaction.type = 'bankRegular'
+      }
+
+      if (transaction.accountId === savingsAccountId) {
+        transaction.type = 'bankSavings'
+      }
+
       return transaction
     })
 }

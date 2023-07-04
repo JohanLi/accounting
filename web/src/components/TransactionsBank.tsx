@@ -51,7 +51,7 @@ export default function TransactionsBank({ transactions, type }: Props) {
           {transactions.map((transaction) => (
             <tr key={transaction.id}>
               <td className="whitespace-nowrap py-4 pr-3 text-xs text-gray-500">
-                <DateFormatted date={transaction.bookedDate} />
+                <DateFormatted date={transaction.date} />
               </td>
               <td className="whitespace-nowrap py-4 pr-3 text-sm font-medium text-gray-900">
                 {transaction.description}
