@@ -1,72 +1,64 @@
 import { useQuery } from '@tanstack/react-query'
 import { Verification } from '../pages/api/verifications'
-import { TransactionsResponse } from '../pages/api/transactions'
-import Verifications from './Verifications'
-import TransactionsBank from './TransactionsBank'
+import { InferModel } from 'drizzle-orm'
+import { TransactionsBankTax } from '../schema'
+import { LinkedToResponse } from '../pages/api/linkedTo'
 
 export type LinkedToProps =
   | {
       verification: Verification
-      taxTransaction?: never
-      bankTransaction?: never
+      transaction?: never
     }
   | {
       verification?: never
-      taxTransaction: TransactionsResponse['tax'][0]
-      bankTransaction?: never
-    }
-  | {
-      verification?: never
-      taxTransaction?: never
-      bankTransaction: TransactionsResponse['regular'][0]
+      transaction: InferModel<typeof TransactionsBankTax>
     }
 
-export default function LinkedTo({
-  verification,
-  taxTransaction,
-  bankTransaction,
-}: LinkedToProps) {
-  const verifications = useQuery<Verification[]>({
-    queryKey: ['verifications'],
-    queryFn: () => fetch('/api/verifications').then((res) => res.json()),
+export default function LinkedTo({ verification, transaction }: LinkedToProps) {
+  const linkedTo = useQuery<LinkedToResponse>({
+    queryKey: [
+      'linkedTo',
+      verification
+        ? `verificationId=${verification.id}`
+        : `bankTransactionId=${transaction.id}`,
+    ],
+    queryFn: ({ queryKey }) =>
+      fetch(`/api/linkedTo?${queryKey[1]}`).then((res) => res.json()),
   })
 
-  const transactions = useQuery<TransactionsResponse>({
-    queryKey: ['transactions'],
-    queryFn: () => fetch('/api/transactions').then((res) => res.json()),
-  })
-
-  let linkedBankTransaction: TransactionsResponse['regular'][0] | undefined
-  let linkedTaxTransaction: TransactionsResponse['tax'][0] | undefined
-  let linkedVerification: Verification | undefined
-
-  if (taxTransaction) {
-    linkedBankTransaction = transactions.data?.regular.find(
-      (transaction) =>
-        transaction.verificationId === taxTransaction.verificationId,
-    )
-
-    linkedVerification = verifications.data?.find(
-      (verification) => verification.id === taxTransaction.verificationId,
-    )
+  if (!linkedTo.data) {
+    return null
   }
 
+  const { linkedBankTransactions, linkedVerification } = linkedTo.data
+
   return (
-    <div className="absolute -right-2 z-10 mt-2 overflow-hidden rounded-lg bg-white p-6 text-left shadow-lg ring-1 ring-black ring-opacity-5">
-      <div className="flex justify-end gap-24">
-        {linkedBankTransaction && (
-          <div className="w-[500px]">
-            <TransactionsBank
-              transactions={[linkedBankTransaction]}
-              type="regular"
-            />
-          </div>
-        )}
-        {linkedVerification && (
-          <div className="w-[600px]">
-            <Verifications verifications={[linkedVerification]} />
-          </div>
-        )}
+    <div className="divide-y divide-gray-300">
+      {verification && (
+        <div>
+          <h2 className="text-base font-semibold leading-6 text-gray-900">
+            Verification
+          </h2>
+          <pre>{JSON.stringify(verification, null, 2)}</pre>
+        </div>
+      )}
+      {transaction && (
+        <div>
+          <h2 className="text-base font-semibold leading-6 text-gray-900">
+            {transaction.type}
+          </h2>
+          <pre>{JSON.stringify(transaction, null, 2)}</pre>
+        </div>
+      )}
+      <div>
+        <h2 className="text-base font-semibold leading-6 text-gray-900">
+          Transactions
+        </h2>
+        <pre>{JSON.stringify(linkedBankTransactions, null, 2)}</pre>
+        <h2 className="text-base font-semibold leading-6 text-gray-900">
+          Verifications
+        </h2>
+        <pre>{JSON.stringify(linkedVerification, null, 2)}</pre>
       </div>
     </div>
   )

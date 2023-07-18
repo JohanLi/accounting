@@ -38,10 +38,6 @@ const outgoingOrIngoingSchema = z.union([
   ingoingSchema.merge(commonSchema),
 ])
 
-export const bankTransactionSchema = z.object({
-  transactions: z.array(outgoingOrIngoingSchema),
-})
-
 const taxTransactionSchema = z.array(
   z.object({
     date: z.string(),
@@ -51,10 +47,10 @@ const taxTransactionSchema = z.array(
   }),
 )
 
+export type BankTransactionType = 'regular' | 'savings' | 'tax'
+
 export type TransactionsResponse = {
-  regular: InferModel<typeof TransactionsBankTax>[]
-  savings: InferModel<typeof TransactionsBankTax>[]
-  tax: InferModel<typeof TransactionsBankTax>[]
+  [key in BankTransactionType]: InferModel<typeof TransactionsBankTax>[]
 }
 
 function throwIfWrongSequence(
