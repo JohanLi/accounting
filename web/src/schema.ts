@@ -84,15 +84,20 @@ export const VerificationsRelations = relations(Verifications, ({ many }) => ({
   documents: many(Documents),
 }))
 
+export const transactionBankTaxTypes = [
+  'bankRegular',
+  'bankSavings',
+  'tax',
+] as const
+
 /*
   https://github.com/drizzle-team/drizzle-orm/issues/646#issuecomment-1586349095
   Whether intentional or not, it appears enums must be exported
  */
-export const transactionBankTaxTypeEnum = pgEnum('transactionBankTaxType', [
-  'bankRegular',
-  'bankSavings',
-  'tax',
-])
+export const transactionBankTaxTypeEnum = pgEnum(
+  'transactionBankTaxType',
+  transactionBankTaxTypes,
+)
 
 export const TransactionsBankTax = pgTable(
   'transactions_bank_tax',

@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import db from '../../db'
 import { transactionBankTaxTypeEnum, TransactionsBankTax } from '../../schema'
 import { z } from 'zod'
-import { desc, eq, InferModel } from 'drizzle-orm'
+import { desc, InferModel } from 'drizzle-orm'
 import { krToOre } from '../../utils'
 import crypto from 'crypto'
 
@@ -47,11 +47,7 @@ const taxTransactionSchema = z.array(
   }),
 )
 
-export type BankTransactionType = 'regular' | 'savings' | 'tax'
-
-export type TransactionsResponse = {
-  [key in BankTransactionType]: InferModel<typeof TransactionsBankTax>[]
-}
+export type TransactionsResponse = InferModel<typeof TransactionsBankTax>[]
 
 function throwIfWrongSequence(
   transactions: { amount: number; balance: number }[],
@@ -77,31 +73,17 @@ async function getExternalId(...fields: string[]) {
   return crypto.createHash('sha256').update(fields.join('-')).digest('hex')
 }
 
-const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+const handler = async (
+  req: NextApiRequest,
+  res: NextApiResponse<TransactionsResponse>,
+) => {
   if (req.method === 'GET') {
-    const regular = await db
+    const transactions = await db
       .select()
       .from(TransactionsBankTax)
-      .where(eq(TransactionsBankTax.type, 'bankRegular'))
       .orderBy(desc(TransactionsBankTax.id))
 
-    const savings = await db
-      .select()
-      .from(TransactionsBankTax)
-      .where(eq(TransactionsBankTax.type, 'bankSavings'))
-      .orderBy(desc(TransactionsBankTax.id))
-
-    const tax = await db
-      .select()
-      .from(TransactionsBankTax)
-      .where(eq(TransactionsBankTax.type, 'tax'))
-      .orderBy(desc(TransactionsBankTax.id))
-
-    res.status(200).json({
-      regular,
-      savings,
-      tax,
-    })
+    res.status(200).json(transactions)
     return
   }
 
@@ -170,7 +152,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       res.status(200).json(insertedTransactions)
     } catch (e) {
       console.error(e)
-      res.status(500).json({})
+      res.status(500).end()
     }
 
     return
