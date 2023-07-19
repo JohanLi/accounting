@@ -45,7 +45,7 @@ type Transaction = {
   amount: number
 }
 
-export type Verification = {
+export type ImportVerification = {
   oldId: number
   date: Date
   description: string
@@ -55,7 +55,7 @@ export type Verification = {
 }
 
 export function extractVerifications(input: string) {
-  const verifications: Verification[] = []
+  const verifications: ImportVerification[] = []
 
   const lines = input.split('\n')
 
@@ -70,7 +70,7 @@ export function extractVerifications(input: string) {
 
       const [, , number, date, description, createdAt] = found.map(removeQuotes)
 
-      const verification: Verification = {
+      const verification: ImportVerification = {
         oldId: parseInt(number),
         date: extractDate(date),
         description,
@@ -108,7 +108,7 @@ export function extractVerifications(input: string) {
   return verifications
 }
 
-export function getUniqueAccountCodes(verifications: Verification[]) {
+export function getUniqueAccountCodes(verifications: ImportVerification[]) {
   const accountCodes: number[] = []
 
   for (const verification of verifications) {
@@ -122,7 +122,9 @@ export function getUniqueAccountCodes(verifications: Verification[]) {
   return accountCodes
 }
 
-export function markDeletedAndRemoveNegations(verifications: Verification[]) {
+export function markDeletedAndRemoveNegations(
+  verifications: ImportVerification[],
+) {
   const deletedIdsAndDate: { [id: number]: Date } = {}
 
   const removedNegations = verifications.filter((verification) => {

@@ -11,6 +11,8 @@ import db from '../src/db'
 import { Accounts, Documents, Transactions, Verifications } from '../src/schema'
 import { sql } from 'drizzle-orm'
 
+const oldIdToId = new Map()
+
 async function importVerifications(year: number) {
   const sieFile = iconv.decode(
     await readFile(`${__dirname}/verifications/${year}.sie`),
@@ -19,7 +21,7 @@ async function importVerifications(year: number) {
 
   const verifications = markDeletedAndRemoveNegations(
     extractVerifications(sieFile),
-  )
+  ).filter(({ deletedAt }) => !deletedAt)
 
   /*
     Creating accounts ahead of time is no longer necessary, because the
@@ -48,31 +50,23 @@ async function importVerifications(year: number) {
     .values(verifications)
     .returning()
 
-  const oldIdToId = Object.fromEntries(
-    insertedVerifications.map(({ oldId, id, deletedAt }) => [
-      oldId,
-      { id, deletedAt },
-    ]),
-  )
+  verifications.forEach((v, i) => {
+    oldIdToId.set(v.oldId, insertedVerifications[i].id)
+  })
 
   await db.insert(Transactions).values(
     verifications
       .map(({ transactions, oldId }) =>
         transactions.map((transaction) => ({
           ...transaction,
-          verificationId: oldIdToId[oldId].id,
+          verificationId: oldIdToId.get(oldId),
         })),
       )
       .flat(),
   )
-
-  return oldIdToId
 }
 
-async function importDocuments(
-  year: number,
-  oldIdToId: Record<number, { id: number; deletedAt: Date | null }>,
-) {
+async function importDocuments(year: number) {
   const destination = `${__dirname}/../public/documents`
 
   await mkdir(destination, { recursive: true })
@@ -89,11 +83,11 @@ async function importDocuments(
     }
 
     // the ordering of documents for a given verification is not handled for now
-    const [, id, i] = found
+    const [, oldId, i] = found
 
-    const { id: verificationId, deletedAt } = oldIdToId[Number(id)]
+    const verificationId = oldIdToId.get(Number(oldId))
 
-    if (deletedAt) {
+    if (!verificationId) {
       continue
     }
 
@@ -134,8 +128,8 @@ async function importDocuments(
 
 async function main() {
   for (const year of [2021, 2022, 2023]) {
-    const oldIdToId = await importVerifications(year)
-    await importDocuments(year, oldIdToId)
+    await importVerifications(year)
+    await importDocuments(year)
   }
 
   process.exit(0)

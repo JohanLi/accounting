@@ -3,7 +3,7 @@ import {
   extractVerifications,
   getUniqueAccountCodes,
   markDeletedAndRemoveNegations,
-  Verification,
+  ImportVerification,
 } from './sie'
 
 test('extractVerifications', () => {
@@ -93,7 +93,7 @@ test('getUniqueAccountCodes', () => {
           },
         ],
       },
-    ] as Verification[]),
+    ] as ImportVerification[]),
   ).toEqual([2640, 1630, 1930])
 })
 
@@ -120,7 +120,7 @@ test('markDeletedAndRemoveNegations', () => {
         description: 'Annullering av V1',
         createdAt: new Date('2023-02-01'),
       },
-    ] as Verification[]),
+    ] as ImportVerification[]),
   ).toEqual([
     {
       oldId: 1,

@@ -75,8 +75,6 @@ export const Verifications = pgTable('verifications', {
   date: timestamp('date').notNull(),
   description: text('description').notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
-  deletedAt: timestamp('deleted_at'),
-  oldId: integer('old_id'),
 })
 
 export const VerificationsRelations = relations(Verifications, ({ many }) => ({

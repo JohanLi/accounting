@@ -27,7 +27,6 @@ export default async function handler(
         eq(Transactions.verificationId, Verifications.id),
       )
       .groupBy(Accounts.code)
-      .where(isNull(Verifications.deletedAt))
       .orderBy(asc(Accounts.code))
 
     res.status(200).json(accounts)

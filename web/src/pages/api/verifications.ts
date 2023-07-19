@@ -40,7 +40,6 @@ export default async function handler(
           },
         },
       },
-      where: isNull(Verifications.deletedAt),
       orderBy: asc(Verifications.date),
     })
 

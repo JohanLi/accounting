@@ -20,7 +20,7 @@ export default function Accounts() {
             <tr>
               <th
                 scope="col"
-                className="py-3.5 pr-3 text-left text-sm font-semibold text-gray-900"
+                className="w-32 py-3.5 pr-3 text-left text-sm font-semibold text-gray-900"
               >
                 Code
               </th>
@@ -41,11 +41,13 @@ export default function Accounts() {
           <tbody className="divide-y divide-gray-200">
             {accounts.data?.map((account) => (
               <tr key={account.code}>
-                <td className="whitespace-nowrap py-4 pr-3">{account.code}</td>
-                <td className="whitespace-nowrap py-4 pr-3">
+                <td className="whitespace-nowrap py-4 pr-3 text-xs text-gray-500">
+                  {account.code}
+                </td>
+                <td className="whitespace-nowrap py-4 pr-3 text-sm font-medium text-gray-900">
                   {account.description}
                 </td>
-                <td className="whitespace-nowrap py-4 text-right text-sm text-gray-500">
+                <td className="whitespace-nowrap py-4 text-right text-sm">
                   <Amount amount={account.total} />
                 </td>
               </tr>
