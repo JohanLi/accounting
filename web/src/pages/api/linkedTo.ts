@@ -6,7 +6,7 @@ import { Verification } from './verifications'
 
 export type LinkedToResponse = {
   linkedBankTransactions: InferModel<typeof TransactionsBankTax>[]
-  linkedVerification: Verification | null
+  linkedVerification: Omit<Verification, 'hasLink'> | null
 }
 
 const handler = async (

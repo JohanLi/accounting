@@ -1,11 +1,17 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { asc, isNull, InferModel } from 'drizzle-orm'
+import { asc, isNull, InferModel, isNotNull } from 'drizzle-orm'
 import db from '../../db'
-import { Verifications, Documents, Transactions } from '../../schema'
+import {
+  Verifications,
+  Documents,
+  Transactions,
+  TransactionsBankTax,
+} from '../../schema'
 
 export type Verification = InferModel<typeof Verifications> & {
   documents: Pick<InferModel<typeof Documents>, 'id' | 'extension'>[]
   transactions: InferModel<typeof Transactions>[]
+  hasLink: boolean
 }
 
 export default async function handler(
@@ -13,6 +19,17 @@ export default async function handler(
   res: NextApiResponse<Verification[]>,
 ) {
   if (req.method === 'GET') {
+    const linkedVerificationIds = new Set(
+      (
+        await db
+          .selectDistinct({
+            verificationId: TransactionsBankTax.verificationId,
+          })
+          .from(TransactionsBankTax)
+          .where(isNotNull(TransactionsBankTax.verificationId))
+      ).map((t) => t.verificationId),
+    )
+
     const verifications = await db.query.Verifications.findMany({
       with: {
         transactions: true,
@@ -27,7 +44,12 @@ export default async function handler(
       orderBy: asc(Verifications.date),
     })
 
-    res.status(200).json(verifications)
+    res.status(200).json(
+      verifications.map((v) => ({
+        ...v,
+        hasLink: linkedVerificationIds.has(v.id),
+      })),
+    )
     return
   }
 
