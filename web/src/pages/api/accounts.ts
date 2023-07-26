@@ -1,7 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { asc, eq, isNull, sql } from 'drizzle-orm'
+import { and, asc, eq, gte, lt, sql } from 'drizzle-orm'
 import db from '../../db'
 import { Accounts, Transactions, Verifications } from '../../schema'
+import { getFiscalYear } from '../../utils'
 
 export type AccountsResponse = {
   code: number
@@ -14,6 +15,10 @@ export default async function handler(
   res: NextApiResponse<AccountsResponse>,
 ) {
   if (req.method === 'GET') {
+    const fiscalYear = Number(req.query.fiscalYear)
+
+    const { startInclusive, endExclusive } = getFiscalYear(fiscalYear)
+
     const accounts = await db
       .select({
         code: Accounts.code,
@@ -25,6 +30,12 @@ export default async function handler(
       .leftJoin(
         Verifications,
         eq(Transactions.verificationId, Verifications.id),
+      )
+      .where(
+        and(
+          gte(Verifications.date, startInclusive),
+          lt(Verifications.date, endExclusive),
+        ),
       )
       .groupBy(Accounts.code)
       .orderBy(asc(Accounts.code))

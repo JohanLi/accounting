@@ -30,16 +30,20 @@ export function getAllFiscalYearsInReverse() {
 }
 
 export function getFiscalYear(year: number) {
+  const startInclusive = new Date(Date.UTC(year - 1, 6, 1))
+  const endExclusive = new Date(Date.UTC(year, 6, 1))
+
   return {
-    start: new Date(Date.UTC(year - 1, 6, 1)),
-    end: new Date(Date.UTC(year, 5, 30)),
+    startInclusive,
+    endExclusive,
   }
 }
 
 export function withinFiscalYear(verification: Verification, year: number) {
-  const { start, end } = getFiscalYear(year)
+  const { startInclusive, endExclusive } = getFiscalYear(year)
   return (
-    new Date(verification.date) >= start && new Date(verification.date) <= end
+    new Date(verification.date) >= startInclusive &&
+    new Date(verification.date) < endExclusive
   )
 }
 

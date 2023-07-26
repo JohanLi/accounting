@@ -2,16 +2,33 @@ import { useQuery } from '@tanstack/react-query'
 import Layout from '../components/Layout'
 import { AccountsResponse } from './api/accounts'
 import { Amount } from '../components/Amount'
+import { useState } from 'react'
+import Dropdown from '../components/Dropdown'
 
 export default function Accounts() {
+  // TODO hardcoded to 2023 right now, as no entries exist for 2024 yet
+  const [selectedFiscalYear, setSelectedFiscalYear] = useState(2023)
+
   const accounts = useQuery<AccountsResponse>({
-    queryKey: ['accounts'],
-    queryFn: () => fetch('/api/accounts').then((res) => res.json()),
+    queryKey: ['accounts', selectedFiscalYear],
+    queryFn: () =>
+      fetch(`/api/accounts?fiscalYear=${selectedFiscalYear}`).then((res) =>
+        res.json(),
+      ),
   })
 
   return (
     <Layout>
-      <div className="mt-8">
+      <div className="flex justify-end">
+        <div className="flex items-center space-x-4">
+          <div className="text-gray-500">FY</div>
+          <Dropdown
+            selectedFiscalYear={selectedFiscalYear}
+            setSelectedFiscalYear={setSelectedFiscalYear}
+          />
+        </div>
+      </div>
+      <div>
         <h1 className="text-base font-semibold leading-6 text-gray-900">
           Accounts
         </h1>
