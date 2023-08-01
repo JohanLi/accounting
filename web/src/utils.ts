@@ -1,4 +1,4 @@
-import { Verification } from './pages/api/verifications'
+import { JournalEntry } from './pages/api/journalEntries'
 import Decimal from 'decimal.js'
 
 export function classNames(...classes: string[]) {
@@ -39,11 +39,11 @@ export function getFiscalYear(year: number) {
   }
 }
 
-export function withinFiscalYear(verification: Verification, year: number) {
+export function withinFiscalYear(journalEntry: JournalEntry, year: number) {
   const { startInclusive, endExclusive } = getFiscalYear(year)
   return (
-    new Date(verification.date) >= startInclusive &&
-    new Date(verification.date) < endExclusive
+    new Date(journalEntry.date) >= startInclusive &&
+    new Date(journalEntry.date) < endExclusive
   )
 }
 

@@ -58,15 +58,15 @@ test('receiptToTransaction', () => {
     } as Receipt),
   ).toEqual([
     {
-      accountCode: 1930,
+      accountId: 1930,
       amount: 100,
     },
     {
-      accountCode: 3011,
+      accountId: 3011,
       amount: -75,
     },
     {
-      accountCode: 2610,
+      accountId: 2610,
       amount: -25,
     },
   ])
@@ -79,11 +79,11 @@ test('receiptToTransaction', () => {
     } as Receipt),
   ).toEqual([
     {
-      accountCode: 6570,
+      accountId: 6570,
       amount: 100,
     },
     {
-      accountCode: 1930,
+      accountId: 1930,
       amount: -100,
     },
   ])
@@ -96,15 +96,15 @@ test('receiptToTransaction', () => {
     } as Receipt),
   ).toEqual([
     {
-      accountCode: 6212,
+      accountId: 6212,
       amount: 75,
     },
     {
-      accountCode: 1930,
+      accountId: 1930,
       amount: -100,
     },
     {
-      accountCode: 2640,
+      accountId: 2640,
       amount: 25,
     },
   ])
@@ -117,15 +117,15 @@ test('receiptToTransaction', () => {
     } as Receipt),
   ).toEqual([
     {
-      accountCode: 7699,
+      accountId: 7699,
       amount: 94,
     },
     {
-      accountCode: 2890,
+      accountId: 2890,
       amount: -100,
     },
     {
-      accountCode: 2640,
+      accountId: 2640,
       amount: 6,
     },
   ])

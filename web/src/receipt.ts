@@ -243,15 +243,15 @@ export function receiptToTransactions(receipt: Receipt) {
   if (type === 'INCOME') {
     return [
       {
-        accountCode: debit,
+        accountId: debit,
         amount: total,
       },
       {
-        accountCode: credit,
+        accountId: credit,
         amount: -(receipt.total - receipt.vat),
       },
       {
-        accountCode: 2610, // assumes 25% vat
+        accountId: 2610, // assumes 25% vat
         amount: -vat,
       },
     ]
@@ -259,18 +259,18 @@ export function receiptToTransactions(receipt: Receipt) {
 
   const transactions = [
     {
-      accountCode: debit,
+      accountId: debit,
       amount: receipt.total - receipt.vat,
     },
     {
-      accountCode: credit,
+      accountId: credit,
       amount: -total,
     },
   ]
 
   if (vatRate !== '0') {
     transactions.push({
-      accountCode: 2640,
+      accountId: 2640,
       amount: vat,
     })
   }

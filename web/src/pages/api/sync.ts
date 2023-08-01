@@ -1,6 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import db, { logPostgresError } from '../../db'
-import { Transactions, TransactionsBankTax, Verifications } from '../../schema'
+import {
+  JournalEntryTransactions,
+  Transactions,
+  JournalEntries,
+} from '../../schema'
 import { and, asc, eq, InferModel, isNotNull, isNull, like } from 'drizzle-orm'
 
 /*
@@ -13,23 +17,23 @@ import { and, asc, eq, InferModel, isNotNull, isNull, like } from 'drizzle-orm'
   when Personalskatt and Arbetsgivaravgift are withdrawn from the tax account,
   they actually show up as separate transactions.
  */
-function taxTransactionToVerification(
-  transaction: InferModel<typeof TransactionsBankTax>,
+function taxTransactionToJournalEntry(
+  transaction: InferModel<typeof Transactions>,
 ) {
   const { date, description, amount } = transaction
 
-  let verificationDescription = ''
-  let verificationTransactions: { accountCode: number; amount: number }[] = []
+  let journalEntryDescription = ''
+  let journalEntryTransactions: { accountId: number; amount: number }[] = []
 
   if (description.startsWith('Inbetalning bokförd ')) {
-    verificationDescription = 'Skattekonto – insättning'
-    verificationTransactions = [
+    journalEntryDescription = 'Skattekonto – insättning'
+    journalEntryTransactions = [
       {
-        accountCode: 1630,
+        accountId: 1630,
         amount,
       },
       {
-        accountCode: 1930,
+        accountId: 1930,
         amount: -amount,
       },
     ]
@@ -37,17 +41,17 @@ function taxTransactionToVerification(
     description === 'Intäktsränta' ||
     description === 'Korrigerad intäktsränta'
   ) {
-    verificationDescription =
+    journalEntryDescription =
       description === 'Intäktsränta'
         ? 'Skattekonto – intäktsränta'
         : 'Skattekonto – intäktsränta (korrigering)'
-    verificationTransactions = [
+    journalEntryTransactions = [
       {
-        accountCode: 1630,
+        accountId: 1630,
         amount,
       },
       {
-        accountCode: 8314, // Skattefria ränteintäkter
+        accountId: 8314, // Skattefria ränteintäkter
         amount: -amount,
       },
     ]
@@ -55,26 +59,26 @@ function taxTransactionToVerification(
     description === 'Kostnadsränta' ||
     description === 'Korrigerad kostnadsränta'
   ) {
-    verificationDescription =
+    journalEntryDescription =
       description === 'Kostnadsränta'
         ? 'Skattekonto – kostnadsränta'
         : 'Skattekonto – kostnadsränta (korrigering)'
-    verificationTransactions = [
+    journalEntryTransactions = [
       {
-        accountCode: 1630,
+        accountId: 1630,
         // it's not -amount because the amount is already negative
         amount,
       },
       {
-        accountCode: 8423, // Kostnadsränta för skatter och avgifter
+        accountId: 8423, // Kostnadsränta för skatter och avgifter
         amount: -amount,
       },
     ]
   } else if (description === 'Debiterad preliminärskatt') {
-    verificationDescription = 'Skattekonto – preliminärskatt'
-    verificationTransactions = [
+    journalEntryDescription = 'Skattekonto – preliminärskatt'
+    journalEntryTransactions = [
       {
-        accountCode: 1630,
+        accountId: 1630,
         amount,
       },
       {
@@ -87,47 +91,47 @@ function taxTransactionToVerification(
             https://www.fortnox.se/fortnox-foretagsguide/bokforingstips/preliminarskatt-i-aktiebolag
             https://www.arsredovisning-online.se/bokfora_slutlig_skatt
          */
-        accountCode: 2510, // Skatteskulder
+        accountId: 2510, // Skatteskulder
         amount: -amount,
       },
     ]
   } else if (description === 'Utbetalning') {
     // TODO more research needs to be done on this one
-    verificationDescription = 'Skattekonto – fått tillbaka'
-    verificationTransactions = [
+    journalEntryDescription = 'Skattekonto – fått tillbaka'
+    journalEntryTransactions = [
       {
-        accountCode: 1930,
+        accountId: 1930,
         amount: -amount,
       },
       {
-        accountCode: 2510,
+        accountId: 2510,
         amount,
       },
     ]
   } else if (description === 'Tillgodoförd debiterad preliminärskatt') {
     // TODO more research needs to be done on this one
-    verificationDescription =
+    journalEntryDescription =
       'Skattekonto – tillgodoförd debiterad preliminärskatt'
-    verificationTransactions = [
+    journalEntryTransactions = [
       {
-        accountCode: 1630,
+        accountId: 1630,
         amount,
       },
       {
-        accountCode: 2510,
+        accountId: 2510,
         amount: -amount,
       },
     ]
   } else if (description.startsWith('Moms ')) {
     // https://www.fortnox.se/fortnox-foretagsguide/bokforingstips/moms
-    verificationDescription = 'Skattekonto – dragning av moms'
-    verificationTransactions = [
+    journalEntryDescription = 'Skattekonto – dragning av moms'
+    journalEntryTransactions = [
       {
-        accountCode: 1630,
+        accountId: 1630,
         amount,
       },
       {
-        accountCode: 2650, // Redovisningskonto för moms
+        accountId: 2650, // Redovisningskonto för moms
         amount: -amount,
       },
     ]
@@ -141,38 +145,38 @@ function taxTransactionToVerification(
         - https://forum.bjornlunden.se/org/blinfo/d/ater-om-momsfordran-och-konto-1650/
         - https://foretagande.se/forum/bokforing-skatter-och-foretagsformer/72760-konto-1650-momsfordran
      */
-    verificationDescription = 'Skattekonto – beslut'
-    verificationTransactions = [
+    journalEntryDescription = 'Skattekonto – beslut'
+    journalEntryTransactions = [
       {
-        accountCode: 1630,
+        accountId: 1630,
         amount,
       },
       {
-        accountCode: 1650,
+        accountId: 1650,
         amount: -amount,
       },
     ]
   } else if (description.startsWith('Arbetsgivaravgift ')) {
-    verificationDescription = 'Skattekonto – arbetsgivaravgift'
-    verificationTransactions = [
+    journalEntryDescription = 'Skattekonto – arbetsgivaravgift'
+    journalEntryTransactions = [
       {
-        accountCode: 1630,
+        accountId: 1630,
         amount,
       },
       {
-        accountCode: 2731, // Avräkning lagstadgade sociala avgifter
+        accountId: 2731, // Avräkning lagstadgade sociala avgifter
         amount: -amount,
       },
     ]
   } else if (description.startsWith('Avdragen skatt ')) {
-    verificationDescription = 'Skattekonto – personalskatt'
-    verificationTransactions = [
+    journalEntryDescription = 'Skattekonto – personalskatt'
+    journalEntryTransactions = [
       {
-        accountCode: 1630,
+        accountId: 1630,
         amount,
       },
       {
-        accountCode: 2710, // Personalskatt
+        accountId: 2710, // Personalskatt
         amount: -amount,
       },
     ]
@@ -189,45 +193,45 @@ function taxTransactionToVerification(
       and crediting of 1630 works, but if we want to create entries based on
       tax account transactions it'll get messy.
      */
-    verificationDescription = 'Skattekonto – förseningsavgift'
-    verificationTransactions = [
+    journalEntryDescription = 'Skattekonto – förseningsavgift'
+    journalEntryTransactions = [
       {
-        accountCode: 1630,
+        accountId: 1630,
         amount,
       },
       {
-        accountCode: 6992, // Övriga externa kostnader, ej avdragsgilla
+        accountId: 6992, // Övriga externa kostnader, ej avdragsgilla
         amount: -amount,
       },
     ]
   }
 
-  if (!verificationDescription || !verificationTransactions.length) {
+  if (!journalEntryDescription || !journalEntryTransactions.length) {
     throw new Error(
       `Unknown tax transaction: ${JSON.stringify(transaction, null, 2)}`,
     )
   }
 
-  const verification: InferModel<typeof Verifications, 'insert'> = {
+  const journalEntry: InferModel<typeof JournalEntries, 'insert'> = {
     date,
-    description: verificationDescription,
+    description: journalEntryDescription,
   }
 
-  return { verification, transactions: verificationTransactions }
+  return { journalEntry, transactions: journalEntryTransactions }
 }
 
 async function linkDeposits() {
   const transactionsLackingEntries = await db
     .select()
-    .from(TransactionsBankTax)
+    .from(Transactions)
     .where(
       and(
-        eq(TransactionsBankTax.type, 'tax'),
-        like(TransactionsBankTax.description, 'Inbetalning bokförd %'),
-        isNotNull(TransactionsBankTax.verificationId),
+        eq(Transactions.type, 'tax'),
+        like(Transactions.description, 'Inbetalning bokförd %'),
+        isNotNull(Transactions.linkedToJournalEntryId),
       ),
     )
-    .orderBy(asc(TransactionsBankTax.id))
+    .orderBy(asc(Transactions.id))
 
   for (const entry of transactionsLackingEntries) {
     const depositedFromPersonalAccount = entry.date < new Date('2021-09-01')
@@ -244,12 +248,12 @@ async function linkDeposits() {
 
     const bankTransactions = await db
       .select()
-      .from(TransactionsBankTax)
+      .from(Transactions)
       .where(
         and(
-          eq(TransactionsBankTax.type, 'bankRegular'),
-          eq(TransactionsBankTax.date, yesterday),
-          eq(TransactionsBankTax.amount, -entry.amount),
+          eq(Transactions.type, 'bankRegular'),
+          eq(Transactions.date, yesterday),
+          eq(Transactions.amount, -entry.amount),
         ),
       )
 
@@ -270,9 +274,9 @@ async function linkDeposits() {
     }
 
     await db
-      .update(TransactionsBankTax)
-      .set({ verificationId: entry.verificationId })
-      .where(eq(TransactionsBankTax.id, bankTransactions[0].id))
+      .update(Transactions)
+      .set({ linkedToJournalEntryId: entry.linkedToJournalEntryId })
+      .where(eq(Transactions.id, bankTransactions[0].id))
   }
 }
 
@@ -280,38 +284,38 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'PUT') {
     const transactionsLackingEntries = await db
       .select()
-      .from(TransactionsBankTax)
+      .from(Transactions)
       .where(
         and(
-          eq(TransactionsBankTax.type, 'tax'),
-          isNull(TransactionsBankTax.verificationId),
+          eq(Transactions.type, 'tax'),
+          isNull(Transactions.linkedToJournalEntryId),
         ),
       )
-      .orderBy(asc(TransactionsBankTax.id))
+      .orderBy(asc(Transactions.id))
 
     try {
       await db.transaction(async (tx) => {
         for (const transaction of transactionsLackingEntries) {
-          const entry = taxTransactionToVerification(transaction)
+          const entry = taxTransactionToJournalEntry(transaction)
 
-          const insertedVerification = await tx
-            .insert(Verifications)
-            .values(entry.verification)
-            .returning({ id: Verifications.id })
+          const insertedjournalEntry = await tx
+            .insert(JournalEntries)
+            .values(entry.journalEntry)
+            .returning({ id: JournalEntries.id })
 
-          await tx.insert(Transactions).values(
+          await tx.insert(JournalEntryTransactions).values(
             entry.transactions.map((transaction) => ({
               ...transaction,
-              verificationId: insertedVerification[0].id,
+              journalEntryId: insertedjournalEntry[0].id,
             })),
           )
 
           await tx
-            .update(TransactionsBankTax)
+            .update(Transactions)
             .set({
-              verificationId: insertedVerification[0].id,
+              linkedToJournalEntryId: insertedjournalEntry[0].id,
             })
-            .where(eq(TransactionsBankTax.id, transaction.id))
+            .where(eq(Transactions.id, transaction.id))
         }
       })
 

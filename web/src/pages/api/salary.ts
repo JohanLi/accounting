@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { z } from 'zod'
 import { getSalaryTaxes } from '../../tax'
 import db from '../../db'
-import { Transactions, Verifications } from '../../schema'
+import { JournalEntryTransactions, JournalEntries } from '../../schema'
 import { krToOre } from '../../utils'
 
 const SalaryRequest = z.object({
@@ -25,8 +25,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   try {
     // https://www.fortnox.se/fortnox-foretagsguide/bokforingstips/loneutbetalning
-    const insertedVerifications = await db
-      .insert(Verifications)
+    const insertedJournalEntries = await db
+      .insert(JournalEntries)
       .values([
         {
           date,
@@ -41,43 +41,43 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           description: 'Lön (betalning till Skatteverket)',
         },
       ])
-      .returning({ id: Verifications.id })
+      .returning({ id: JournalEntries.id })
 
     const transactions = [
       [
         {
-          accountCode: 1930, // Bankkonto
+          accountId: 1930, // Bankkonto
           amount: -(amount - personalIncomeTax),
         },
         {
-          accountCode: 7210, // Löner till tjänstemän
+          accountId: 7210, // Löner till tjänstemän
           amount,
         },
         {
-          accountCode: 2710, // Personalskatt
+          accountId: 2710, // Personalskatt
           amount: -personalIncomeTax,
         },
         {
-          accountCode: 7510, // Arbetsgivaravgifter
+          accountId: 7510, // Arbetsgivaravgifter
           amount: payrollTax,
         },
         {
-          accountCode: 2731, // Avräkning lagstadgade sociala avgifter
+          accountId: 2731, // Avräkning lagstadgade sociala avgifter
           amount: -payrollTax,
         },
       ],
     ]
 
-    for (const [i, verification] of insertedVerifications.entries()) {
-      await db.insert(Transactions).values(
+    for (const [i, journalEntry] of insertedJournalEntries.entries()) {
+      await db.insert(JournalEntryTransactions).values(
         transactions[i].map((transaction) => ({
           ...transaction,
-          verificationId: verification.id,
+          journalEntryId: journalEntry.id,
         })),
       )
     }
 
-    res.json(insertedVerifications)
+    res.json(insertedJournalEntries)
   } catch (e) {
     console.error(e)
     res.status(500).json({})

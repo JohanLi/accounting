@@ -1,6 +1,6 @@
 import { Amount } from './Amount'
 import Documents from './Documents'
-import { Verification } from '../pages/api/verifications'
+import { JournalEntry } from '../pages/api/journalEntries'
 import { DateFormatted } from './DateFormatted'
 import Modal from './Modal'
 import LinkedTo, { LinkedToProps } from './LinkedTo'
@@ -12,10 +12,10 @@ import Dropdown from './Dropdown'
 
 const filters = ['All', 'Non-linked'] as const
 
-export default function Verifications() {
-  const verifications = useQuery<Verification[]>({
-    queryKey: ['verifications'],
-    queryFn: () => fetch('/api/verifications').then((res) => res.json()),
+export default function JournalEntries() {
+  const journalEntries = useQuery<JournalEntry[]>({
+    queryKey: ['journalEntries'],
+    queryFn: () => fetch('/api/journalEntries').then((res) => res.json()),
   })
 
   // TODO hardcoded to 2023 right now, as no entries exist for 2024 yet
@@ -26,15 +26,15 @@ export default function Verifications() {
 
   const [showLinkedTo, setShowLinkedTo] = useState<LinkedToProps | null>(null)
 
-  if (!verifications.data) {
+  if (!journalEntries.data) {
     return null
   }
 
-  let yearFilteredVerifications = verifications.data.filter((v) =>
+  let yearFilteredJournalEntries = journalEntries.data.filter((v) =>
     withinFiscalYear(v, selectedFiscalYear),
   )
 
-  let yearLinkFilteredVerifications = yearFilteredVerifications.filter(
+  let yearLinkFilteredJournalEntries = yearFilteredJournalEntries.filter(
     (v) => !v.hasLink,
   )
 
@@ -44,8 +44,8 @@ export default function Verifications() {
         {filters.map((filter) => {
           const count =
             filter === 'All'
-              ? yearFilteredVerifications.length
-              : yearLinkFilteredVerifications.length
+              ? yearFilteredJournalEntries.length
+              : yearLinkFilteredJournalEntries.length
 
           return (
             <a
@@ -78,7 +78,7 @@ export default function Verifications() {
         </div>
       </div>
       <h1 className="text-base font-semibold leading-6 text-gray-900">
-        Verifications
+        Journal entries
       </h1>
       <table className="min-w-full divide-y divide-gray-300">
         <thead>
@@ -112,24 +112,24 @@ export default function Verifications() {
         </thead>
         <tbody className="divide-y divide-gray-200">
           {(activeFilter !== 'Non-linked'
-            ? yearFilteredVerifications
-            : yearLinkFilteredVerifications
-          ).map((verification) => (
-            <tr key={verification.id}>
+            ? yearFilteredJournalEntries
+            : yearLinkFilteredJournalEntries
+          ).map((journalEntry) => (
+            <tr key={journalEntry.id}>
               <td className="whitespace-nowrap py-4 pr-3 text-xs text-gray-500">
-                <DateFormatted date={verification.date} />
+                <DateFormatted date={journalEntry.date} />
               </td>
               <td className="whitespace-nowrap py-4 pr-3 text-sm font-medium text-gray-900">
-                {verification.description}
+                {journalEntry.description}
               </td>
               <td className="whitespace-nowrap py-4 pr-3 text-sm text-gray-500">
-                {verification.transactions.length && (
+                {journalEntry.transactions.length && (
                   <table className="min-w-full divide-y divide-gray-300">
                     <tbody className="divide-y divide-gray-200 bg-white">
-                      {verification.transactions.map((transaction) => (
+                      {journalEntry.transactions.map((transaction) => (
                         <tr key={transaction.id}>
                           <td className="w-16 py-2 pr-3 text-sm text-gray-500">
-                            {transaction.accountCode}
+                            {transaction.accountId}
                           </td>
                           <td className="px-2 py-2 text-right text-sm font-medium">
                             <Amount amount={transaction.amount} />
@@ -141,10 +141,10 @@ export default function Verifications() {
                 )}
               </td>
               <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                <Documents documents={verification.documents} />
+                <Documents documents={journalEntry.documents} />
               </td>
               <td className="relative whitespace-nowrap py-4 text-right text-xs">
-                {verification.hasLink && (
+                {journalEntry.hasLink && (
                   <a
                     href="#"
                     className={classNames(
@@ -154,7 +154,7 @@ export default function Verifications() {
                     onClick={(e) => {
                       e.preventDefault()
 
-                      setShowLinkedTo({ verification })
+                      setShowLinkedTo({ journalEntry })
                     }}
                   >
                     <LinkIcon className="h-4 w-4" />

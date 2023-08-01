@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import mime from 'mime-types'
 import db from '../../db'
 import { eq } from 'drizzle-orm'
-import { Documents } from '../../schema'
+import { JournalEntryDocuments } from '../../schema'
 
 export default async function handler(
   req: NextApiRequest,
@@ -11,8 +11,8 @@ export default async function handler(
   if (req.method === 'GET') {
     const id = parseInt(req.query.id as string)
 
-    const document = await db.query.Documents.findFirst({
-      where: eq(Documents.id, id),
+    const document = await db.query.JournalEntryDocuments.findFirst({
+      where: eq(JournalEntryDocuments.id, id),
     })
 
     if (!document) {

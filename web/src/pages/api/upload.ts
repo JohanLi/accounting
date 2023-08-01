@@ -2,7 +2,11 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { getPDFStrings, parse, receiptToTransactions } from '../../receipt'
 import crypto from 'crypto'
 import db from '../../db'
-import { Documents, Transactions, Verifications } from '../../schema'
+import {
+  JournalEntryDocuments,
+  JournalEntryTransactions,
+  JournalEntries,
+} from '../../schema'
 import { inArray } from 'drizzle-orm'
 
 export const config = {
@@ -66,17 +70,17 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   const hashes = (
     await db
-      .select({ hash: Documents.hash })
-      .from(Documents)
+      .select({ hash: JournalEntryDocuments.hash })
+      .from(JournalEntryDocuments)
       .where(
         inArray(
-          Documents.hash,
+          JournalEntryDocuments.hash,
           documents.map((document) => document.hash),
         ),
       )
   ).map((document) => document.hash)
 
-  const verifications = await Promise.all(
+  const journalEntries = await Promise.all(
     documents
       .filter((document) => !hashes.includes(document.hash))
       .map(async (document) => {
@@ -91,40 +95,40 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       }),
   )
 
-  if (!verifications.length) {
+  if (!journalEntries.length) {
     res.status(200).json([])
     return
   }
 
   try {
-    const insertedVerifications = await db
-      .insert(Verifications)
+    const insertedJournalEntries = await db
+      .insert(JournalEntries)
       .values(
-        verifications.map((verification) => ({
-          date: verification.date,
-          description: verification.description,
+        journalEntries.map((journalEntry) => ({
+          date: journalEntry.date,
+          description: journalEntry.description,
         })),
       )
       .returning()
 
-    const transactions = verifications
-      .map((verification, i) =>
-        verification.transactions.map((transaction) => ({
+    const transactions = journalEntries
+      .map((journalEntry, i) =>
+        journalEntry.transactions.map((transaction) => ({
           ...transaction,
-          verificationId: insertedVerifications[i].id,
+          journalEntryId: insertedJournalEntries[i].id,
         })),
       )
       .flat()
 
-    const documents = verifications.map((verification, i) => ({
-      ...verification.documents,
-      verificationId: insertedVerifications[i].id,
+    const documents = journalEntries.map((journalEntry, i) => ({
+      ...journalEntry.documents,
+      journalEntryId: insertedJournalEntries[i].id,
     }))
 
-    await db.insert(Transactions).values(transactions)
-    await db.insert(Documents).values(documents)
+    await db.insert(JournalEntryTransactions).values(transactions)
+    await db.insert(JournalEntryDocuments).values(documents)
 
-    res.status(200).json(insertedVerifications)
+    res.status(200).json(insertedJournalEntries)
   } catch (e) {
     console.error(e)
     res.status(500).json({})

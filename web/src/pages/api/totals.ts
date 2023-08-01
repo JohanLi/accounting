@@ -1,10 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { asc, eq, isNull, sql } from 'drizzle-orm'
+import { asc, eq, sql } from 'drizzle-orm'
 import db from '../../db'
-import { Transactions, Verifications } from '../../schema'
+import { JournalEntryTransactions, JournalEntries } from '../../schema'
 
 export type Total = {
-  accountCode: number
+  accountId: number
   amount: number
 }
 
@@ -15,16 +15,16 @@ export default async function handler(
   if (req.method === 'GET') {
     const totals = await db
       .select({
-        accountCode: Transactions.accountCode,
+        accountId: JournalEntryTransactions.accountId,
         amount: sql<number>`sum(amount)`,
       })
-      .from(Transactions)
+      .from(JournalEntryTransactions)
       .leftJoin(
-        Verifications,
-        eq(Transactions.verificationId, Verifications.id),
+        JournalEntries,
+        eq(JournalEntryTransactions.journalEntryId, JournalEntries.id),
       )
-      .groupBy(Transactions.accountCode)
-      .orderBy(asc(Transactions.accountCode))
+      .groupBy(JournalEntryTransactions.accountId)
+      .orderBy(asc(JournalEntryTransactions.accountId))
 
     res.status(200).json(totals)
     return

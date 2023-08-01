@@ -57,9 +57,9 @@ export default function Accounts() {
           </thead>
           <tbody className="divide-y divide-gray-200">
             {accounts.data?.map((account) => (
-              <tr key={account.code}>
+              <tr key={account.id}>
                 <td className="whitespace-nowrap py-4 pr-3 text-xs text-gray-500">
-                  {account.code}
+                  {account.id}
                 </td>
                 <td className="whitespace-nowrap py-4 pr-3 text-sm font-medium text-gray-900">
                   {account.description}

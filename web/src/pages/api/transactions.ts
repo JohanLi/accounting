@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import db from '../../db'
-import { transactionBankTaxTypeEnum, TransactionsBankTax } from '../../schema'
+import { transactionTypeEnum, Transactions } from '../../schema'
 import { z } from 'zod'
 import { desc, InferModel } from 'drizzle-orm'
 import { krToOre } from '../../utils'
@@ -30,7 +30,7 @@ const commonSchema = z.object({
      "type" is also saved in raw although it's a derived value.
    */
   accountId: z.string(),
-  type: z.enum(transactionBankTaxTypeEnum.enumValues),
+  type: z.enum(transactionTypeEnum.enumValues),
 })
 
 const outgoingOrIngoingSchema = z.union([
@@ -47,7 +47,7 @@ const taxTransactionSchema = z.array(
   }),
 )
 
-export type TransactionsResponse = InferModel<typeof TransactionsBankTax>[]
+export type TransactionsResponse = InferModel<typeof Transactions>[]
 
 function throwIfWrongSequence(
   transactions: { amount: number; balance: number }[],
@@ -80,8 +80,8 @@ const handler = async (
   if (req.method === 'GET') {
     const transactions = await db
       .select()
-      .from(TransactionsBankTax)
-      .orderBy(desc(TransactionsBankTax.id))
+      .from(Transactions)
+      .orderBy(desc(Transactions.id))
 
     res.status(200).json(transactions)
     return
@@ -93,7 +93,7 @@ const handler = async (
         .array()
         .safeParse(req.body)
 
-      let transactions: InferModel<typeof TransactionsBankTax, 'insert'>[] = []
+      let transactions: InferModel<typeof Transactions, 'insert'>[] = []
 
       if (bankTransactions.success) {
         transactions = await Promise.all(
@@ -144,7 +144,7 @@ const handler = async (
       }
 
       const insertedTransactions = await db
-        .insert(TransactionsBankTax)
+        .insert(Transactions)
         .values(transactions)
         .onConflictDoNothing()
         .returning()

@@ -1,25 +1,25 @@
 import { useQuery } from '@tanstack/react-query'
-import { Verification } from '../pages/api/verifications'
+import { JournalEntry } from '../pages/api/journalEntries'
 import { InferModel } from 'drizzle-orm'
-import { TransactionsBankTax } from '../schema'
+import { Transactions } from '../schema'
 import { LinkedToResponse } from '../pages/api/linkedTo'
 
 export type LinkedToProps =
   | {
-      verification: Verification
+      journalEntry: JournalEntry
       transaction?: never
     }
   | {
-      verification?: never
-      transaction: InferModel<typeof TransactionsBankTax>
+      journalEntry?: never
+      transaction: InferModel<typeof Transactions>
     }
 
-export default function LinkedTo({ verification, transaction }: LinkedToProps) {
+export default function LinkedTo({ journalEntry, transaction }: LinkedToProps) {
   const linkedTo = useQuery<LinkedToResponse>({
     queryKey: [
       'linkedTo',
-      verification
-        ? `verificationId=${verification.id}`
+      journalEntry
+        ? `journalEntryId=${journalEntry.id}`
         : `bankTransactionId=${transaction.id}`,
     ],
     queryFn: ({ queryKey }) =>
@@ -30,16 +30,16 @@ export default function LinkedTo({ verification, transaction }: LinkedToProps) {
     return null
   }
 
-  const { linkedBankTransactions, linkedVerification } = linkedTo.data
+  const { linkedBankTransactions, linkedJournalEntry } = linkedTo.data
 
   return (
     <div className="divide-y divide-gray-300">
-      {verification && (
+      {journalEntry && (
         <div>
           <h2 className="text-base font-semibold leading-6 text-gray-900">
-            Verification
+            Journal entry
           </h2>
-          <pre>{JSON.stringify(verification, null, 2)}</pre>
+          <pre>{JSON.stringify(journalEntry, null, 2)}</pre>
         </div>
       )}
       {transaction && (
@@ -56,9 +56,9 @@ export default function LinkedTo({ verification, transaction }: LinkedToProps) {
         </h2>
         <pre>{JSON.stringify(linkedBankTransactions, null, 2)}</pre>
         <h2 className="text-base font-semibold leading-6 text-gray-900">
-          Verifications
+          Journal entries
         </h2>
-        <pre>{JSON.stringify(linkedVerification, null, 2)}</pre>
+        <pre>{JSON.stringify(linkedJournalEntry, null, 2)}</pre>
       </div>
     </div>
   )

@@ -1,12 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import db from '../../db'
-import { TransactionsBankTax, Verifications } from '../../schema'
+import { Transactions, JournalEntries } from '../../schema'
 import { and, eq, InferModel, ne } from 'drizzle-orm'
-import { Verification } from './verifications'
+import { JournalEntry } from './journalEntries'
 
 export type LinkedToResponse = {
-  linkedBankTransactions: InferModel<typeof TransactionsBankTax>[]
-  linkedVerification: Omit<Verification, 'hasLink'> | null
+  linkedBankTransactions: InferModel<typeof Transactions>[]
+  linkedJournalEntry: Omit<JournalEntry, 'hasLink'> | null
 }
 
 const handler = async (
@@ -15,9 +15,9 @@ const handler = async (
 ) => {
   if (req.method === 'GET') {
     const bankTransactionId = parseInt(req.query.bankTransactionId as string)
-    const verificationId = parseInt(req.query.verificationId as string)
+    const journalEntryId = parseInt(req.query.journalEntryId as string)
 
-    if (!bankTransactionId && !verificationId) {
+    if (!bankTransactionId && !journalEntryId) {
       res.status(400).end()
       return
     }
@@ -25,31 +25,31 @@ const handler = async (
     if (bankTransactionId) {
       const bankTransaction = await db
         .select()
-        .from(TransactionsBankTax)
-        .where(eq(TransactionsBankTax.id, bankTransactionId))
+        .from(Transactions)
+        .where(eq(Transactions.id, bankTransactionId))
 
-      const { verificationId } = bankTransaction[0]
+      const { linkedToJournalEntryId } = bankTransaction[0]
 
-      if (!verificationId) {
+      if (!linkedToJournalEntryId) {
         res.status(200).json({
           linkedBankTransactions: [],
-          linkedVerification: null,
+          linkedJournalEntry: null,
         })
         return
       }
 
       const linkedBankTransactions = await db
         .select()
-        .from(TransactionsBankTax)
+        .from(Transactions)
         .where(
           and(
-            eq(TransactionsBankTax.verificationId, verificationId),
-            ne(TransactionsBankTax.id, bankTransactionId),
+            eq(Transactions.linkedToJournalEntryId, linkedToJournalEntryId),
+            ne(Transactions.id, bankTransactionId),
           ),
         )
 
-      const linkedVerification =
-        (await db.query.Verifications.findFirst({
+      const linkedJournalEntry =
+        (await db.query.JournalEntries.findFirst({
           with: {
             transactions: true,
             documents: {
@@ -59,24 +59,24 @@ const handler = async (
               },
             },
           },
-          where: eq(Verifications.id, verificationId),
+          where: eq(JournalEntries.id, linkedToJournalEntryId),
         })) || null
 
       res.status(200).json({
         linkedBankTransactions,
-        linkedVerification,
+        linkedJournalEntry,
       })
       return
     }
 
     const linkedBankTransactions = await db
       .select()
-      .from(TransactionsBankTax)
-      .where(eq(TransactionsBankTax.verificationId, verificationId))
+      .from(Transactions)
+      .where(eq(Transactions.linkedToJournalEntryId, journalEntryId))
 
     res.status(200).json({
       linkedBankTransactions,
-      linkedVerification: null,
+      linkedJournalEntry: null,
     })
     return
   }

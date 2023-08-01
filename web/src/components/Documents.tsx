@@ -1,7 +1,7 @@
-import type { Verification } from '../pages/api/verifications'
+import type { JournalEntry } from '../pages/api/journalEntries'
 
 type Props = {
-  documents: Verification['documents']
+  documents: JournalEntry['documents']
 }
 
 export default function Documents({ documents }: Props) {

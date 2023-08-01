@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Total } from '../pages/api/totals'
 import { Amount } from './Amount'
 
-const accountsOfInterest: { [accountCode: number]: string } = {
+const accountsOfInterest: { [accountId: number]: string } = {
   1930: 'Bank 1',
   1932: 'Bank 2',
   2890: 'Owed to Self',
@@ -43,11 +43,11 @@ export default function Totals() {
         </thead>
         <tbody>
           {totals.data
-            .filter((total) => accountsOfInterest[total.accountCode])
+            .filter((total) => accountsOfInterest[total.accountId])
             .map((total) => (
-              <tr key={total.accountCode}>
+              <tr key={total.accountId}>
                 <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
-                  {accountsOfInterest[total.accountCode]}
+                  {accountsOfInterest[total.accountId]}
                 </td>
                 <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                   <Amount amount={total.amount} />

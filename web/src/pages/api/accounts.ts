@@ -1,11 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { and, asc, eq, gte, lt, sql } from 'drizzle-orm'
 import db from '../../db'
-import { Accounts, Transactions, Verifications } from '../../schema'
+import {
+  Accounts,
+  JournalEntryTransactions,
+  JournalEntries,
+} from '../../schema'
 import { getFiscalYear } from '../../utils'
 
 export type AccountsResponse = {
-  code: number
+  id: number
   description: string
   total: number
 }[]
@@ -21,24 +25,27 @@ export default async function handler(
 
     const accounts = await db
       .select({
-        code: Accounts.code,
+        id: Accounts.id,
         description: Accounts.description,
         total: sql<number>`sum(amount)`,
       })
       .from(Accounts)
-      .leftJoin(Transactions, eq(Accounts.code, Transactions.accountCode))
       .leftJoin(
-        Verifications,
-        eq(Transactions.verificationId, Verifications.id),
+        JournalEntryTransactions,
+        eq(Accounts.id, JournalEntryTransactions.accountId),
+      )
+      .leftJoin(
+        JournalEntries,
+        eq(JournalEntryTransactions.journalEntryId, JournalEntries.id),
       )
       .where(
         and(
-          gte(Verifications.date, startInclusive),
-          lt(Verifications.date, endExclusive),
+          gte(JournalEntries.date, startInclusive),
+          lt(JournalEntries.date, endExclusive),
         ),
       )
-      .groupBy(Accounts.code)
-      .orderBy(asc(Accounts.code))
+      .groupBy(Accounts.id)
+      .orderBy(asc(Accounts.id))
 
     res.status(200).json(accounts)
     return

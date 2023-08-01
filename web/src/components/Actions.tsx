@@ -31,7 +31,7 @@ export default function Actions() {
       }).then((res) => res.json()),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['totals'] })
-      queryClient.invalidateQueries({ queryKey: ['verifications'] })
+      queryClient.invalidateQueries({ queryKey: ['journalEntries'] })
       queryClient.invalidateQueries({ queryKey: ['accounts'] })
     },
   })

@@ -22,8 +22,7 @@ next-env.d.ts
 
 .idea
 /src/receipts
-/scripts/verifications
-/scripts/documents
+/scripts/journalEntries
 
 /tests/report
 /tests/results

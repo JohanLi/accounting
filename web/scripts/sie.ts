@@ -41,7 +41,7 @@ export function extractDate(input: string) {
 }
 
 type Transaction = {
-  accountCode: number
+  accountId: number
   amount: number
 }
 
@@ -90,11 +90,11 @@ export function extractVerifications(input: string) {
           throw Error('Line after "{" does not start with "\t#TRANS"')
         }
 
-        // "dimensions" comes after accountCode, but it's not used in my bookkeeping
-        const [, accountCode, , amount] = lines[i].trim().split(' ')
+        // "dimensions" comes after accountId, but it's not used in my bookkeeping
+        const [, accountId, , amount] = lines[i].trim().split(' ')
 
         verification.transactions.push({
-          accountCode: parseInt(accountCode),
+          accountId: parseInt(accountId),
           amount: krToOre(amount),
         })
 
@@ -108,18 +108,18 @@ export function extractVerifications(input: string) {
   return verifications
 }
 
-export function getUniqueAccountCodes(verifications: ImportVerification[]) {
-  const accountCodes: number[] = []
+export function getUniqueAccountIds(verifications: ImportVerification[]) {
+  const accountIds: number[] = []
 
   for (const verification of verifications) {
     for (const transaction of verification.transactions) {
-      if (!accountCodes.includes(transaction.accountCode)) {
-        accountCodes.push(transaction.accountCode)
+      if (!accountIds.includes(transaction.accountId)) {
+        accountIds.push(transaction.accountId)
       }
     }
   }
 
-  return accountCodes
+  return accountIds
 }
 
 export function markDeletedAndRemoveNegations(

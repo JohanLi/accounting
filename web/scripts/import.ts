@@ -1,65 +1,56 @@
-import { readdir, readFile, mkdir } from 'fs/promises'
+import { readdir, readFile } from 'fs/promises'
 import iconv from 'iconv-lite'
 import {
   extractVerifications,
   getAccountMap,
-  getUniqueAccountCodes,
+  getUniqueAccountIds,
   markDeletedAndRemoveNegations,
 } from './sie'
 import { getHash } from '../src/pages/api/upload'
 import db from '../src/db'
-import { Accounts, Documents, Transactions, Verifications } from '../src/schema'
-import { sql } from 'drizzle-orm'
+import {
+  Accounts,
+  JournalEntryDocuments,
+  JournalEntryTransactions,
+  JournalEntries,
+} from '../src/schema'
 
 const oldIdToId = new Map()
 
-async function importVerifications(year: number) {
+async function importJournalEntries(year: number) {
   const sieFile = iconv.decode(
-    await readFile(`${__dirname}/verifications/${year}.sie`),
+    await readFile(`${__dirname}/journalEntries/${year}.sie`),
     'CP437',
   )
 
-  const verifications = markDeletedAndRemoveNegations(
+  const journalEntries = markDeletedAndRemoveNegations(
     extractVerifications(sieFile),
   ).filter(({ deletedAt }) => !deletedAt)
 
-  /*
-    Creating accounts ahead of time is no longer necessary, because the
-    database setup script does it. Although it won't occur with this
-    particular import, it might be worth properly logging any
-    missing accounts
-   */
   const accountMap = getAccountMap(sieFile)
-  const uniqueAccountCodes = getUniqueAccountCodes(verifications)
-  const accounts = uniqueAccountCodes.map((code) => ({
-    code,
-    description: accountMap[code],
+  const uniqueAccountIds = getUniqueAccountIds(journalEntries)
+  const accounts = uniqueAccountIds.map((id) => ({
+    id,
+    description: accountMap[id],
   }))
 
-  await db
-    .insert(Accounts)
-    .values(accounts)
-    .onConflictDoUpdate({
-      target: Accounts.code,
-      // https://stackoverflow.com/a/36930792
-      set: { description: sql`excluded.description` },
-    })
+  await db.insert(Accounts).values(accounts).onConflictDoNothing()
 
-  const insertedVerifications = await db
-    .insert(Verifications)
-    .values(verifications)
+  const insertedJournalEntries = await db
+    .insert(JournalEntries)
+    .values(journalEntries)
     .returning()
 
-  verifications.forEach((v, i) => {
-    oldIdToId.set(v.oldId, insertedVerifications[i].id)
+  journalEntries.forEach((v, i) => {
+    oldIdToId.set(v.oldId, insertedJournalEntries[i].id)
   })
 
-  await db.insert(Transactions).values(
-    verifications
+  await db.insert(JournalEntryTransactions).values(
+    journalEntries
       .map(({ transactions, oldId }) =>
         transactions.map((transaction) => ({
           ...transaction,
-          verificationId: oldIdToId.get(oldId),
+          journalEntryId: oldIdToId.get(oldId),
         })),
       )
       .flat(),
@@ -67,11 +58,7 @@ async function importVerifications(year: number) {
 }
 
 async function importDocuments(year: number) {
-  const destination = `${__dirname}/../public/documents`
-
-  await mkdir(destination, { recursive: true })
-
-  const directory = `${__dirname}/documents/${year}`
+  const directory = `${__dirname}/journalEntries/documents/${year}`
 
   const fileNames = await readdir(directory)
 
@@ -82,12 +69,12 @@ async function importDocuments(year: number) {
       throw Error(`Found an unexpected file name: ${fileName}`)
     }
 
-    // the ordering of documents for a given verification is not handled for now
-    const [, oldId, i] = found
+    // the ordering of documents for a given journal entry is not handled for now
+    const [, oldId] = found
 
-    const verificationId = oldIdToId.get(Number(oldId))
+    const journalEntryId = oldIdToId.get(Number(oldId))
 
-    if (!verificationId) {
+    if (!journalEntryId) {
       continue
     }
 
@@ -101,11 +88,11 @@ async function importDocuments(year: number) {
     const hash = await getHash(data, extension)
 
     try {
-      await db.insert(Documents).values({
+      await db.insert(JournalEntryDocuments).values({
         extension,
         hash,
         data,
-        verificationId,
+        journalEntryId,
       })
     } catch (e: any) {
       if (e.code !== '23505') {
@@ -120,7 +107,7 @@ async function importDocuments(year: number) {
         I don't think the second entry strictly needs the same document attached to it.
        */
       console.log(
-        `${directory}/${fileName} with the hash '${hash}' belonging to verificationId ${verificationId} already exists`,
+        `${directory}/${fileName} with the hash '${hash}' belonging to journalEntryId ${journalEntryId} already exists`,
       )
     }
   }
@@ -128,7 +115,7 @@ async function importDocuments(year: number) {
 
 async function main() {
   for (const year of [2021, 2022, 2023]) {
-    await importVerifications(year)
+    await importJournalEntries(year)
     await importDocuments(year)
   }
 

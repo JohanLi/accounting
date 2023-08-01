@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 import {
   extractVerifications,
-  getUniqueAccountCodes,
+  getUniqueAccountIds,
   markDeletedAndRemoveNegations,
   ImportVerification,
 } from './sie'
@@ -33,15 +33,15 @@ b
       deletedAt: null,
       transactions: [
         {
-          accountCode: 2640,
+          accountId: 2640,
           amount: 1358,
         },
         {
-          accountCode: 2890,
+          accountId: 2890,
           amount: -24000,
         },
         {
-          accountCode: 7699,
+          accountId: 7699,
           amount: 22642,
         },
       ],
@@ -54,11 +54,11 @@ b
       deletedAt: null,
       transactions: [
         {
-          accountCode: 1630,
+          accountId: 1630,
           amount: 10000000,
         },
         {
-          accountCode: 1930,
+          accountId: 1930,
           amount: -10000000,
         },
       ],
@@ -68,11 +68,11 @@ b
 
 test('getUniqueAccountCodes', () => {
   expect(
-    getUniqueAccountCodes([
+    getUniqueAccountIds([
       {
         transactions: [
           {
-            accountCode: 2640,
+            accountId: 2640,
             amount: 0,
           },
         ],
@@ -80,15 +80,15 @@ test('getUniqueAccountCodes', () => {
       {
         transactions: [
           {
-            accountCode: 1630,
+            accountId: 1630,
             amount: 0,
           },
           {
-            accountCode: 1930,
+            accountId: 1930,
             amount: 0,
           },
           {
-            accountCode: 2640,
+            accountId: 2640,
             amount: 0,
           },
         ],

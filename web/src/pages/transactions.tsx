@@ -8,10 +8,10 @@ import { LinkIcon } from '@heroicons/react/20/solid'
 import { useState } from 'react'
 import Modal from '../components/Modal'
 import LinkedTo, { LinkedToProps } from '../components/LinkedTo'
-import { transactionBankTaxTypes } from '../schema'
+import { transactionTypes } from '../schema'
 
 const typeToLabel: {
-  [key in (typeof transactionBankTaxTypes)[number]]: string
+  [key in (typeof transactionTypes)[number]]: string
 } = {
   bankRegular: 'Företagskonto',
   bankSavings: 'Sparkonto',
@@ -40,7 +40,8 @@ export default function Accounts() {
               const count =
                 filter === 'All'
                   ? transactions.data.length
-                  : transactions.data.filter((t) => t.verificationId).length
+                  : transactions.data.filter((t) => t.linkedToJournalEntryId)
+                      .length
 
               return (
                 <a
@@ -64,7 +65,7 @@ export default function Accounts() {
             })}
           </div>
           <div className="space-y-12">
-            {transactionBankTaxTypes.map((type) => (
+            {transactionTypes.map((type) => (
               <div key={type}>
                 <h2 className="text-base font-semibold leading-6 text-gray-900">
                   {typeToLabel[type]}
@@ -104,7 +105,7 @@ export default function Accounts() {
                       .filter((t) => t.type === type)
                       .filter((t) =>
                         activeFilter === 'Non-linked'
-                          ? !t.verificationId
+                          ? !t.linkedToJournalEntryId
                           : true,
                       )
                       .map((transaction) => (
@@ -125,7 +126,7 @@ export default function Accounts() {
                             <Amount amount={transaction.balance} />
                           </td>
                           <td className="relative whitespace-nowrap py-4 text-right text-xs">
-                            {transaction.verificationId && (
+                            {transaction.linkedToJournalEntryId && (
                               <a
                                 href="#"
                                 className={classNames(
