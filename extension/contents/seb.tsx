@@ -15,6 +15,8 @@ import cssText from 'data-text:./style.css'
 import type { PlasmoCSConfig } from 'plasmo'
 import Download from '../download'
 
+import { COMPANY_START_DATE, getTomorrow } from '../utils'
+
 export const config: PlasmoCSConfig = {
   matches: ['https://apps.seb.se/ccs/ibf/*'],
 }
@@ -42,7 +44,10 @@ const API_BASE_URL =
 const FIRST_INVOICE_DATE = '2021-12-07'
 
 async function getDownloads() {
-  const response = await fetch(API_BASE_URL, { credentials: 'include' })
+  const response = await fetch(
+    `${API_BASE_URL}?from_date=${COMPANY_START_DATE}&to_date=${getTomorrow()}`,
+    { credentials: 'include' },
+  )
 
   if (!response.ok) {
     throw new Error('Failed to fetch invoices')
@@ -54,9 +59,7 @@ async function getDownloads() {
     throw new Error('No invoices found')
   }
 
-  if (
-    documents[documents.length - 1].effective_date !== FIRST_INVOICE_DATE
-  ) {
+  if (documents[documents.length - 1].effective_date !== FIRST_INVOICE_DATE) {
     throw new Error(
       'The earliest invoice found does not match the known earliest invoice',
     )
@@ -71,5 +74,10 @@ async function getDownloads() {
 }
 
 export default function Seb() {
-  return <Download getDownloads={getDownloads} requestInit={{ credentials: 'include' }} />
+  return (
+    <Download
+      getDownloads={getDownloads}
+      requestInit={{ credentials: 'include' }}
+    />
+  )
 }
