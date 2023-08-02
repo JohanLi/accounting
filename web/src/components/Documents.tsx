@@ -17,7 +17,7 @@ export default function Documents({ documents }: Props) {
         return (
           <li key={document.id}>
             <a href={url} className="text-indigo-600 hover:text-indigo-900">
-              {document.extension}
+              pdf
             </a>
           </li>
         )

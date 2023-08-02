@@ -1,5 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import mime from 'mime-types'
 import db from '../../db'
 import { eq } from 'drizzle-orm'
 import { JournalEntryDocuments } from '../../schema'
@@ -19,13 +18,7 @@ export default async function handler(
       throw Error(`Could not find document with id: ${id}`)
     }
 
-    const contentType = mime.lookup(document.extension)
-
-    if (!contentType) {
-      throw Error(`Unknown content type for extension: ${document.extension}`)
-    }
-
-    res.setHeader('Content-Type', contentType)
+    res.setHeader('Content-Type', 'application/pdf')
     res.end(document.data)
     return
   }

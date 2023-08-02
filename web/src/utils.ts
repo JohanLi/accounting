@@ -1,5 +1,6 @@
 import { JournalEntry } from './pages/api/journalEntries'
 import Decimal from 'decimal.js'
+import crypto from 'crypto'
 
 export function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
@@ -53,4 +54,8 @@ export function formatNumber(number: number) {
 
 export function krToOre(kr: string | number) {
   return Decimal.mul(kr, 100).round().toNumber()
+}
+
+export function getHash(input: Buffer | string) {
+  return crypto.createHash('sha256').update(input).digest('hex')
 }

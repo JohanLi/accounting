@@ -38,7 +38,6 @@ test.describe.serial('upload', () => {
     request,
   }) => {
     const uploadFile: UploadFile = {
-      extension: 'pdf',
       data: await getBase64('./src/receipts/skiing.pdf'),
     }
 
@@ -60,7 +59,6 @@ test.describe.serial('upload', () => {
     request,
   }) => {
     const uploadFile: UploadFile = {
-      extension: 'pdf',
       data: await getBase64('./src/receipts/mobile.pdf'),
     }
 

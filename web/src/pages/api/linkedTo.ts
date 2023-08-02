@@ -55,7 +55,6 @@ const handler = async (
             documents: {
               columns: {
                 id: true,
-                extension: true,
               },
             },
           },

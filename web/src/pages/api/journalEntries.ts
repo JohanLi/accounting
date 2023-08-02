@@ -9,10 +9,7 @@ import {
 } from '../../schema'
 
 export type JournalEntry = InferModel<typeof JournalEntries> & {
-  documents: Pick<
-    InferModel<typeof JournalEntryDocuments>,
-    'id' | 'extension'
-  >[]
+  documents: Pick<InferModel<typeof JournalEntryDocuments>, 'id'>[]
   transactions: InferModel<typeof JournalEntryTransactions>[]
   hasLink: boolean
 }
@@ -39,7 +36,6 @@ export default async function handler(
         documents: {
           columns: {
             id: true,
-            extension: true,
           },
         },
       },

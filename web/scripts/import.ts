@@ -6,7 +6,6 @@ import {
   getUniqueAccountIds,
   markDeletedAndRemoveNegations,
 } from './sie'
-import { getHash } from '../src/pages/api/upload'
 import db from '../src/db'
 import {
   Accounts,
@@ -14,6 +13,8 @@ import {
   JournalEntryTransactions,
   JournalEntries,
 } from '../src/schema'
+
+import { getPdfHash } from '../src/getPdfHash'
 
 const oldIdToId = new Map()
 
@@ -80,16 +81,18 @@ async function importDocuments(year: number) {
 
     const extension = fileName.split('.').pop()
 
-    if (!extension) {
-      throw Error(`No extension found: ${fileName}`)
+    if (extension !== 'pdf') {
+      console.log(
+        `${fileName} belonging to journalEntryId ${journalEntryId} is not a pdf – skipping`,
+      )
+      continue
     }
 
     const data = await readFile(`${directory}/${fileName}`)
-    const hash = await getHash(data, extension)
+    const hash = await getPdfHash(data)
 
     try {
       await db.insert(JournalEntryDocuments).values({
-        extension,
         hash,
         data,
         journalEntryId,

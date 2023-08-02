@@ -113,7 +113,6 @@ export default function Download({ getDownloads, requestInit }: Props) {
           const data = Buffer.from(buffer).toString('base64')
           return {
             data,
-            extension: 'pdf',
           }
         }),
       )

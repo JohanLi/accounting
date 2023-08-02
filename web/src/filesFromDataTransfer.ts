@@ -59,13 +59,11 @@ export async function getExtensionAndData(file: File) {
     reader.readAsDataURL(file)
 
     reader.onload = () => {
-      const extension = file.name.split('.').pop() || ''
-
       // https://developer.mozilla.org/en-US/docs/Web/API/FileReader/readAsDataURL
       let data = reader.result as string
       data = data.substring(data.indexOf(',') + 1)
 
-      resolve({ extension, data })
+      resolve({ data })
     }
 
     reader.onerror = (error) => reject(error)

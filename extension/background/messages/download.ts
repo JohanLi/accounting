@@ -1,7 +1,6 @@
 import type { PlasmoMessaging } from '@plasmohq/messaging'
 
 export type UploadFile = {
-  extension: string
   data: string
 }
 

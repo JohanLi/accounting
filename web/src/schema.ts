@@ -63,7 +63,6 @@ export const JournalEntryDocuments = pgTable(
     journalEntryId: integer('journal_entry_id')
       .notNull()
       .references(() => JournalEntries.id),
-    extension: text('extension').notNull(),
     hash: text('hash').notNull(),
     data: bytea('data').notNull(),
   },

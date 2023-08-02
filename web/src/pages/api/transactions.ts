@@ -3,8 +3,7 @@ import db from '../../db'
 import { transactionTypeEnum, Transactions } from '../../schema'
 import { z } from 'zod'
 import { desc, InferModel } from 'drizzle-orm'
-import { krToOre } from '../../utils'
-import crypto from 'crypto'
+import { getHash, krToOre } from '../../utils'
 
 const outgoingSchema = z.object({
   outgoingAmount: z.string(),
@@ -70,7 +69,7 @@ function throwIfWrongSequence(
 }
 
 async function getExternalId(...fields: string[]) {
-  return crypto.createHash('sha256').update(fields.join('-')).digest('hex')
+  return getHash(fields.join('-'))
 }
 
 const handler = async (

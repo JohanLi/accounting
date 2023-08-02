@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { getPDFStrings, parse, receiptToTransactions } from '../../receipt'
-import crypto from 'crypto'
+import { parse, receiptToTransactions } from '../../receipt'
 import db from '../../db'
 import {
   JournalEntryDocuments,
@@ -8,6 +7,8 @@ import {
   JournalEntries,
 } from '../../schema'
 import { inArray } from 'drizzle-orm'
+
+import { getPdfHash } from '../../getPdfHash'
 
 export const config = {
   api: {
@@ -17,28 +18,8 @@ export const config = {
   },
 }
 
-async function md5(buffer: Buffer) {
-  return crypto.createHash('md5').update(buffer).digest('hex')
-}
-
 export type UploadFile = {
-  extension: string
   data: string
-}
-
-/*
-  Developers Bay generates a slightly different PDF each time you download
-  an invoice — specifically CreationDate and ModDate in the PDF metadata.
-
-  Because of this, the hash is instead based on the PDF strings.
- */
-export async function getHash(data: Buffer, extension: string) {
-  if (extension !== 'pdf') {
-    return md5(data)
-  }
-
-  const pdfStrings = await getPDFStrings(data)
-  return md5(Buffer.from(JSON.stringify(pdfStrings)))
 }
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
@@ -55,8 +36,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
       return {
         data,
-        extension: file.extension,
-        hash: await getHash(data, file.extension),
+        hash: await getPdfHash(data),
       }
     }),
   )
