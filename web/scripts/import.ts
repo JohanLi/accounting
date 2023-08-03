@@ -9,7 +9,7 @@ import {
 import db from '../src/db'
 import {
   Accounts,
-  JournalEntryDocuments,
+  Documents,
   JournalEntryTransactions,
   JournalEntries,
 } from '../src/schema'
@@ -92,7 +92,7 @@ async function importDocuments(year: number) {
     const hash = await getPdfHash(data)
 
     try {
-      await db.insert(JournalEntryDocuments).values({
+      await db.insert(Documents).values({
         hash,
         data,
         journalEntryId,

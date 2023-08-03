@@ -3,13 +3,13 @@ import { asc, InferModel, isNotNull } from 'drizzle-orm'
 import db from '../../db'
 import {
   JournalEntries,
-  JournalEntryDocuments,
+  Documents,
   JournalEntryTransactions,
   Transactions,
 } from '../../schema'
 
 export type JournalEntry = InferModel<typeof JournalEntries> & {
-  documents: Pick<InferModel<typeof JournalEntryDocuments>, 'id'>[]
+  documents: Pick<InferModel<typeof Documents>, 'id'>[]
   transactions: InferModel<typeof JournalEntryTransactions>[]
   hasLink: boolean
 }

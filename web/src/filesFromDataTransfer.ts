@@ -1,4 +1,4 @@
-import { UploadFile } from './pages/api/upload'
+import { UploadFile } from './pages/api/documents'
 
 export async function getFileEntries(items: DataTransferItemList) {
   let entries: FileSystemFileEntry[] = []
@@ -63,7 +63,7 @@ export async function getExtensionAndData(file: File) {
       let data = reader.result as string
       data = data.substring(data.indexOf(',') + 1)
 
-      resolve({ data })
+      resolve({ filename: file.name, data })
     }
 
     reader.onerror = (error) => reject(error)

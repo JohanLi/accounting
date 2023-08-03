@@ -1,15 +1,15 @@
 import React, { DragEvent } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { getExtensionAndData, getFileEntries } from '../filesFromDataTransfer'
-import { UploadFile } from '../pages/api/upload'
+import { UploadFile } from '../pages/api/documents'
 
 export default function Upload() {
   const queryClient = useQueryClient()
 
   const mutation = useMutation({
     mutationFn: (body: UploadFile[]) =>
-      fetch('/api/upload', {
-        method: 'POST',
+      fetch('/api/documentsPending', {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },

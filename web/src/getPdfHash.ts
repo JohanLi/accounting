@@ -1,4 +1,4 @@
-import { getPDFStrings } from './receipt'
+import { getPDFStrings } from './document'
 import { getHash } from './utils'
 
 /*

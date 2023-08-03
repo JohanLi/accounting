@@ -25,6 +25,7 @@ export type DownloadType = {
 type Props = {
   getDownloads: () => Promise<DownloadType[]>
   requestInit?: RequestInit
+  isPendingDocument?: true
 }
 
 type State = {
@@ -82,7 +83,7 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-export default function Download({ getDownloads, requestInit }: Props) {
+export default function Download({ getDownloads, requestInit, isPendingDocument }: Props) {
   const [state, dispatch] = useReducer(reducer, initialState)
 
   useEffect(() => {
@@ -112,6 +113,7 @@ export default function Download({ getDownloads, requestInit }: Props) {
           const buffer = await response.arrayBuffer()
           const data = Buffer.from(buffer).toString('base64')
           return {
+            filename: download.filename,
             data,
           }
         }),
@@ -126,6 +128,7 @@ export default function Download({ getDownloads, requestInit }: Props) {
       name: 'download',
       body: {
         uploadFiles,
+        isPendingDocument,
       },
     })
 

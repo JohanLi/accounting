@@ -78,7 +78,7 @@ const sources: Source[] = [
   },
 ]
 
-export type Receipt = {
+export type Document = {
   total: number
   vat: number
   date: Date
@@ -86,7 +86,7 @@ export type Receipt = {
   description: string
 }
 
-export async function parse(buffer: Buffer): Promise<Receipt> {
+export async function parse(buffer: Buffer): Promise<Document> {
   const strings = await getPDFStrings(buffer)
 
   let source = sources.find((source) => strings.includes(source.identifiedBy))
@@ -108,7 +108,7 @@ export async function parse(buffer: Buffer): Promise<Receipt> {
 
   const assumedTotal = Decimal.max(...monetaryValues)
 
-  const receipt: Receipt = {
+  const document: Document = {
     total: assumedTotal.mul(100).toNumber(),
     vat: 0,
     date: getLatestDate(dates),
@@ -135,10 +135,10 @@ export async function parse(buffer: Buffer): Promise<Receipt> {
       }
     }
 
-    receipt.vat = new Decimal(expectedVat).mul(100).toNumber()
+    document.vat = new Decimal(expectedVat).mul(100).toNumber()
   }
 
-  return receipt
+  return document
 }
 
 export async function getPDFStrings(buffer: Buffer) {
@@ -236,8 +236,8 @@ function getDates(strings: string[]) {
     })
 }
 
-export function receiptToTransactions(receipt: Receipt) {
-  const { total, vat, type } = receipt
+export function documentToTransactions(document: Document) {
+  const { total, vat, type } = document
   const { debit, credit, vatRate } = types[type]
 
   if (type === 'INCOME') {
@@ -248,7 +248,7 @@ export function receiptToTransactions(receipt: Receipt) {
       },
       {
         accountId: credit,
-        amount: -(receipt.total - receipt.vat),
+        amount: -(document.total - document.vat),
       },
       {
         accountId: 2610, // assumes 25% vat
@@ -260,7 +260,7 @@ export function receiptToTransactions(receipt: Receipt) {
   const transactions = [
     {
       accountId: debit,
-      amount: receipt.total - receipt.vat,
+      amount: document.total - document.vat,
     },
     {
       accountId: credit,

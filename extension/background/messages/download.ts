@@ -6,6 +6,7 @@ export type UploadFile = {
 
 export type RequestBody = {
   uploadFiles: UploadFile[]
+  isPendingDocument?: true
 }
 
 export type ResponseBody =
@@ -22,10 +23,10 @@ const handler: PlasmoMessaging.MessageHandler<
   RequestBody,
   ResponseBody
 > = async (req, res) => {
-  const { uploadFiles } = req.body
+  const { uploadFiles, isPendingDocument } = req.body
 
-  const response = await fetch('http://localhost:3000/api/upload', {
-    method: 'POST',
+  const response = await fetch(!isPendingDocument ? 'http://localhost:3000/api/documents' : 'http://localhost:3000/api/documentsPending', {
+    method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
     },

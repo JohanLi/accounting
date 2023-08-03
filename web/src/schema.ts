@@ -56,28 +56,37 @@ export const JournalEntryTransactionsRelations = relations(
   }),
 )
 
-export const JournalEntryDocuments = pgTable(
-  'journal_entry_documents',
+/*
+  Documents that cannot immediately be used to create a journal entry are
+  treated as "pending". Filename is of interest for pending documents, until
+  they are processed.
+
+  Reasons for being pending:
+  - A non-SEK currency is used. The actual exchange rate will not be known until the corresponding bank transaction is imported and matched
+  - A non-recurring document, where it's not worth the effort to write logic that identifies it
+    Instead, generic logic will be used together with imported bank transactions to determine totals and vat
+ */
+export const Documents = pgTable(
+  'documents',
   {
     id: serial('id').primaryKey(),
-    journalEntryId: integer('journal_entry_id')
-      .notNull()
-      .references(() => JournalEntries.id),
+    journalEntryId: integer('journal_entry_id').references(
+      () => JournalEntries.id,
+    ),
+    filename: text('filename'),
     hash: text('hash').notNull(),
     data: bytea('data').notNull(),
   },
   (documents) => ({
-    hashIndex: uniqueIndex('journal_entry_documents_hash_idx').on(
-      documents.hash,
-    ),
+    hashIndex: uniqueIndex('documents_hash_idx').on(documents.hash),
   }),
 )
 
 export const JournalEntryDocumentsRelations = relations(
-  JournalEntryDocuments,
+  Documents,
   ({ one }) => ({
     journalEntry: one(JournalEntries, {
-      fields: [JournalEntryDocuments.journalEntryId],
+      fields: [Documents.journalEntryId],
       references: [JournalEntries.id],
     }),
   }),
@@ -94,7 +103,7 @@ export const JournalEntriesRelations = relations(
   JournalEntries,
   ({ many }) => ({
     transactions: many(JournalEntryTransactions),
-    documents: many(JournalEntryDocuments),
+    documents: many(Documents),
   }),
 )
 
