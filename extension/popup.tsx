@@ -12,6 +12,9 @@ export default function IndexPopup() {
         <li>
           <a href="https://box.developersbay.se/" target="_blank">Developers Bay</a>
         </li>
+        <li>
+          <a href="https://admin.google.com/ac/billing/accounts" target="_blank">Google Workspace</a>
+        </li>
       </ul>
       <h2>Transactions</h2>
       <ul>
