@@ -2,6 +2,7 @@ import ActiveLink from './ActiveLink'
 
 const tabs = [
   { name: 'Home', href: '/' },
+  { name: 'Journal entries', href: '/journalEntries' },
   { name: 'Transactions', href: '/transactions' },
   { name: 'Accounts', href: '/accounts' },
 ]

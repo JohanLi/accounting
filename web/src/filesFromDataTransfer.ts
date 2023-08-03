@@ -53,7 +53,7 @@ function isDirectory(item: FileSystemEntry): item is FileSystemDirectoryEntry {
   return item.isDirectory
 }
 
-export async function getExtensionAndData(file: File) {
+export async function getFilenameAndData(file: File) {
   return new Promise<UploadFile>((resolve, reject) => {
     const reader = new FileReader()
     reader.readAsDataURL(file)

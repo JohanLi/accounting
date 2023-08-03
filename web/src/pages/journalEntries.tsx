@@ -1,14 +1,15 @@
-import { Amount } from './Amount'
-import Documents from './Documents'
-import { JournalEntry } from '../pages/api/journalEntries'
-import { DateFormatted } from './DateFormatted'
-import Modal from './Modal'
-import LinkedTo, { LinkedToProps } from './LinkedTo'
+import { Amount } from '../components/Amount'
+import Documents from '../components/Documents'
+import { JournalEntry } from './api/journalEntries'
+import { DateFormatted } from '../components/DateFormatted'
+import Modal from '../components/Modal'
+import LinkedTo, { LinkedToProps } from '../components/LinkedTo'
 import { useState } from 'react'
 import { classNames, withinFiscalYear } from '../utils'
 import { LinkIcon } from '@heroicons/react/20/solid'
 import { useQuery } from '@tanstack/react-query'
-import Dropdown from './Dropdown'
+import Dropdown from '../components/Dropdown'
+import Layout from '../components/Layout'
 
 const filters = ['All', 'Non-linked'] as const
 
@@ -39,7 +40,7 @@ export default function JournalEntries() {
   )
 
   return (
-    <div>
+    <Layout>
       <div className="flex items-center justify-end space-x-4">
         {filters.map((filter) => {
           const count =
@@ -174,6 +175,6 @@ export default function JournalEntries() {
           <LinkedTo {...showLinkedTo} />
         </Modal>
       )}
-    </div>
+    </Layout>
   )
 }

@@ -1,16 +1,14 @@
 import Layout from '../components/Layout'
-import Upload from '../components/Upload'
 import Totals from '../components/Totals'
 import Actions from '../components/Actions'
-import JournalEntries from '../components/JournalEntries'
+import PendingDocuments from '../components/PendingDocuments'
 
 export default function Home() {
   return (
     <Layout>
-      <Upload />
+      <PendingDocuments />
       <Totals />
       <Actions />
-      <JournalEntries />
     </Layout>
   )
 }
