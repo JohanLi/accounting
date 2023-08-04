@@ -25,15 +25,6 @@ test('parse', async () => {
     description: 'SEB månadsavgift',
   })
 
-  data = await readFile(`${__dirname}/documents/googleWorkspace.pdf`)
-  expect(await parseDetails(data)).toEqual({
-    total: 520,
-    vat: 0,
-    date: new Date('2023-03-31'),
-    type: 'GOOGLE_WORKSPACE',
-    description: 'Google Workspace',
-  })
-
   data = await readFile(`${__dirname}/documents/mobile.pdf`)
   expect(await parseDetails(data)).toEqual({
     total: 31100,

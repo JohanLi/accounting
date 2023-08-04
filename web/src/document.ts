@@ -2,12 +2,7 @@ import Decimal from 'decimal.js'
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf'
 import { TextContent } from 'pdfjs-dist/types/web/text_layer_builder'
 
-type Type =
-  | 'INCOME'
-  | 'BANKING_COSTS'
-  | 'GOOGLE_WORKSPACE'
-  | 'MOBILE_PROVIDER'
-  | 'WELLNESS'
+type Type = 'INCOME' | 'BANKING_COSTS' | 'MOBILE_PROVIDER' | 'WELLNESS'
 type VatRate = '0.25' | '0.12' | '0.06' | '0'
 
 const types: {
@@ -26,11 +21,6 @@ const types: {
     debit: 6570,
     credit: 1930,
     vatRate: '0',
-  },
-  GOOGLE_WORKSPACE: {
-    debit: 4535,
-    credit: 1930,
-    vatRate: '0', // TODO implement reverse charge 25%
   },
   MOBILE_PROVIDER: {
     debit: 6212,
@@ -60,11 +50,6 @@ const sources: Source[] = [
     identifiedBy: 'Skandinaviska Enskilda Banken AB',
     type: 'BANKING_COSTS',
     description: 'SEB månadsavgift',
-  },
-  {
-    identifiedBy: 'Google Workspace',
-    type: 'GOOGLE_WORKSPACE',
-    description: 'Google Workspace',
   },
   {
     identifiedBy: 'Hi3G Access AB',
