@@ -1,13 +1,17 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import db from '../../db'
-import { eq, InferModel, isNull } from 'drizzle-orm'
+import { eq, InferModel } from 'drizzle-orm'
 import {
   JournalEntries,
   Documents,
   JournalEntryTransactions,
 } from '../../schema'
 import { getPdfHash } from '../../getPdfHash'
-import { documentToTransactions, parseDetails } from '../../document'
+import {
+  DocumentDetails,
+  documentToTransactions,
+  parseDetails,
+} from '../../document'
 
 export const config = {
   api: {
@@ -34,29 +38,16 @@ export default async function handler(
   if (req.method === 'GET') {
     const id = parseInt(req.query.id as string)
 
-    if (id) {
-      const document = await db.query.Documents.findFirst({
-        where: eq(Documents.id, id),
-      })
+    const document = await db.query.Documents.findFirst({
+      where: eq(Documents.id, id),
+    })
 
-      if (!document) {
-        throw Error(`Could not find document with id: ${id}`)
-      }
-
-      res.setHeader('Content-Type', 'application/pdf')
-      res.end(document.data)
-      return
+    if (!document) {
+      throw Error(`Could not find document with id: ${id}`)
     }
 
-    const documents = await db
-      .select({
-        id: Documents.id,
-        filename: Documents.filename,
-      })
-      .from(Documents)
-      .where(isNull(Documents.journalEntryId))
-
-    res.status(200).json(documents)
+    res.setHeader('Content-Type', 'application/pdf')
+    res.end(document.data)
     return
   }
 
@@ -89,43 +80,50 @@ export default async function handler(
             details: await parseDetails(document.data),
           })),
         )
-      ).filter((document) => document.details)
-
-      if (!journalEntryDocuments.length) {
-        return insertedDocuments
-      }
-
-      const insertedJournalEntries = await tx
-        .insert(JournalEntries)
-        .values(
-          journalEntryDocuments.map((document) => ({
-            date: document.details!.date,
-            description: document.details!.description,
-          })),
-        )
-        .returning()
-
-      await tx.insert(JournalEntryTransactions).values(
-        journalEntryDocuments.flatMap((document, i) => {
-          const transactions = documentToTransactions(document.details!)
-
-          return transactions.map((transaction) => ({
-            ...transaction,
-            journalEntryId: insertedJournalEntries[i].id,
-          }))
-        }),
+      ).filter(
+        (
+          document,
+        ): document is InferModel<typeof Documents> & {
+          details: DocumentDetails
+        } => document.details !== null,
       )
 
-      for (const [i, insertedDocument] of journalEntryDocuments.entries()) {
-        await tx
-          .update(Documents)
-          .set({
-            journalEntryId: insertedJournalEntries[i].id,
-          })
-          .where(eq(Documents.id, insertedDocument.id))
+      if (journalEntryDocuments.length) {
+        const insertedJournalEntries = await tx
+          .insert(JournalEntries)
+          .values(
+            journalEntryDocuments.map((document) => ({
+              date: document.details.date,
+              description: document.details.description,
+            })),
+          )
+          .returning()
+
+        await tx.insert(JournalEntryTransactions).values(
+          journalEntryDocuments.flatMap((document, i) => {
+            const transactions = documentToTransactions(document.details)
+
+            return transactions.map((transaction) => ({
+              ...transaction,
+              journalEntryId: insertedJournalEntries[i].id,
+            }))
+          }),
+        )
+
+        for (const [i, insertedDocument] of journalEntryDocuments.entries()) {
+          await tx
+            .update(Documents)
+            .set({
+              journalEntryId: insertedJournalEntries[i].id,
+            })
+            .where(eq(Documents.id, insertedDocument.id))
+        }
       }
 
-      return insertedDocuments
+      return insertedDocuments.map((document) => ({
+        id: document.id,
+        filename: document.filename,
+      }))
     })
 
     res.status(200).json(insertedDocuments)

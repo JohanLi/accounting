@@ -91,7 +91,16 @@ export async function parseDetails(
   const { vatRate } = types[source.type]
 
   const monetaryValues = getMonetaryValues(strings)
+
+  if (!monetaryValues.length) {
+    throw Error('Did not find any monetary values')
+  }
+
   const dates = getDates(strings)
+
+  if (!dates.length) {
+    throw Error('Did not find any dates')
+  }
 
   const assumedTotal = Decimal.max(...monetaryValues)
 
@@ -165,6 +174,10 @@ function getLatestDate(dates: Date[]) {
   })
 }
 
+function unique<T>(array: T[]) {
+  return [...new Set(array)]
+}
+
 const monetaryFormats = [
   /€(\d+.\d+)/, // TODO support € and $
   /(\d+,\d+) SEK/,
@@ -172,25 +185,27 @@ const monetaryFormats = [
   /(\d+.\d+,\d+)/,
   /(\d+,\d+)/,
 ]
-function getMonetaryValues(strings: string[]) {
+export function getMonetaryValues(strings: string[]) {
   const found = monetaryFormats.find((regex) =>
     strings.find((string) => string.match(regex)),
   )
 
   if (!found) {
-    throw Error('Did not find any monetary values')
+    return []
   }
 
-  return strings
-    .map((string) => string.match(found))
-    .filter((found): found is RegExpMatchArray => found !== null)
-    .map((found) =>
-      found[1]
-        // invoice
-        .replace(/.(\d{3})/, '$1')
-        // using point as decimal separator
-        .replace(',', '.'),
-    )
+  return unique(
+    strings
+      .map((string) => string.match(found))
+      .filter((found): found is RegExpMatchArray => found !== null)
+      .map((found) =>
+        found[1]
+          // invoice
+          .replace(/.(\d{3})/, '$1')
+          // using point as decimal separator
+          .replace(',', '.'),
+      ),
+  )
 }
 
 const dateFormats = [
@@ -198,29 +213,31 @@ const dateFormats = [
   /\d{4}-\d{2}-\d{2}/,
   /(\d{2})\/(\d{2})\/(\d{4})/,
 ]
-function getDates(strings: string[]) {
+export function getDates(strings: string[]) {
   const found = dateFormats.findIndex((regex) =>
     strings.find((string) => string.match(regex)),
   )
 
   if (found === -1) {
-    throw Error('Did not find any dates')
+    return []
   }
 
-  return strings
-    .map((string) => string.match(dateFormats[found]))
-    .filter((foundDate): foundDate is RegExpMatchArray => foundDate !== null)
-    .map((foundDate) => {
-      if (found === 2) {
-        return new Date(`${foundDate[3]}-${foundDate[2]}-${foundDate[1]}`)
-      }
+  return unique(
+    strings
+      .map((string) => string.match(dateFormats[found]))
+      .filter((foundDate): foundDate is RegExpMatchArray => foundDate !== null)
+      .map((foundDate) => {
+        if (found === 2) {
+          return new Date(`${foundDate[3]}-${foundDate[2]}-${foundDate[1]}`)
+        }
 
-      /*
-        While "2023-04-08" is treated as UTC, "Apr 8, 2023" is treated as local time.
-        UTC+00:00 is a hack to make sure both of them are treated as UTC.
-       */
-      return new Date(`${foundDate[0]} UTC+00:00`)
-    })
+        /*
+          While "2023-04-08" is treated as UTC, "Apr 8, 2023" is treated as local time.
+          UTC+00:00 is a hack to make sure both of them are treated as UTC.
+         */
+        return new Date(`${foundDate[0]} UTC+00:00`)
+      }),
+  )
 }
 
 export function documentToTransactions(document: DocumentDetails) {
