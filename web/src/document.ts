@@ -78,7 +78,7 @@ const sources: Source[] = [
   },
 ]
 
-export type Document = {
+export type DocumentDetails = {
   total: number
   vat: number
   date: Date
@@ -86,7 +86,9 @@ export type Document = {
   description: string
 }
 
-export async function parse(buffer: Buffer): Promise<Document> {
+export async function parseDetails(
+  buffer: Buffer,
+): Promise<DocumentDetails | null> {
   const strings = await getPDFStrings(buffer)
 
   let source = sources.find((source) => strings.includes(source.identifiedBy))
@@ -98,7 +100,7 @@ export async function parse(buffer: Buffer): Promise<Document> {
   }
 
   if (!source) {
-    throw Error('Document is not from a recognized source')
+    return null
   }
 
   const { vatRate } = types[source.type]
@@ -108,7 +110,7 @@ export async function parse(buffer: Buffer): Promise<Document> {
 
   const assumedTotal = Decimal.max(...monetaryValues)
 
-  const document: Document = {
+  const document: DocumentDetails = {
     total: assumedTotal.mul(100).toNumber(),
     vat: 0,
     date: getLatestDate(dates),
@@ -236,7 +238,7 @@ function getDates(strings: string[]) {
     })
 }
 
-export function documentToTransactions(document: Document) {
+export function documentToTransactions(document: DocumentDetails) {
   const { total, vat, type } = document
   const { debit, credit, vatRate } = types[type]
 

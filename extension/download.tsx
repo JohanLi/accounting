@@ -25,7 +25,6 @@ export type DownloadType = {
 type Props = {
   getDownloads: () => Promise<DownloadType[]>
   requestInit?: RequestInit
-  isPendingDocument?: true
 }
 
 type State = {
@@ -83,7 +82,7 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-export default function Download({ getDownloads, requestInit, isPendingDocument }: Props) {
+export default function Download({ getDownloads, requestInit }: Props) {
   const [state, dispatch] = useReducer(reducer, initialState)
 
   useEffect(() => {
@@ -128,7 +127,6 @@ export default function Download({ getDownloads, requestInit, isPendingDocument 
       name: 'download',
       body: {
         uploadFiles,
-        isPendingDocument,
       },
     })
 

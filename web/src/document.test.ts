@@ -1,10 +1,14 @@
 import { expect, test } from 'vitest'
-import { parse, Document, documentToTransactions } from './document'
+import {
+  parseDetails,
+  DocumentDetails,
+  documentToTransactions,
+} from './document'
 import { readFile } from 'fs/promises'
 
 test('parse', async () => {
   let data = await readFile(`${__dirname}/documents/invoice.pdf`)
-  expect(await parse(data)).toEqual({
+  expect(await parseDetails(data)).toEqual({
     total: 20685000,
     vat: 4137000,
     date: new Date('2023-01-14'),
@@ -13,7 +17,7 @@ test('parse', async () => {
   })
 
   data = await readFile(`${__dirname}/documents/bank.pdf`)
-  expect(await parse(data)).toEqual({
+  expect(await parseDetails(data)).toEqual({
     total: 13000,
     vat: 0,
     date: new Date('2023-04-03'),
@@ -22,7 +26,7 @@ test('parse', async () => {
   })
 
   data = await readFile(`${__dirname}/documents/googleWorkspace.pdf`)
-  expect(await parse(data)).toEqual({
+  expect(await parseDetails(data)).toEqual({
     total: 520,
     vat: 0,
     date: new Date('2023-03-31'),
@@ -31,7 +35,7 @@ test('parse', async () => {
   })
 
   data = await readFile(`${__dirname}/documents/mobile.pdf`)
-  expect(await parse(data)).toEqual({
+  expect(await parseDetails(data)).toEqual({
     total: 31100,
     vat: 6220,
     date: new Date('2023-01-03'),
@@ -40,7 +44,7 @@ test('parse', async () => {
   })
 
   data = await readFile(`${__dirname}/documents/skiing.pdf`)
-  expect(await parse(data)).toEqual({
+  expect(await parseDetails(data)).toEqual({
     total: 24000,
     vat: 1358,
     date: new Date('2023-01-19'),
@@ -55,7 +59,7 @@ test('receiptToTransaction', () => {
       total: 100,
       vat: 25,
       type: 'INCOME',
-    } as Document),
+    } as DocumentDetails),
   ).toEqual([
     {
       accountId: 1930,
@@ -76,7 +80,7 @@ test('receiptToTransaction', () => {
       total: 100,
       vat: 0,
       type: 'BANKING_COSTS',
-    } as Document),
+    } as DocumentDetails),
   ).toEqual([
     {
       accountId: 6570,
@@ -93,7 +97,7 @@ test('receiptToTransaction', () => {
       total: 100,
       vat: 25,
       type: 'MOBILE_PROVIDER',
-    } as Document),
+    } as DocumentDetails),
   ).toEqual([
     {
       accountId: 6212,
@@ -114,7 +118,7 @@ test('receiptToTransaction', () => {
       total: 100,
       vat: 6,
       type: 'WELLNESS',
-    } as Document),
+    } as DocumentDetails),
   ).toEqual([
     {
       accountId: 7699,

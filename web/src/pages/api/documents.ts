@@ -1,13 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import db from '../../db'
-import { eq, inArray } from 'drizzle-orm'
+import { eq, InferModel, isNull } from 'drizzle-orm'
 import {
   JournalEntries,
   Documents,
   JournalEntryTransactions,
 } from '../../schema'
 import { getPdfHash } from '../../getPdfHash'
-import { documentToTransactions, parse } from '../../document'
+import { documentToTransactions, parseDetails } from '../../document'
 
 export const config = {
   api: {
@@ -22,23 +22,41 @@ export type UploadFile = {
   data: string
 }
 
+export type DocumentsResponse = Pick<
+  InferModel<typeof Documents>,
+  'id' | 'filename'
+>[]
+
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse,
+  res: NextApiResponse<DocumentsResponse>,
 ) {
   if (req.method === 'GET') {
     const id = parseInt(req.query.id as string)
 
-    const document = await db.query.Documents.findFirst({
-      where: eq(Documents.id, id),
-    })
+    if (id) {
+      const document = await db.query.Documents.findFirst({
+        where: eq(Documents.id, id),
+      })
 
-    if (!document) {
-      throw Error(`Could not find document with id: ${id}`)
+      if (!document) {
+        throw Error(`Could not find document with id: ${id}`)
+      }
+
+      res.setHeader('Content-Type', 'application/pdf')
+      res.end(document.data)
+      return
     }
 
-    res.setHeader('Content-Type', 'application/pdf')
-    res.end(document.data)
+    const documents = await db
+      .select({
+        id: Documents.id,
+        filename: Documents.filename,
+      })
+      .from(Documents)
+      .where(isNull(Documents.journalEntryId))
+
+    res.status(200).json(documents)
     return
   }
 
@@ -50,84 +68,68 @@ export default async function handler(
         const data = Buffer.from(file.data, 'base64')
 
         return {
+          filename: file.filename,
           data,
           hash: await getPdfHash(data),
         }
       }),
     )
 
-    /*
-      TODO
-        Rethink this approach. Basically, the reason document hashes
-        are explicitly checked for is because we repeatedly download
-        old documents through the Chrome extension.
-     */
+    const insertedDocuments = await db.transaction(async (tx) => {
+      const insertedDocuments = await tx
+        .insert(Documents)
+        .values(documents)
+        .onConflictDoNothing()
+        .returning()
 
-    const hashes = (
-      await db
-        .select({ hash: Documents.hash })
-        .from(Documents)
-        .where(
-          inArray(
-            Documents.hash,
-            documents.map((document) => document.hash),
-          ),
+      const journalEntryDocuments = (
+        await Promise.all(
+          insertedDocuments.map(async (document) => ({
+            ...document,
+            details: await parseDetails(document.data),
+          })),
         )
-    ).map((document) => document.hash)
+      ).filter((document) => document.details)
 
-    const journalEntries = await Promise.all(
-      documents
-        .filter((document) => !hashes.includes(document.hash))
-        .map(async (d) => {
-          const document = await parse(d.data)
+      if (!journalEntryDocuments.length) {
+        return insertedDocuments
+      }
 
-          return {
-            date: document.date,
-            description: document.description,
-            transactions: documentToTransactions(document),
-            documents: d,
-          }
-        }),
-    )
-
-    if (!journalEntries.length) {
-      res.status(200).json([])
-      return
-    }
-
-    try {
-      const insertedJournalEntries = await db
+      const insertedJournalEntries = await tx
         .insert(JournalEntries)
         .values(
-          journalEntries.map((journalEntry) => ({
-            date: journalEntry.date,
-            description: journalEntry.description,
+          journalEntryDocuments.map((document) => ({
+            date: document.details!.date,
+            description: document.details!.description,
           })),
         )
         .returning()
 
-      const transactions = journalEntries
-        .map((journalEntry, i) =>
-          journalEntry.transactions.map((transaction) => ({
+      await tx.insert(JournalEntryTransactions).values(
+        journalEntryDocuments.flatMap((document, i) => {
+          const transactions = documentToTransactions(document.details!)
+
+          return transactions.map((transaction) => ({
             ...transaction,
             journalEntryId: insertedJournalEntries[i].id,
-          })),
-        )
-        .flat()
+          }))
+        }),
+      )
 
-      const documents = journalEntries.map((journalEntry, i) => ({
-        ...journalEntry.documents,
-        journalEntryId: insertedJournalEntries[i].id,
-      }))
+      for (const [i, insertedDocument] of journalEntryDocuments.entries()) {
+        await tx
+          .update(Documents)
+          .set({
+            journalEntryId: insertedJournalEntries[i].id,
+          })
+          .where(eq(Documents.id, insertedDocument.id))
+      }
 
-      await db.insert(JournalEntryTransactions).values(transactions)
-      await db.insert(Documents).values(documents)
+      return insertedDocuments
+    })
 
-      res.status(200).json(insertedJournalEntries)
-    } catch (e) {
-      console.error(e)
-      res.status(500).json({})
-    }
+    res.status(200).json(insertedDocuments)
+    return
   }
 
   res.status(405)

@@ -5,14 +5,14 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { DocumentArrowUpIcon } from '@heroicons/react/24/solid'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 
-export default function PendingDocumentsUpload() {
+export default function DocumentUpload() {
   const [isDragOver, setIsDragOver] = useState(false)
 
   const queryClient = useQueryClient()
 
   const mutation = useMutation({
     mutationFn: (body: UploadFile[]) =>
-      fetch('/api/documentsPending', {
+      fetch('/api/documents', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -20,7 +20,9 @@ export default function PendingDocumentsUpload() {
         body: JSON.stringify(body),
       }).then((res) => res.json()),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['pendingDocuments'] })
+      queryClient.invalidateQueries({ queryKey: ['documents'] })
+      queryClient.invalidateQueries({ queryKey: ['totals'] })
+      queryClient.invalidateQueries({ queryKey: ['journalEntries'] })
     },
   })
 
@@ -104,7 +106,7 @@ export default function PendingDocumentsUpload() {
       {mutation.data && (
         <div className="mt-4 flex items-center bg-green-50 p-4">
           <div className="text-sm font-medium text-green-800">
-            Created {mutation.data.length} new document(s)
+            Uploaded {mutation.data.length} new document(s)
           </div>
           <div className="ml-auto">
             <div className="-mx-1.5 -my-1.5">

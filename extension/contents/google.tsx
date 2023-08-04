@@ -44,7 +44,6 @@ export default function Google() {
   return (
     <Download
       getDownloads={getDownloads}
-      isPendingDocument
     />
   )
 }

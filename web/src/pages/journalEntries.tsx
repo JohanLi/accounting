@@ -1,5 +1,5 @@
 import { Amount } from '../components/Amount'
-import Documents from '../components/Documents'
+import DocumentLinks from '../components/DocumentLinks'
 import { JournalEntry } from './api/journalEntries'
 import { DateFormatted } from '../components/DateFormatted'
 import Modal from '../components/Modal'
@@ -142,7 +142,7 @@ export default function JournalEntries() {
                 )}
               </td>
               <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                <Documents documents={journalEntry.documents} />
+                <DocumentLinks documents={journalEntry.documents} />
               </td>
               <td className="relative whitespace-nowrap py-4 text-right text-xs">
                 {journalEntry.hasLink && (
