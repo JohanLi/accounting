@@ -48,7 +48,7 @@ jobs:
         run: |
           mkdir -p ~/.config/rclone
           echo "${{ secrets.RCLONE_CONF }}" > ~/.config/rclone/rclone.conf
-          rclone -vv copy r2:accounting/ web/src/receipts/
+          rclone -vv copy r2:accounting/ web/src/documents/
 
       - name: Add .env
         run: echo '${{ secrets.WEB_ENV }}' > web/.env

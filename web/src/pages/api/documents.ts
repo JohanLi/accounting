@@ -78,14 +78,14 @@ export default async function handler(
     const journalEntries = await Promise.all(
       documents
         .filter((document) => !hashes.includes(document.hash))
-        .map(async (document) => {
-          const receipt = await parse(document.data)
+        .map(async (d) => {
+          const document = await parse(d.data)
 
           return {
-            date: receipt.date,
-            description: receipt.description,
-            transactions: documentToTransactions(receipt),
-            documents: document,
+            date: document.date,
+            description: document.description,
+            transactions: documentToTransactions(document),
+            documents: d,
           }
         }),
     )

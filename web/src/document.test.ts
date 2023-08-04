@@ -3,7 +3,7 @@ import { parse, Document, documentToTransactions } from './document'
 import { readFile } from 'fs/promises'
 
 test('parse', async () => {
-  let data = await readFile(`${__dirname}/receipts/invoice.pdf`)
+  let data = await readFile(`${__dirname}/documents/invoice.pdf`)
   expect(await parse(data)).toEqual({
     total: 20685000,
     vat: 4137000,
@@ -12,7 +12,7 @@ test('parse', async () => {
     description: 'Inkomst',
   })
 
-  data = await readFile(`${__dirname}/receipts/bank.pdf`)
+  data = await readFile(`${__dirname}/documents/bank.pdf`)
   expect(await parse(data)).toEqual({
     total: 13000,
     vat: 0,
@@ -21,7 +21,7 @@ test('parse', async () => {
     description: 'SEB månadsavgift',
   })
 
-  data = await readFile(`${__dirname}/receipts/googleWorkspace.pdf`)
+  data = await readFile(`${__dirname}/documents/googleWorkspace.pdf`)
   expect(await parse(data)).toEqual({
     total: 520,
     vat: 0,
@@ -30,7 +30,7 @@ test('parse', async () => {
     description: 'Google Workspace',
   })
 
-  data = await readFile(`${__dirname}/receipts/mobile.pdf`)
+  data = await readFile(`${__dirname}/documents/mobile.pdf`)
   expect(await parse(data)).toEqual({
     total: 31100,
     vat: 6220,
@@ -39,7 +39,7 @@ test('parse', async () => {
     description: 'Tre företagsabonnemang',
   })
 
-  data = await readFile(`${__dirname}/receipts/skiing.pdf`)
+  data = await readFile(`${__dirname}/documents/skiing.pdf`)
   expect(await parse(data)).toEqual({
     total: 24000,
     vat: 1358,

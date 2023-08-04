@@ -98,7 +98,7 @@ export async function parse(buffer: Buffer): Promise<Document> {
   }
 
   if (!source) {
-    throw Error('Receipt is not from a recognized source')
+    throw Error('Document is not from a recognized source')
   }
 
   const { vatRate } = types[source.type]

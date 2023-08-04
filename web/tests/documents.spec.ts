@@ -14,14 +14,14 @@ test.describe.serial('upload', () => {
     await dragAndDropFile(
       page,
       dropLocator,
-      './src/receipts/bank.pdf',
+      './src/documents/bank.pdf',
       'bank.pdf',
     )
 
     await dragAndDropFile(
       page,
       dropLocator,
-      './src/receipts/invoice.pdf',
+      './src/documents/invoice.pdf',
       'invoice.pdf',
     )
 
@@ -39,7 +39,7 @@ test.describe.serial('upload', () => {
   }) => {
     const uploadFile: UploadFile = {
       filename: '',
-      data: await getBase64('./src/receipts/skiing.pdf'),
+      data: await getBase64('./src/documents/skiing.pdf'),
     }
 
     let response = await request.post(`/api/documents`, {
@@ -61,7 +61,7 @@ test.describe.serial('upload', () => {
   }) => {
     const uploadFile: UploadFile = {
       filename: '',
-      data: await getBase64('./src/receipts/mobile.pdf'),
+      data: await getBase64('./src/documents/mobile.pdf'),
     }
 
     let response = await request.post(`/api/documents`, {

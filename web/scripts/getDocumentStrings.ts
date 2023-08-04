@@ -3,7 +3,7 @@ import { TextContent } from 'pdfjs-dist/types/web/text_layer_builder'
 import { readdir, writeFile } from 'fs/promises'
 
 async function main() {
-  const dir = `${__dirname}/../src/receipts`
+  const dir = `${__dirname}/../src/documents`
 
   const filesInDirectory = (await readdir(dir)).filter((file) =>
     file.endsWith('.pdf'),
