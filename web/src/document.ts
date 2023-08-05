@@ -179,7 +179,6 @@ function unique<T>(array: T[]) {
 }
 
 const monetaryFormats = [
-  /€(\d+.\d+)/, // TODO support € and $
   /(\d+,\d+) SEK/,
   /(\d+.\d+) SEK/,
   /(\d+.\d+,\d+)/,
@@ -206,6 +205,42 @@ export function getMonetaryValues(strings: string[]) {
           .replace(',', '.'),
       ),
   )
+}
+
+const foreignCurrencyMonetaryFormats = {
+  EUR: [/€(\d+.\d+)/, /(\d+.\d+) EUR/],
+  USD: [/\$(\d+.\d+)/],
+}
+export function getForeignCurrencyMonetaryValues(strings: string[]) {
+  for (const [foreignCurrency, monetaryFormats] of Object.entries(
+    foreignCurrencyMonetaryFormats,
+  )) {
+    const found = monetaryFormats.find((regex) =>
+      strings.find((string) => string.match(regex)),
+    )
+
+    if (!found) {
+      continue
+    }
+
+    return {
+      foreignCurrency,
+      values: unique(
+        strings
+          .map((string) => string.match(found))
+          .filter((found): found is RegExpMatchArray => found !== null)
+          .map((found) =>
+            found[1]
+              // invoice
+              .replace(/.(\d{3})/, '$1')
+              // using point as decimal separator
+              .replace(',', '.'),
+          ),
+      ),
+    }
+  }
+
+  return null
 }
 
 const dateFormats = [

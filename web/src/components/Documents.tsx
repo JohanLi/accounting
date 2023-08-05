@@ -67,7 +67,10 @@ export default function Documents() {
               </td>
               <td className="whitespace-nowrap py-4 pr-3 text-xs text-gray-500">
                 {document.values.map((value, i) => (
-                  <div key={i}>{value}</div>
+                  <div key={i}>
+                    {value}
+                    {document.foreignCurrency && ` ${document.foreignCurrency}`}
+                  </div>
                 ))}
               </td>
               <td className="whitespace-nowrap py-4 pr-3 text-xs text-gray-500">

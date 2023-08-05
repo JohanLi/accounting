@@ -2,7 +2,12 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import db from '../../db'
 import { InferModel, isNull } from 'drizzle-orm'
 import { Documents } from '../../schema'
-import { getDates, getMonetaryValues, getPDFStrings } from '../../document'
+import {
+  getDates,
+  getForeignCurrencyMonetaryValues,
+  getMonetaryValues,
+  getPDFStrings,
+} from '../../document'
 
 export type PendingDocumentsResponse = (Pick<
   InferModel<typeof Documents>,
@@ -10,6 +15,7 @@ export type PendingDocumentsResponse = (Pick<
 > & {
   values: string[]
   dates: Date[]
+  foreignCurrency?: string
 })[]
 
 export default async function handler(
@@ -30,13 +36,16 @@ export default async function handler(
     await Promise.all(
       documents.map(async (document) => {
         const strings = await getPDFStrings(document.data)
-        const values = getMonetaryValues(strings)
+
+        const foreignValues = getForeignCurrencyMonetaryValues(strings)
         const dates = getDates(strings)
 
         return {
           id: document.id,
           filename: document.filename,
-          values,
+          ...(foreignValues
+            ? foreignValues
+            : { values: getMonetaryValues(strings) }),
           dates,
         }
       }),

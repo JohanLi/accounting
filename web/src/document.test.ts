@@ -3,6 +3,7 @@ import {
   parseDetails,
   DocumentDetails,
   documentToTransactions,
+  getForeignCurrencyMonetaryValues,
 } from './document'
 import { readFile } from 'fs/promises'
 
@@ -44,7 +45,7 @@ test('parse', async () => {
   })
 })
 
-test('receiptToTransaction', () => {
+test('documentToTransaction', () => {
   expect(
     documentToTransactions({
       total: 100,
@@ -124,4 +125,34 @@ test('receiptToTransaction', () => {
       amount: 6,
     },
   ])
+})
+
+test('getForeignCurrencyMonetaryValues', () => {
+  expect(getForeignCurrencyMonetaryValues(['€5.20', '€0.00', '€5.20'])).toEqual(
+    {
+      foreignCurrency: 'EUR',
+      values: ['5.20', '0.00'],
+    },
+  )
+
+  expect(getForeignCurrencyMonetaryValues(['159.00 EUR', '0.00 EUR'])).toEqual({
+    foreignCurrency: 'EUR',
+    values: ['159.00', '0.00'],
+  })
+
+  expect(
+    getForeignCurrencyMonetaryValues(['$12.34 ($100/year)', '$12.34 USD']),
+  ).toEqual({
+    foreignCurrency: 'USD',
+    values: ['12.34'],
+  })
+
+  expect(
+    getForeignCurrencyMonetaryValues([
+      '12,34',
+      '12,34 SEK',
+      '12.34',
+      '12.34 SEK',
+    ]),
+  ).toEqual(null)
 })
