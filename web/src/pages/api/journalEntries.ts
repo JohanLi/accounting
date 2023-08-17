@@ -8,6 +8,15 @@ import {
   Transactions,
 } from '../../schema'
 
+export type TransactionsInsert = {
+  accountId: number
+  amount: number
+}[]
+
+export type JournalEntryInsert = InferModel<typeof JournalEntries, 'insert'> & {
+  transactions: TransactionsInsert
+}
+
 export type JournalEntry = InferModel<typeof JournalEntries> & {
   documents: Pick<InferModel<typeof Documents>, 'id'>[]
   transactions: InferModel<typeof JournalEntryTransactions>[]
@@ -18,6 +27,40 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<JournalEntry[]>,
 ) {
+  if (req.method === 'POST') {
+    const entry = req.body as JournalEntryInsert
+
+    const { transactions, ...rest } = entry
+    rest.date = new Date(rest.date)
+
+    const insertedEntry = await db.transaction(async (tx) => {
+      const insertedEntry = await tx
+        .insert(JournalEntries)
+        .values(rest)
+        .returning()
+
+      const insertedTransactions = await tx
+        .insert(JournalEntryTransactions)
+        .values(
+          transactions.map((t) => ({
+            ...t,
+            journalEntryId: insertedEntry[0].id,
+          })),
+        )
+        .returning()
+
+      return {
+        ...insertedEntry[0],
+        documents: [],
+        transactions: insertedTransactions,
+        hasLink: false,
+      }
+    })
+
+    res.status(200).json([insertedEntry])
+    return
+  }
+
   if (req.method === 'GET') {
     const linkedToJournalEntryIds = new Set(
       (

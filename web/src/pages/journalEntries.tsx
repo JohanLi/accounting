@@ -9,7 +9,6 @@ import { classNames, withinFiscalYear } from '../utils'
 import { LinkIcon } from '@heroicons/react/20/solid'
 import { useQuery } from '@tanstack/react-query'
 import Dropdown from '../components/Dropdown'
-import Layout from '../components/Layout'
 
 const filters = ['All', 'Non-linked'] as const
 
@@ -40,7 +39,7 @@ export default function JournalEntries() {
   )
 
   return (
-    <Layout>
+    <>
       <div className="flex items-center justify-end space-x-4">
         {filters.map((filter) => {
           const count =
@@ -175,6 +174,6 @@ export default function JournalEntries() {
           <LinkedTo {...showLinkedTo} />
         </Modal>
       )}
-    </Layout>
+    </>
   )
 }
