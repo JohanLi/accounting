@@ -23,50 +23,74 @@ export type JournalEntry = InferModel<typeof JournalEntries> & {
   hasLink: boolean
 }
 
+function isBalanced(entry: JournalEntryInsert) {
+  return entry.transactions.reduce((acc, v) => acc + v.amount, 0) === 0
+}
+
+export class InputError extends Error {}
+
+async function createJournalEntry(entry: JournalEntryInsert) {
+  if (!isBalanced(entry)) {
+    throw new InputError('Transactions do not balance')
+  }
+
+  const { transactions, ...rest } = entry
+  rest.date = new Date(rest.date)
+
+  return db.transaction(async (tx) => {
+    const insertedEntry = await tx
+      .insert(JournalEntries)
+      .values(rest)
+      .onConflictDoUpdate({
+        target: JournalEntries.id,
+        set: { date: rest.date, description: rest.description },
+      })
+      .returning()
+
+    await tx
+      .delete(JournalEntryTransactions)
+      .where(eq(JournalEntryTransactions.journalEntryId, insertedEntry[0].id))
+
+    const insertedTransactions = await tx
+      .insert(JournalEntryTransactions)
+      .values(
+        transactions.map((t) => ({
+          ...t,
+          journalEntryId: insertedEntry[0].id,
+        })),
+      )
+      .returning()
+
+    return {
+      ...insertedEntry[0],
+      documents: [],
+      transactions: insertedTransactions,
+      hasLink: false,
+    }
+  })
+}
+
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<JournalEntry[]>,
+  res: NextApiResponse<JournalEntry[] | { error: string }>,
 ) {
   if (req.method === 'POST') {
     const entry = req.body as JournalEntryInsert
 
-    const { transactions, ...rest } = entry
-    rest.date = new Date(rest.date)
+    try {
+      const insertedEntry = await createJournalEntry(entry)
 
-    const insertedEntry = await db.transaction(async (tx) => {
-      const insertedEntry = await tx
-        .insert(JournalEntries)
-        .values(rest)
-        .onConflictDoUpdate({
-          target: JournalEntries.id,
-          set: { date: rest.date, description: rest.description },
-        })
-        .returning()
-
-      await tx
-        .delete(JournalEntryTransactions)
-        .where(eq(JournalEntryTransactions.journalEntryId, insertedEntry[0].id))
-
-      const insertedTransactions = await tx
-        .insert(JournalEntryTransactions)
-        .values(
-          transactions.map((t) => ({
-            ...t,
-            journalEntryId: insertedEntry[0].id,
-          })),
-        )
-        .returning()
-
-      return {
-        ...insertedEntry[0],
-        documents: [],
-        transactions: insertedTransactions,
-        hasLink: false,
+      res.status(200).json([insertedEntry])
+      return
+    } catch (e) {
+      if (e instanceof InputError) {
+        res.status(400).json({ error: e.message })
+        return
       }
-    })
 
-    res.status(200).json([insertedEntry])
-    return
+      res.status(500)
+      return
+    }
   }
 
   if (req.method === 'GET') {

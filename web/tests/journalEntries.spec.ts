@@ -93,4 +93,26 @@ test.describe('journal entries', () => {
       ],
     })
   })
+
+  test('should reject transactions that do not balance', async ({
+    request,
+  }) => {
+    for (let amounts of [
+      [10001, -10000],
+      [5000, 5000],
+      [1000, -200, -900],
+    ]) {
+      const response = await request.post(`/api/journalEntries`, {
+        data: {
+          date: '2023-08-20',
+          description: 'Something',
+          transactions: [
+            { accountId: 1930, amount: amounts[0] },
+            { accountId: 1630, amount: amounts[1] },
+          ],
+        },
+      })
+      expect(response.status()).toEqual(400)
+    }
+  })
 })
