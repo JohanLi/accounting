@@ -1,19 +1,14 @@
-import { Amount } from '../components/Amount'
-import DocumentLinks from '../components/DocumentLinks'
-import { JournalEntry } from './api/journalEntries'
-import { DateFormatted } from '../components/DateFormatted'
-import Modal from '../components/Modal'
-import LinkedTo, { LinkedToProps } from '../components/LinkedTo'
+import { JournalEntry as JournalEntryType } from './api/journalEntries'
 import { useState } from 'react'
 import { classNames, withinFiscalYear } from '../utils'
-import { LinkIcon } from '@heroicons/react/20/solid'
 import { useQuery } from '@tanstack/react-query'
 import Dropdown from '../components/Dropdown'
+import { JournalEntry } from '../components/JournalEntry'
 
 const filters = ['All', 'Non-linked'] as const
 
 export default function JournalEntries() {
-  const journalEntries = useQuery<JournalEntry[]>({
+  const journalEntries = useQuery<JournalEntryType[]>({
     queryKey: ['journalEntries'],
     queryFn: () => fetch('/api/journalEntries').then((res) => res.json()),
   })
@@ -23,8 +18,6 @@ export default function JournalEntries() {
 
   const [activeFilter, setActiveFilter] =
     useState<(typeof filters)[number]>('All')
-
-  const [showLinkedTo, setShowLinkedTo] = useState<LinkedToProps | null>(null)
 
   if (!journalEntries.data) {
     return null
@@ -115,65 +108,10 @@ export default function JournalEntries() {
             ? yearFilteredJournalEntries
             : yearLinkFilteredJournalEntries
           ).map((journalEntry) => (
-            <tr key={journalEntry.id}>
-              <td className="whitespace-nowrap py-4 pr-3 text-xs text-gray-500">
-                <DateFormatted date={journalEntry.date} />
-              </td>
-              <td className="whitespace-nowrap py-4 pr-3 text-sm font-medium text-gray-900">
-                {journalEntry.description}
-              </td>
-              <td className="whitespace-nowrap py-4 pr-3 text-sm text-gray-500">
-                {journalEntry.transactions.length && (
-                  <table className="min-w-full divide-y divide-gray-300">
-                    <tbody className="divide-y divide-gray-200 bg-white">
-                      {journalEntry.transactions.map((transaction) => (
-                        <tr key={transaction.id}>
-                          <td className="w-16 py-2 pr-3 text-sm text-gray-500">
-                            {transaction.accountId}
-                          </td>
-                          <td className="px-2 py-2 text-right text-sm font-medium">
-                            <Amount amount={transaction.amount} />
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </td>
-              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                <DocumentLinks documents={journalEntry.documents} />
-              </td>
-              <td className="relative whitespace-nowrap py-4 text-right text-xs">
-                {journalEntry.hasLink && (
-                  <a
-                    href="#"
-                    className={classNames(
-                      'inline-flex items-center text-gray-500 hover:text-gray-800',
-                      showLinkedTo ? 'text-gray-800' : '',
-                    )}
-                    onClick={(e) => {
-                      e.preventDefault()
-
-                      setShowLinkedTo({ journalEntry })
-                    }}
-                  >
-                    <LinkIcon className="h-4 w-4" />
-                  </a>
-                )}
-              </td>
-            </tr>
+            <JournalEntry key={journalEntry.id} journalEntry={journalEntry} />
           ))}
         </tbody>
       </table>
-      {!!showLinkedTo && (
-        <Modal
-          open={!!showLinkedTo}
-          setOpen={() => setShowLinkedTo(null)}
-          size="large"
-        >
-          <LinkedTo {...showLinkedTo} />
-        </Modal>
-      )}
     </>
   )
 }

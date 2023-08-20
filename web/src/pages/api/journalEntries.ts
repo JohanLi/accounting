@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { asc, InferModel, isNotNull } from 'drizzle-orm'
+import { asc, eq, InferModel, isNotNull } from 'drizzle-orm'
 import db from '../../db'
 import {
   JournalEntries,
@@ -37,7 +37,15 @@ export default async function handler(
       const insertedEntry = await tx
         .insert(JournalEntries)
         .values(rest)
+        .onConflictDoUpdate({
+          target: JournalEntries.id,
+          set: { date: rest.date, description: rest.description },
+        })
         .returning()
+
+      await tx
+        .delete(JournalEntryTransactions)
+        .where(eq(JournalEntryTransactions.journalEntryId, insertedEntry[0].id))
 
       const insertedTransactions = await tx
         .insert(JournalEntryTransactions)

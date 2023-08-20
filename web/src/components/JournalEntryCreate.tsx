@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import JournalEntryCreateForm from './JournalEntryCreateForm'
+import JournalEntryForm from './JournalEntryForm'
 import { Button } from './Button'
 
 export default function JournalEntryCreate() {
@@ -15,7 +15,7 @@ export default function JournalEntryCreate() {
         />
       )}
       {createBlank && (
-        <JournalEntryCreateForm onClose={() => setCreateBlank(false)} />
+        <JournalEntryForm onClose={() => setCreateBlank(false)} />
       )}
     </>
   )

@@ -31,6 +31,11 @@ export const Accounts = pgTable('accounts', {
   description: text('description').notNull(),
 })
 
+/*
+  TODO
+    It's not clear yet whether it would be better to "derive" transactions than to
+    store them explicitly like this. Needs to be revisited.
+ */
 export const JournalEntryTransactions = pgTable('journal_entry_transactions', {
   id: serial('id').primaryKey(),
   journalEntryId: integer('journal_entry_id')
