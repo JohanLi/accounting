@@ -113,6 +113,7 @@ export const JournalEntriesRelations = relations(
 )
 
 export const transactionTypes = ['bankRegular', 'bankSavings', 'tax'] as const
+export type TransactionType = (typeof transactionTypes)[number]
 
 /*
   https://github.com/drizzle-team/drizzle-orm/issues/646#issuecomment-1586349095

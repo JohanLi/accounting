@@ -4,6 +4,8 @@ import { classNames, withinFiscalYear } from '../utils'
 import { useQuery } from '@tanstack/react-query'
 import Dropdown from '../components/Dropdown'
 import { JournalEntry } from '../components/JournalEntry'
+import LinkedTo, { LinkedToProps } from '../components/LinkedTo'
+import Modal from '../components/Modal'
 
 const filters = ['All', 'Non-linked'] as const
 
@@ -18,6 +20,8 @@ export default function JournalEntries() {
 
   const [activeFilter, setActiveFilter] =
     useState<(typeof filters)[number]>('All')
+
+  const [showLinkedTo, setShowLinkedTo] = useState<LinkedToProps | null>(null)
 
   if (!journalEntries.data) {
     return null
@@ -109,10 +113,23 @@ export default function JournalEntries() {
             ? yearFilteredJournalEntries
             : yearLinkFilteredJournalEntries
           ).map((journalEntry) => (
-            <JournalEntry key={journalEntry.id} journalEntry={journalEntry} />
+            <JournalEntry
+              key={journalEntry.id}
+              journalEntry={journalEntry}
+              onHasLinkClick={() => setShowLinkedTo({ journalEntry })}
+            />
           ))}
         </tbody>
       </table>
+      {!!showLinkedTo && (
+        <Modal
+          open={!!showLinkedTo}
+          setOpen={() => setShowLinkedTo(null)}
+          size="large"
+        >
+          <LinkedTo {...showLinkedTo} />
+        </Modal>
+      )}
     </>
   )
 }

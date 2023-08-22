@@ -1,22 +1,19 @@
 import { DateFormatted } from './DateFormatted'
 import { Amount } from './Amount'
 import DocumentLinks from './DocumentLinks'
-import { classNames } from '../utils'
 import { LinkIcon } from '@heroicons/react/20/solid'
 import { JournalEntry as JournalEntryType } from '../pages/api/journalEntries'
-import Modal from './Modal'
-import LinkedTo, { LinkedToProps } from './LinkedTo'
 import { useState } from 'react'
 import JournalEntryForm from './JournalEntryForm'
 import { Button } from './Button'
 
 type Props = {
   journalEntry: JournalEntryType
+  onHasLinkClick: () => void
 }
 
-export function JournalEntry({ journalEntry }: Props) {
+export function JournalEntry({ journalEntry, onHasLinkClick }: Props) {
   const [edit, setEdit] = useState(false)
-  const [showLinkedTo, setShowLinkedTo] = useState<LinkedToProps | null>(null)
 
   if (edit) {
     return (
@@ -65,14 +62,11 @@ export function JournalEntry({ journalEntry }: Props) {
           {journalEntry.hasLink && (
             <a
               href="#"
-              className={classNames(
-                'inline-flex items-center text-gray-500 hover:text-gray-800',
-                showLinkedTo ? 'text-gray-800' : '',
-              )}
+              className="inline-flex items-center text-gray-500 hover:text-gray-800"
               onClick={(e) => {
                 e.preventDefault()
 
-                setShowLinkedTo({ journalEntry })
+                onHasLinkClick()
               }}
             >
               <LinkIcon className="h-4 w-4" />
@@ -83,16 +77,6 @@ export function JournalEntry({ journalEntry }: Props) {
           <Button type="secondary" onClick={() => setEdit(true)} text="Edit" />
         </td>
       </tr>
-      {/* TODO <div> cannot appear as a child of <tbody> */}
-      {!!showLinkedTo && (
-        <Modal
-          open={!!showLinkedTo}
-          setOpen={() => setShowLinkedTo(null)}
-          size="large"
-        >
-          <LinkedTo {...showLinkedTo} />
-        </Modal>
-      )}
     </>
   )
 }
