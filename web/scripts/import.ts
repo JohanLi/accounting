@@ -1,3 +1,9 @@
+/*
+  TODO
+    Remove this script once this accounting solution is stable and FY 2023
+    is closed.
+ */
+
 import { readdir, readFile } from 'fs/promises'
 import iconv from 'iconv-lite'
 import {
@@ -12,9 +18,12 @@ import {
   Documents,
   JournalEntryTransactions,
   JournalEntries,
+  Transactions,
 } from '../src/schema'
+import { oldBankTransactions } from './oldBankTransactions'
 
 import { getPdfHash } from '../src/getPdfHash'
+import Decimal from 'decimal.js'
 
 const oldIdToId = new Map()
 
@@ -116,11 +125,53 @@ async function importDocuments(year: number) {
   }
 }
 
+async function importOldBankTransactions() {
+  let balance = 0
+
+  for (const transaction of oldBankTransactions) {
+    const journalEntryId = oldIdToId.get(Number(transaction.oldId))
+
+    if (!journalEntryId) {
+      throw new Error(
+        `Could not find journal entry for old bank transaction ${JSON.stringify(
+          transaction,
+          null,
+          2,
+        )}`,
+      )
+    }
+
+    const amount = new Decimal(
+      transaction.amount
+        .replace(/[^0-9.,−]/g, '')
+        .replace(',', '.')
+        .replace('−', '-'),
+    )
+      .mul(100)
+      .toNumber()
+
+    balance += amount
+
+    await db.insert(Transactions).values({
+      type: 'bankOld',
+      date: new Date(transaction.date),
+      description: transaction.description,
+      amount,
+      balance,
+      raw: {},
+      externalId: transaction.artificialId.toString(),
+      linkedToJournalEntryId: journalEntryId,
+    })
+  }
+}
+
 async function main() {
   for (const year of [2021, 2022, 2023]) {
     await importJournalEntries(year)
     await importDocuments(year)
   }
+
+  await importOldBankTransactions()
 
   process.exit(0)
 }

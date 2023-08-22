@@ -112,7 +112,12 @@ export const JournalEntriesRelations = relations(
   }),
 )
 
-export const transactionTypes = ['bankRegular', 'bankSavings', 'tax'] as const
+export const transactionTypes = [
+  'bankRegular',
+  'bankSavings',
+  'bankOld',
+  'tax',
+] as const
 export type TransactionType = (typeof transactionTypes)[number]
 
 /*

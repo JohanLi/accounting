@@ -15,6 +15,7 @@ const typeToLabel: {
 } = {
   bankRegular: 'Företagskonto',
   bankSavings: 'Sparkonto',
+  bankOld: 'Gamla företagskontot',
   tax: 'Skattekonto',
 }
 
