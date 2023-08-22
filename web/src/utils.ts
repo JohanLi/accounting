@@ -59,3 +59,7 @@ export function krToOre(kr: string | number) {
 export function getHash(input: Buffer | string) {
   return crypto.createHash('sha256').update(input).digest('hex')
 }
+
+export function filterNull<T>(input: T[]) {
+  return input.filter((x: T): x is Exclude<typeof x, null> => x !== null)
+}

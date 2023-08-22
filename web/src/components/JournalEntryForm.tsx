@@ -2,14 +2,14 @@ import { useState } from 'react'
 import { Amount } from './Amount'
 import useJournalEntryMutation from './useJournalEntryMutation'
 import { Button } from './Button'
-import { JournalEntry as JournalEntryType } from '../pages/api/journalEntries'
+import { JournalEntryInsert } from '../pages/api/journalEntries'
 import { formatDate } from './DateFormatted'
 
 const vatRates = ['0', '0.06', '0.12', '0.25'] as const
 type VatRate = (typeof vatRates)[number]
 
 type Props = {
-  journalEntry?: JournalEntryType
+  journalEntry?: JournalEntryInsert
   onClose: () => void
 }
 
@@ -182,6 +182,7 @@ export default function JournalEntryForm({ journalEntry, onClose }: Props) {
                           amount: -amountBeforeVat,
                         },
                       ],
+                  linkedToTransactionIds: journalEntry?.linkedToTransactionIds,
                 })
 
                 onClose()

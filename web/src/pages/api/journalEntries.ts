@@ -15,6 +15,7 @@ export type TransactionsInsert = {
 
 export type JournalEntryInsert = InferModel<typeof JournalEntries, 'insert'> & {
   transactions: TransactionsInsert
+  linkedToTransactionIds?: number[]
 }
 
 export type JournalEntry = InferModel<typeof JournalEntries> & {
@@ -34,7 +35,7 @@ async function createJournalEntry(entry: JournalEntryInsert) {
     throw new InputError('Transactions do not balance')
   }
 
-  const { transactions, ...rest } = entry
+  const { transactions, linkedToTransactionIds, ...rest } = entry
   rest.date = new Date(rest.date)
 
   return db.transaction(async (tx) => {
@@ -61,11 +62,22 @@ async function createJournalEntry(entry: JournalEntryInsert) {
       )
       .returning()
 
+    for (const linkedToTransactionId of linkedToTransactionIds || []) {
+      /*
+        Apparently the transaction is rolled back if nothing is updated.
+        Not sure if this behavior is library-specific.
+       */
+      await tx
+        .update(Transactions)
+        .set({ linkedToJournalEntryId: insertedEntry[0].id })
+        .where(eq(Transactions.id, linkedToTransactionId))
+    }
+
     return {
       ...insertedEntry[0],
       documents: [],
       transactions: insertedTransactions,
-      hasLink: false,
+      hasLink: !!linkedToTransactionIds,
     }
   })
 }

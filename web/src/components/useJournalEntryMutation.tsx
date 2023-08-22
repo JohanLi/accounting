@@ -14,6 +14,11 @@ export default function useJournalEntryMutation() {
         body: JSON.stringify(body),
       }).then((res) => res.json()),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ['journalEntries'] }),
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['journalEntries'] }),
+        queryClient.invalidateQueries({
+          queryKey: ['journalEntriesSuggestions'],
+        }),
+      ]),
   })
 }

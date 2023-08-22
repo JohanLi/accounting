@@ -21,7 +21,7 @@ export function JournalEntry({ journalEntry }: Props) {
   if (edit) {
     return (
       <tr>
-        <td colSpan={5}>
+        <td colSpan={6}>
           <JournalEntryForm
             journalEntry={journalEntry}
             onClose={() => setEdit(false)}
@@ -61,7 +61,7 @@ export function JournalEntry({ journalEntry }: Props) {
         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
           <DocumentLinks documents={journalEntry.documents} />
         </td>
-        <td className="relative whitespace-nowrap py-4 text-right text-xs">
+        <td className="relative whitespace-nowrap py-4 text-xs">
           {journalEntry.hasLink && (
             <a
               href="#"
@@ -78,9 +78,12 @@ export function JournalEntry({ journalEntry }: Props) {
               <LinkIcon className="h-4 w-4" />
             </a>
           )}
+        </td>
+        <td className="text-right">
           <Button type="secondary" onClick={() => setEdit(true)} text="Edit" />
         </td>
       </tr>
+      {/* TODO <div> cannot appear as a child of <tbody> */}
       {!!showLinkedTo && (
         <Modal
           open={!!showLinkedTo}

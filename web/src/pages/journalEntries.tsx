@@ -101,6 +101,7 @@ export default function JournalEntries() {
               Documents
             </th>
             <th scope="col" className="w-16 py-3.5" />
+            <th scope="col" className="py-3.5" />
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
