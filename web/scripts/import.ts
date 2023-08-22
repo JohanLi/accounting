@@ -24,6 +24,7 @@ import { oldBankTransactions } from './oldBankTransactions'
 
 import { getPdfHash } from '../src/getPdfHash'
 import Decimal from 'decimal.js'
+import { asc, eq } from 'drizzle-orm'
 
 const oldIdToId = new Map()
 
@@ -165,6 +166,42 @@ async function importOldBankTransactions() {
   }
 }
 
+async function importPersonalBankTransactions() {
+  const transactions = await db
+    .select({
+      journalEntryId: JournalEntries.id,
+      date: JournalEntries.date,
+      amount: JournalEntryTransactions.amount,
+      description: JournalEntries.description,
+    })
+    .from(JournalEntryTransactions)
+    .innerJoin(
+      JournalEntries,
+      eq(JournalEntries.id, JournalEntryTransactions.journalEntryId),
+    )
+    .where(eq(JournalEntryTransactions.accountId, 2890))
+    .orderBy(asc(JournalEntries.date))
+
+  let balance = 0
+  let artificialId = 0
+
+  for (const transaction of transactions) {
+    artificialId += 1
+    balance += transaction.amount
+
+    await db.insert(Transactions).values({
+      type: 'bankPersonal',
+      date: new Date(transaction.date),
+      description: transaction.description,
+      amount: transaction.amount,
+      balance,
+      raw: {},
+      externalId: artificialId.toString(),
+      linkedToJournalEntryId: transaction.journalEntryId,
+    })
+  }
+}
+
 async function main() {
   for (const year of [2021, 2022, 2023]) {
     await importJournalEntries(year)
@@ -172,6 +209,7 @@ async function main() {
   }
 
   await importOldBankTransactions()
+  await importPersonalBankTransactions()
 
   process.exit(0)
 }

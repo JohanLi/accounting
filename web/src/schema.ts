@@ -112,10 +112,16 @@ export const JournalEntriesRelations = relations(
   }),
 )
 
+/*
+  TODO
+    bankOld and bankPersonal are not intended to exist long-term – they're mainly
+    there for completing FY 2023.
+ */
 export const transactionTypes = [
   'bankRegular',
   'bankSavings',
   'bankOld',
+  'bankPersonal',
   'tax',
 ] as const
 export type TransactionType = (typeof transactionTypes)[number]

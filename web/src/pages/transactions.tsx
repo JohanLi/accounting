@@ -16,6 +16,7 @@ const typeToLabel: {
   bankRegular: 'Företagskonto',
   bankSavings: 'Sparkonto',
   bankOld: 'Gamla företagskontot',
+  bankPersonal: 'Privat konto',
   tax: 'Skattekonto',
 }
 
