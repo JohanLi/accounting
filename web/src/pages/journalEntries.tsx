@@ -1,27 +1,19 @@
-import { JournalEntry as JournalEntryType } from './api/journalEntries'
 import { useState } from 'react'
 import { classNames, withinFiscalYear } from '../utils'
-import { useQuery } from '@tanstack/react-query'
 import Dropdown from '../components/Dropdown'
 import { JournalEntry } from '../components/JournalEntry'
-import LinkedTo, { LinkedToProps } from '../components/LinkedTo'
-import Modal from '../components/Modal'
+import useJournalEntries from '../components/useJournalEntries'
 
 const filters = ['All', 'Non-linked'] as const
 
 export default function JournalEntries() {
-  const journalEntries = useQuery<JournalEntryType[]>({
-    queryKey: ['journalEntries'],
-    queryFn: () => fetch('/api/journalEntries').then((res) => res.json()),
-  })
+  const journalEntries = useJournalEntries()
 
   // TODO hardcoded to 2023 right now, as no entries exist for 2024 yet
   const [selectedFiscalYear, setSelectedFiscalYear] = useState(2023)
 
   const [activeFilter, setActiveFilter] =
     useState<(typeof filters)[number]>('All')
-
-  const [showLinkedTo, setShowLinkedTo] = useState<LinkedToProps | null>(null)
 
   if (!journalEntries.data) {
     return null
@@ -113,23 +105,10 @@ export default function JournalEntries() {
             ? yearFilteredJournalEntries
             : yearLinkFilteredJournalEntries
           ).map((journalEntry) => (
-            <JournalEntry
-              key={journalEntry.id}
-              journalEntry={journalEntry}
-              onHasLinkClick={() => setShowLinkedTo({ journalEntry })}
-            />
+            <JournalEntry key={journalEntry.id} journalEntry={journalEntry} />
           ))}
         </tbody>
       </table>
-      {!!showLinkedTo && (
-        <Modal
-          open={!!showLinkedTo}
-          setOpen={() => setShowLinkedTo(null)}
-          size="large"
-        >
-          <LinkedTo {...showLinkedTo} />
-        </Modal>
-      )}
     </>
   )
 }

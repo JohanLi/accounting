@@ -101,7 +101,7 @@ test('getUniqueAccountCodes', () => {
   Deletions in my previous bookkeeping software is handled this way.
   While it might be convention, it's not documented in the SIE specification.
 
-  I don't intend to handle it the same way — instead, verifications will simply
+  I don't intend to handle it the same way – instead, verifications will simply
   have a deletedAt field.
  */
 test('markDeletedAndRemoveNegations', () => {

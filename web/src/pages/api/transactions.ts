@@ -80,7 +80,7 @@ const handler = async (
     const transactions = await db
       .select()
       .from(Transactions)
-      .orderBy(desc(Transactions.id))
+      .orderBy(desc(Transactions.date), desc(Transactions.id))
 
     res.status(200).json(transactions)
     return

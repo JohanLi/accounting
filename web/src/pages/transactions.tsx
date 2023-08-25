@@ -1,16 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import Layout from '../components/Layout'
 import { TransactionsResponse } from './api/transactions'
-import { DateFormatted } from '../components/DateFormatted'
-import { Amount } from '../components/Amount'
 import { classNames } from '../utils'
-import { LinkIcon } from '@heroicons/react/20/solid'
 import { useState } from 'react'
-import Modal from '../components/Modal'
-import LinkedTo, { LinkedToProps } from '../components/LinkedTo'
 import { TransactionType, transactionTypes } from '../schema'
+import { Transaction } from '../components/Transaction'
 
-const typeToLabel: {
+export const transactionTypeToLabel: {
   [key in TransactionType]: string
 } = {
   bankRegular: 'Företagskonto',
@@ -29,8 +25,6 @@ export default function Transactions() {
   })
 
   const [activeType, setActiveType] = useState<TransactionType>('bankRegular')
-
-  const [showLinkedTo, setShowLinkedTo] = useState<LinkedToProps | null>(null)
 
   const [activeFilter, setActiveFilter] =
     useState<(typeof filters)[number]>('All')
@@ -59,7 +53,7 @@ export default function Transactions() {
                 setActiveType(type)
               }}
             >
-              {typeToLabel[type]}
+              {transactionTypeToLabel[type]}
             </a>
           )
         })}
@@ -126,9 +120,10 @@ export default function Transactions() {
                       Balance
                     </th>
                     <th scope="col" className="w-16 py-3.5" />
+                    <th scope="col" className="py-3.5" />
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-gray-200">
                   {filteredTransactions
                     .filter((t) =>
                       activeFilter === 'Non-linked'
@@ -136,53 +131,16 @@ export default function Transactions() {
                         : true,
                     )
                     .map((transaction) => (
-                      <tr
-                        className="border-t border-gray-200 first:border-t-0"
+                      <Transaction
                         key={transaction.id}
-                      >
-                        <td className="whitespace-nowrap py-4 pr-3 text-xs text-gray-500">
-                          <DateFormatted date={transaction.date} />
-                        </td>
-                        <td className="whitespace-nowrap py-4 pr-3 text-sm font-medium text-gray-900">
-                          {transaction.description}
-                        </td>
-                        <td className="whitespace-nowrap py-4 text-right text-sm">
-                          <Amount amount={transaction.amount} />
-                        </td>
-                        <td className="whitespace-nowrap py-4 text-right text-sm">
-                          <Amount amount={transaction.balance} />
-                        </td>
-                        <td className="relative whitespace-nowrap py-4 text-right text-xs">
-                          {transaction.linkedToJournalEntryId && (
-                            <a
-                              href="#"
-                              className="inline-flex items-center text-gray-500 hover:text-gray-800"
-                              onClick={(e) => {
-                                e.preventDefault()
-
-                                setShowLinkedTo({ transaction })
-                              }}
-                            >
-                              <LinkIcon className="h-4 w-4" />
-                            </a>
-                          )}
-                        </td>
-                      </tr>
+                        transaction={transaction}
+                      />
                     ))}
                 </tbody>
               </table>
             </div>
           </div>
         </>
-      )}
-      {!!showLinkedTo && (
-        <Modal
-          open={!!showLinkedTo}
-          setOpen={() => setShowLinkedTo(null)}
-          size="large"
-        >
-          <LinkedTo {...showLinkedTo} />
-        </Modal>
       )}
     </Layout>
   )

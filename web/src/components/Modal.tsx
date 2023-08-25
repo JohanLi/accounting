@@ -10,6 +10,8 @@ type Props = {
   children: ReactNode
 }
 
+// TODO remove after reimplementing the salary component
+
 export default function Modal({ open, setOpen, size, children }: Props) {
   return (
     <Dialog as="div" className="relative z-10" open={open} onClose={setOpen}>

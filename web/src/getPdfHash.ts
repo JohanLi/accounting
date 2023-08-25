@@ -3,7 +3,7 @@ import { getHash } from './utils'
 
 /*
   Developers Bay generates a slightly different PDF each time you download
-  an invoice — specifically CreationDate and ModDate in the PDF metadata.
+  an invoice – specifically CreationDate and ModDate in the PDF metadata.
 
   Because of this, the hash is instead based on the PDF strings.
 

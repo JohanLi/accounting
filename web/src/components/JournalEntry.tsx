@@ -6,14 +6,17 @@ import { JournalEntry as JournalEntryType } from '../pages/api/journalEntries'
 import { useState } from 'react'
 import JournalEntryForm from './JournalEntryForm'
 import { Button } from './Button'
+import { JournalEntryLinkForm } from './JournalEntryLinkForm'
+
+// TODO the linked document and linked transactions should trigger a popover on hover
 
 type Props = {
   journalEntry: JournalEntryType
-  onHasLinkClick: () => void
 }
 
-export function JournalEntry({ journalEntry, onHasLinkClick }: Props) {
+export function JournalEntry({ journalEntry }: Props) {
   const [edit, setEdit] = useState(false)
+  const [editLink, setEditLink] = useState(false)
 
   if (edit) {
     return (
@@ -22,6 +25,19 @@ export function JournalEntry({ journalEntry, onHasLinkClick }: Props) {
           <JournalEntryForm
             journalEntry={journalEntry}
             onClose={() => setEdit(false)}
+          />
+        </td>
+      </tr>
+    )
+  }
+
+  if (editLink) {
+    return (
+      <tr>
+        <td colSpan={6}>
+          <JournalEntryLinkForm
+            journalEntry={journalEntry}
+            onClose={() => setEditLink(false)}
           />
         </td>
       </tr>
@@ -66,15 +82,22 @@ export function JournalEntry({ journalEntry, onHasLinkClick }: Props) {
               onClick={(e) => {
                 e.preventDefault()
 
-                onHasLinkClick()
+                setEditLink(true)
               }}
             >
               <LinkIcon className="h-4 w-4" />
             </a>
           )}
         </td>
-        <td className="text-right">
+        <td className="space-x-2 text-right">
           <Button type="secondary" onClick={() => setEdit(true)} text="Edit" />
+          {!journalEntry.hasLink && (
+            <Button
+              type="secondary"
+              onClick={() => setEditLink(true)}
+              text="Add link"
+            />
+          )}
         </td>
       </tr>
     </>

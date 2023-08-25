@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { asc, eq, InferModel, isNotNull } from 'drizzle-orm'
+import { desc, eq, InferModel, isNotNull } from 'drizzle-orm'
 import db from '../../db'
 import {
   JournalEntries,
@@ -126,7 +126,7 @@ export default async function handler(
           },
         },
       },
-      orderBy: asc(JournalEntries.date),
+      orderBy: [desc(JournalEntries.date), desc(JournalEntries.id)],
     })
 
     res.status(200).json(
