@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import db from '../../../db'
 import { Transactions } from '../../../schema'
-import { and, asc, eq, InferModel, isNull } from 'drizzle-orm'
+import { and, asc, eq, gte, InferModel, isNull } from 'drizzle-orm'
 import { JournalEntryInsert } from '../journalEntries'
 import { filterNull } from '../../../utils'
 
@@ -26,7 +26,7 @@ function taxAccountMap(description: string): {
     return {
       debit: 1630,
       credit: 1930,
-      description: 'insättning',
+      description: 'Insättning',
       searchForBankTransaction: true,
     }
   }
@@ -197,28 +197,36 @@ export default async function handler(
       .select()
       .from(Transactions)
       .where(
-        and(eq(Transactions.type, 'tax'), isNull(Transactions.journalEntryId)),
+        and(
+          eq(Transactions.type, 'tax'),
+          isNull(Transactions.journalEntryId),
+          /*
+           TODO
+             The software should not suggest transactions for closed fiscal years.
+             Hard coding for now.
+           */
+          gte(Transactions.date, new Date('2022-07-01')),
+        ),
       )
       .orderBy(asc(Transactions.id))
 
-    const suggestions = await Promise.all(
-      taxTransactions.map(async (taxTransaction) => {
-        const match = taxAccountMap(taxTransaction.description)
+    const taxSuggestions = await Promise.all(
+      taxTransactions.map(async (transaction) => {
+        const match = taxAccountMap(transaction.description)
 
         if (!match) {
           return null
         }
 
         const transactions = [
-          { accountId: match.debit, amount: taxTransaction.amount },
-          { accountId: match.credit, amount: -taxTransaction.amount },
+          { accountId: match.debit, amount: transaction.amount },
+          { accountId: match.credit, amount: -transaction.amount },
         ]
 
-        const linkedToTransactionIds = [taxTransaction.id]
+        const linkedToTransactionIds = [transaction.id]
 
         if (match.searchForBankTransaction) {
-          const bankTransactionId =
-            await searchForBankTransaction(taxTransaction)
+          const bankTransactionId = await searchForBankTransaction(transaction)
 
           if (bankTransactionId) {
             linkedToTransactionIds.push(bankTransactionId)
@@ -226,15 +234,69 @@ export default async function handler(
         }
 
         return {
-          date: taxTransaction.date,
-          description: match.description,
+          date: transaction.date,
+          // TODO implement a way to tag journal entries
+          description: `Skatt – ${match.description}`,
           transactions,
           linkedToTransactionIds,
         }
       }),
     )
 
-    res.status(200).json(filterNull(suggestions))
+    const bankSavingsTransactions = await db
+      .select()
+      .from(Transactions)
+      .where(
+        and(
+          eq(Transactions.type, 'bankSavings'),
+          isNull(Transactions.journalEntryId),
+          gte(Transactions.date, new Date('2022-07-01')),
+        ),
+      )
+      .orderBy(asc(Transactions.id))
+
+    // doesn't need to be performant, as these suggestions are far and few between
+    const bankSavingsSuggestions = await Promise.all(
+      bankSavingsTransactions.map(async (transaction) => {
+        const bankRegularTransactionMatch = await db
+          .select()
+          .from(Transactions)
+          .where(
+            and(
+              eq(Transactions.type, 'bankRegular'),
+              isNull(Transactions.journalEntryId),
+              eq(Transactions.date, transaction.date),
+              eq(Transactions.amount, -transaction.amount),
+            ),
+          )
+
+        if (!bankRegularTransactionMatch.length) {
+          return null
+        }
+
+        const transactions = [
+          { accountId: 1930, amount: -transaction.amount },
+          { accountId: 1931, amount: transaction.amount },
+        ]
+
+        const linkedToTransactionIds = [
+          transaction.id,
+          bankRegularTransactionMatch[0].id,
+        ]
+
+        return {
+          date: transaction.date,
+          // TODO implement a way to tag journal entries
+          description: `Bank – överföring sparkonto`,
+          transactions,
+          linkedToTransactionIds,
+        }
+      }),
+    )
+
+    res
+      .status(200)
+      .json(filterNull([...taxSuggestions, ...bankSavingsSuggestions]))
     return
   }
 

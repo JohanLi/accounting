@@ -30,6 +30,10 @@ async function main() {
         description: 'Företagskonto',
       },
       {
+        id: 1931,
+        description: 'Företagskonto (spar)',
+      },
+      {
         id: 1932,
         description: 'Företagskonto (inaktiv)',
       },

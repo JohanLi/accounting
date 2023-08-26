@@ -16,6 +16,7 @@ export default function useJournalEntryMutation() {
     onSuccess: () =>
       Promise.all([
         queryClient.invalidateQueries({ queryKey: ['journalEntries'] }),
+        queryClient.invalidateQueries({ queryKey: ['transactions'] }),
         queryClient.invalidateQueries({
           queryKey: ['journalEntriesSuggestions'],
         }),
