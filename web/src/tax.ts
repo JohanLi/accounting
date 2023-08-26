@@ -21,13 +21,13 @@ export const PAYROLL_TAX = new Decimal('0.3142')
 export function getSalaryTaxes(amount?: number) {
   if (!amount) {
     return {
-      personalIncomeTax: 0,
+      preliminaryIncomeTax: 0,
       payrollTax: 0,
     }
   }
 
   return {
-    personalIncomeTax: Decimal.mul(amount, PERSONAL_TAX.rate)
+    preliminaryIncomeTax: Decimal.mul(amount, PERSONAL_TAX.rate)
       .round()
       .toNumber(),
     payrollTax: Decimal.mul(amount, PAYROLL_TAX).round().toNumber(),

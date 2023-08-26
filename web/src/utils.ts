@@ -48,6 +48,16 @@ export function withinFiscalYear(journalEntry: JournalEntry, year: number) {
   )
 }
 
+export function getAllIncomeYearsInReverse() {
+  const years: number[] = []
+
+  for (let year = new Date().getFullYear(); year >= FIRST_FISCAL_YEAR; year--) {
+    years.push(year)
+  }
+
+  return years
+}
+
 export function formatNumber(number: number) {
   return number.toLocaleString('en-US')
 }

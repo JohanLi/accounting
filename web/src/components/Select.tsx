@@ -1,29 +1,26 @@
 import { Fragment } from 'react'
 import { Menu, Transition } from '@headlessui/react'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
-import { classNames, getAllFiscalYearsInReverse } from '../utils'
+import { classNames } from '../utils'
 
-type Props = {
-  selectedFiscalYear: number
-  setSelectedFiscalYear: (year: number) => void
+type Props<T> = {
+  value: T
+  onChange: (value: T) => void
+  items: T[]
 }
 
-export default function Dropdown({
-  selectedFiscalYear,
-  setSelectedFiscalYear,
-}: Props) {
+export default function Select<T extends string | number>(props: Props<T>) {
   return (
     <Menu as="div" className="relative inline-block">
       <div>
         <Menu.Button className="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-          {selectedFiscalYear}
+          {props.value}
           <ChevronDownIcon
             className="-mr-1 h-5 w-5 text-gray-400"
             aria-hidden="true"
           />
         </Menu.Button>
       </div>
-
       <Transition
         as={Fragment}
         enter="transition ease-out duration-100"
@@ -35,14 +32,14 @@ export default function Dropdown({
       >
         <Menu.Items className="absolute right-0 z-10 mt-2 origin-top-right rounded-md bg-white text-right shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
           <div className="py-1">
-            {getAllFiscalYearsInReverse().map((year) => (
-              <Menu.Item key={year}>
+            {props.items.map((item) => (
+              <Menu.Item key={item}>
                 {({ active }) => (
                   <a
-                    onClick={() => setSelectedFiscalYear(year)}
+                    onClick={() => props.onChange(item)}
                     className={classNames(
                       active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                      year === selectedFiscalYear
+                      item === props.value
                         ? active
                           ? 'bg-gray-300'
                           : 'bg-gray-200'
@@ -50,7 +47,7 @@ export default function Dropdown({
                       'block cursor-pointer px-4 py-2 text-sm',
                     )}
                   >
-                    {year}
+                    {item}
                   </a>
                 )}
               </Menu.Item>

@@ -3,7 +3,8 @@ import Layout from '../components/Layout'
 import { AccountsResponse } from './api/accounts'
 import { Amount } from '../components/Amount'
 import { useState } from 'react'
-import Dropdown from '../components/Dropdown'
+import Select from '../components/Select'
+import { getAllFiscalYearsInReverse } from '../utils'
 
 export default function Accounts() {
   // TODO hardcoded to 2023 right now, as no entries exist for 2024 yet
@@ -22,9 +23,10 @@ export default function Accounts() {
       <div className="flex justify-end">
         <div className="flex items-center space-x-4">
           <div className="text-gray-500">FY</div>
-          <Dropdown
-            selectedFiscalYear={selectedFiscalYear}
-            setSelectedFiscalYear={setSelectedFiscalYear}
+          <Select
+            value={selectedFiscalYear}
+            onChange={setSelectedFiscalYear}
+            items={getAllFiscalYearsInReverse()}
           />
         </div>
       </div>

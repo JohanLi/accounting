@@ -1,6 +1,10 @@
 import { useState } from 'react'
-import { classNames, withinFiscalYear } from '../utils'
-import Dropdown from '../components/Dropdown'
+import {
+  classNames,
+  getAllFiscalYearsInReverse,
+  withinFiscalYear,
+} from '../utils'
+import Select from '../components/Select'
 import { JournalEntry } from '../components/JournalEntry'
 import useJournalEntries from '../components/useJournalEntries'
 
@@ -59,9 +63,10 @@ export default function JournalEntries() {
         <div className="flex justify-end">
           <div className="flex items-center space-x-4">
             <div className="text-gray-500">FY</div>
-            <Dropdown
-              selectedFiscalYear={selectedFiscalYear}
-              setSelectedFiscalYear={setSelectedFiscalYear}
+            <Select
+              value={selectedFiscalYear}
+              onChange={setSelectedFiscalYear}
+              items={getAllFiscalYearsInReverse()}
             />
           </div>
         </div>
