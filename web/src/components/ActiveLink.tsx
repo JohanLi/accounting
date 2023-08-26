@@ -8,19 +8,23 @@ import { PropsWithChildren } from 'react'
  */
 
 type ActiveLinkProps = LinkProps & {
-  className?: string
   conditionalClassNames: [string, string]
+  className?: string
+  startsWith?: string
 }
 
 export default function ActiveLink({
   children,
-  className,
   conditionalClassNames,
+  className,
+  startsWith,
   ...props
 }: PropsWithChildren<ActiveLinkProps>) {
   const { pathname } = useRouter()
 
-  const isActive = pathname === props.href
+  const isActive = !startsWith
+    ? pathname === props.href
+    : pathname.startsWith(startsWith)
 
   const newClassName = `${className} ${
     isActive ? conditionalClassNames[0] : conditionalClassNames[1]

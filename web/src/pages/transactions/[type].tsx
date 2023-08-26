@@ -1,10 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
-import Layout from '../components/Layout'
-import { TransactionsResponse } from './api/transactions'
-import { classNames } from '../utils'
+import Layout from '../../components/Layout'
+import { TransactionsResponse } from '../api/transactions'
+import { classNames } from '../../utils'
 import { useState } from 'react'
-import { TransactionType, transactionTypes } from '../schema'
-import { Transaction } from '../components/Transaction'
+import { TransactionType, transactionTypes } from '../../schema'
+import { Transaction } from '../../components/Transaction'
+import { useRouter } from 'next/router'
+import Link from 'next/link'
 
 export const transactionTypeToLabel: {
   [key in TransactionType]: string
@@ -19,12 +21,14 @@ export const transactionTypeToLabel: {
 const filters = ['All', 'Non-linked'] as const
 
 export default function Transactions() {
+  const router = useRouter()
+
   const transactions = useQuery<TransactionsResponse>({
     queryKey: ['transactions'],
     queryFn: () => fetch('/api/transactions').then((res) => res.json()),
   })
 
-  const [activeType, setActiveType] = useState<TransactionType>('bankRegular')
+  const activeType = router.query.type as TransactionType
 
   const [activeFilter, setActiveFilter] =
     useState<(typeof filters)[number]>('All')
@@ -38,23 +42,18 @@ export default function Transactions() {
       <div className="flex space-x-6">
         {transactionTypes.map((type) => {
           return (
-            <a
+            <Link
               key={type}
-              href="#"
+              href={`/transactions/${type}`}
               className={classNames(
                 activeType === type
                   ? 'bg-indigo-200 text-indigo-700'
                   : 'text-indigo-500 hover:text-indigo-700',
                 'rounded-md px-4 py-3 text-sm font-medium',
               )}
-              onClick={(e) => {
-                e.preventDefault()
-
-                setActiveType(type)
-              }}
             >
               {transactionTypeToLabel[type]}
-            </a>
+            </Link>
           )
         })}
       </div>

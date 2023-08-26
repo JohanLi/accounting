@@ -2,7 +2,11 @@ import ActiveLink from './ActiveLink'
 
 const tabs = [
   { name: 'Home', href: '/' },
-  { name: 'Transactions', href: '/transactions' },
+  {
+    name: 'Transactions',
+    href: '/transactions/bankRegular',
+    startsWith: '/transactions',
+  },
   { name: 'Salary', href: '/salary' },
   { name: 'Accounts', href: '/accounts' },
 ]
@@ -22,6 +26,7 @@ export default function Nav() {
                   'border-indigo-500 text-indigo-600',
                   'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
                 ]}
+                startsWith={tab.startsWith}
               >
                 {tab.name}
               </ActiveLink>
