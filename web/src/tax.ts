@@ -12,7 +12,7 @@ import Decimal from 'decimal.js'
   - From the results, calculate a "personal tax rate". This is of interest because I don't pay myself a monthly salary – instead I do it in large clump.
  */
 export const PERSONAL_TAX = {
-  annualSalary: 600000,
+  annualSalary: 60000000,
   rate: new Decimal('0.23798'),
 }
 

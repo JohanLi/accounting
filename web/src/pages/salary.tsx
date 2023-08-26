@@ -3,11 +3,12 @@ import Select from '../components/Select'
 import { JournalEntry } from '../components/JournalEntry'
 import Layout from '../components/Layout'
 import { getSalaryTaxes, PERSONAL_TAX } from '../tax'
-import { formatNumber, getAllIncomeYearsInReverse } from '../utils'
+import { getAllIncomeYearsInReverse } from '../utils'
 import { Button } from '../components/Button'
 import { Amount } from '../components/Amount'
 import JournalEntryForm from '../components/JournalEntryForm'
 import useJournalEntries from '../components/useJournalEntries'
+import { AmountInput, formatAmount } from '../components/AmountInput'
 
 const SALARY_ACCOUNT_ID = 7210
 
@@ -48,7 +49,7 @@ export default function Salary() {
     0,
   )
 
-  const reachedLimit = incomeThisYear / 100 >= PERSONAL_TAX.annualSalary
+  const reachedLimit = incomeThisYear >= PERSONAL_TAX.annualSalary
 
   const { preliminaryIncomeTax, payrollTax } = getSalaryTaxes(amount)
 
@@ -108,7 +109,7 @@ export default function Salary() {
             {reachedLimit && (
               <div className="mt-4 max-w-md text-sm text-red-500">
                 You have reached the annual salary limit of{' '}
-                {formatNumber(PERSONAL_TAX.annualSalary)}, which the effective
+                {formatAmount(PERSONAL_TAX.annualSalary)}, which the effective
                 tax rate is based on. If you intend to pay more, you need to
                 re-calculate the tax rate.
               </div>
@@ -117,15 +118,14 @@ export default function Salary() {
         )}
         {create && (
           <div>
-            <label>
+            <label className="block max-w-md">
               <div>Amount</div>
-              <input
-                type="number"
-                value={amount / 100 || ''}
-                onChange={(e) => setAmount(e.target.valueAsNumber * 100)}
-                placeholder={`max ${
-                  PERSONAL_TAX.annualSalary - incomeThisYear / 100
-                }`}
+              <AmountInput
+                value={amount}
+                onChange={setAmount}
+                placeholder={`max ${formatAmount(
+                  PERSONAL_TAX.annualSalary - incomeThisYear,
+                )}`}
               />
             </label>
             <JournalEntryForm

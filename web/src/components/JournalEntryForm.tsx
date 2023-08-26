@@ -4,6 +4,7 @@ import useJournalEntryMutation from './useJournalEntryMutation'
 import { Button } from './Button'
 import { JournalEntryInsert } from '../pages/api/journalEntries'
 import { formatDate } from './DateFormatted'
+import { AmountInput } from './AmountInput'
 
 const vatRates = ['0', '0.06', '0.12', '0.25'] as const
 type VatRate = (typeof vatRates)[number]
@@ -12,6 +13,8 @@ type Props = {
   journalEntry?: JournalEntryInsert
   onClose: () => void
 }
+
+// TODO cancelling should reset the transactions' values
 
 export default function JournalEntryForm({ journalEntry, onClose }: Props) {
   /*
@@ -30,7 +33,6 @@ export default function JournalEntryForm({ journalEntry, onClose }: Props) {
   const [description, setDescription] = useState(
     isEdit ? journalEntry.description : '',
   )
-  const [amountText, setAmountText] = useState('')
   const [vatRate, setVatRate] = useState<VatRate>('0')
 
   const [creditAccountId, setCreditAccountId] = useState('')
@@ -38,14 +40,9 @@ export default function JournalEntryForm({ journalEntry, onClose }: Props) {
 
   const [transactions, setTransactions] = useState<
     { accountId: number; amount: number }[]
-  >(
-    journalEntry?.transactions.map((t) => ({
-      accountId: t.accountId,
-      amount: t.amount / 100,
-    })) || [],
-  )
+  >(journalEntry?.transactions || [])
 
-  const amount = Math.round((parseInt(amountText) || 0) * 100)
+  const [amount, setAmount] = useState(0)
   const amountBeforeVat = Math.round(amount / (1 + parseFloat(vatRate)))
   const amountVat = amount - amountBeforeVat
 
@@ -74,12 +71,7 @@ export default function JournalEntryForm({ journalEntry, onClose }: Props) {
           <>
             <label className="col-span-1">
               <div>Amount</div>
-              <input
-                type="text"
-                value={amountText}
-                onChange={(e) => setAmountText(e.target.value)}
-                className="w-full"
-              />
+              <AmountInput value={amount} onChange={setAmount} />
             </label>
             <div className="col-span-1">
               <div>VAT</div>
@@ -111,15 +103,13 @@ export default function JournalEntryForm({ journalEntry, onClose }: Props) {
                   }}
                   className="w-24"
                 />
-                <input
-                  type="text"
-                  value={t.amount || ''}
-                  onChange={(e) => {
+                <AmountInput
+                  value={t.amount}
+                  onChange={(amount) => {
                     const newTransactions = [...transactions]
-                    newTransactions[i].amount = parseInt(e.target.value)
+                    newTransactions[i].amount = amount
                     setTransactions(newTransactions)
                   }}
-                  className="w-36"
                 />
               </div>
             ))}
@@ -164,10 +154,7 @@ export default function JournalEntryForm({ journalEntry, onClose }: Props) {
                   date: new Date(date),
                   description,
                   transactions: isEdit
-                    ? transactions.map((t) => ({
-                        accountId: t.accountId,
-                        amount: t.amount * 100,
-                      }))
+                    ? transactions
                     : [
                         {
                           accountId: parseInt(debitAccountId),

@@ -58,10 +58,6 @@ export function getAllIncomeYearsInReverse() {
   return years
 }
 
-export function formatNumber(number: number) {
-  return number.toLocaleString('en-US')
-}
-
 export function krToOre(kr: string | number) {
   return Decimal.mul(kr, 100).round().toNumber()
 }
