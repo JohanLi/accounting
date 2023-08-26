@@ -31,14 +31,14 @@ export function JournalEntryLinkForm({ journalEntry, onClose }: Props) {
   const transactions = useTransactions()
 
   const filteredTransactions = transactions.data?.filter((t) => {
-    const notLinked = t.linkedToJournalEntryId === null
+    const notLinked = t.journalEntryId === null
 
     const closeInTime =
       Math.abs(
         new Date(t.date).getTime() - new Date(journalEntry.date).getTime(),
       ) <= TIME_SPAN_IN_MS
 
-    const currentlyLinked = t.linkedToJournalEntryId === journalEntry.id
+    const currentlyLinked = t.journalEntryId === journalEntry.id
 
     return (notLinked && closeInTime) || currentlyLinked
   })
@@ -51,7 +51,7 @@ export function JournalEntryLinkForm({ journalEntry, onClose }: Props) {
   if (!checkedTransactionIds && filteredTransactions) {
     setCheckedTransactionIds(
       filteredTransactions
-        .filter((t) => t.linkedToJournalEntryId === journalEntry.id)
+        .filter((t) => t.journalEntryId === journalEntry.id)
         .map((t) => t.id),
     )
   }

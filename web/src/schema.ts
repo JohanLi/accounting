@@ -75,12 +75,13 @@ export const Documents = pgTable(
   'documents',
   {
     id: serial('id').primaryKey(),
-    journalEntryId: integer('journal_entry_id').references(
-      () => JournalEntries.id,
-    ),
     filename: text('filename'),
     hash: text('hash').notNull(),
     data: bytea('data').notNull(),
+    journalEntryId: integer('journal_entry_id').references(
+      () => JournalEntries.id,
+    ),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
   },
   (documents) => ({
     hashIndex: uniqueIndex('documents_hash_idx').on(documents.hash),
@@ -153,9 +154,10 @@ export const Transactions = pgTable(
       solution is generating an ID in the application layer.
      */
     externalId: char('external_id', { length: 64 }).notNull(),
-    linkedToJournalEntryId: integer('linked_to_journal_entry_id').references(
+    journalEntryId: integer('journal_entry_id').references(
       () => JournalEntries.id,
     ),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
   },
   (transactions) => ({
     externalIdIndex: uniqueIndex('transactions_external_id_idx').on(

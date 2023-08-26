@@ -45,13 +45,13 @@ export function TransactionLinkForm({ transaction, onClose }: Props) {
         new Date(j.date).getTime() - new Date(transaction.date).getTime(),
       ) <= TIME_SPAN_IN_MS
 
-    const currentlyLinked = j.id === transaction.linkedToJournalEntryId
+    const currentlyLinked = j.id === transaction.journalEntryId
 
     return (notLinked && closeInTime) || currentlyLinked
   })
 
   const filteredTransactions = transactions.data?.filter((t) => {
-    const notLinked = t.linkedToJournalEntryId === null
+    const notLinked = t.journalEntryId === null
 
     const closeInTime =
       Math.abs(
@@ -59,8 +59,8 @@ export function TransactionLinkForm({ transaction, onClose }: Props) {
       ) <= TIME_SPAN_IN_MS
 
     const currentlyLinked =
-      transaction.linkedToJournalEntryId !== null &&
-      t.linkedToJournalEntryId === transaction.linkedToJournalEntryId
+      transaction.journalEntryId !== null &&
+      t.journalEntryId === transaction.journalEntryId
 
     const notSelf = t.id !== transaction.id
 
@@ -76,9 +76,8 @@ export function TransactionLinkForm({ transaction, onClose }: Props) {
 
   if (checkedJournalEntryId === undefined && filteredJournalEntries) {
     setCheckedJournalEntryId(
-      filteredJournalEntries.find(
-        (j) => j.id === transaction.linkedToJournalEntryId,
-      )?.id || null,
+      filteredJournalEntries.find((j) => j.id === transaction.journalEntryId)
+        ?.id || null,
     )
   }
 
@@ -87,8 +86,8 @@ export function TransactionLinkForm({ transaction, onClose }: Props) {
       filteredTransactions
         .filter(
           (t) =>
-            transaction.linkedToJournalEntryId !== null &&
-            t.linkedToJournalEntryId === transaction.linkedToJournalEntryId,
+            transaction.journalEntryId !== null &&
+            t.journalEntryId === transaction.journalEntryId,
         )
         .map((t) => t.id),
     )

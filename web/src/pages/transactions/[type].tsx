@@ -64,9 +64,7 @@ export default function Transactions() {
               const count =
                 filter === 'All'
                   ? filteredTransactions.length
-                  : filteredTransactions.filter(
-                      (t) => !t.linkedToJournalEntryId,
-                    ).length
+                  : filteredTransactions.filter((t) => !t.journalEntryId).length
 
               return (
                 <a
@@ -125,9 +123,7 @@ export default function Transactions() {
                 <tbody className="divide-y divide-gray-200">
                   {filteredTransactions
                     .filter((t) =>
-                      activeFilter === 'Non-linked'
-                        ? !t.linkedToJournalEntryId
-                        : true,
+                      activeFilter === 'Non-linked' ? !t.journalEntryId : true,
                     )
                     .map((transaction) => (
                       <Transaction

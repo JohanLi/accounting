@@ -161,7 +161,7 @@ async function importOldBankTransactions() {
       balance,
       raw: {},
       externalId: transaction.artificialId.toString(),
-      linkedToJournalEntryId: journalEntryId,
+      journalEntryId,
     })
   }
 }
@@ -197,7 +197,7 @@ async function importPersonalBankTransactions() {
       balance,
       raw: {},
       externalId: artificialId.toString(),
-      linkedToJournalEntryId: transaction.journalEntryId,
+      journalEntryId: transaction.journalEntryId,
     })
   }
 }

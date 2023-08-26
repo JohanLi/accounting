@@ -69,7 +69,7 @@ async function createJournalEntry(entry: JournalEntryInsert) {
        */
       await tx
         .update(Transactions)
-        .set({ linkedToJournalEntryId: insertedEntry[0].id })
+        .set({ journalEntryId: insertedEntry[0].id })
         .where(eq(Transactions.id, linkedToTransactionId))
     }
 
@@ -106,15 +106,15 @@ export default async function handler(
   }
 
   if (req.method === 'GET') {
-    const linkedToJournalEntryIds = new Set(
+    const journalEntryIds = new Set(
       (
         await db
           .selectDistinct({
-            linkedToJournalEntryId: Transactions.linkedToJournalEntryId,
+            journalEntryId: Transactions.journalEntryId,
           })
           .from(Transactions)
-          .where(isNotNull(Transactions.linkedToJournalEntryId))
-      ).map((t) => t.linkedToJournalEntryId),
+          .where(isNotNull(Transactions.journalEntryId))
+      ).map((t) => t.journalEntryId),
     )
 
     const journalEntries = await db.query.JournalEntries.findMany({
@@ -132,7 +132,7 @@ export default async function handler(
     res.status(200).json(
       journalEntries.map((v) => ({
         ...v,
-        hasLink: linkedToJournalEntryIds.has(v.id),
+        hasLink: journalEntryIds.has(v.id),
       })),
     )
     return

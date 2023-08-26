@@ -197,10 +197,7 @@ export default async function handler(
       .select()
       .from(Transactions)
       .where(
-        and(
-          eq(Transactions.type, 'tax'),
-          isNull(Transactions.linkedToJournalEntryId),
-        ),
+        and(eq(Transactions.type, 'tax'), isNull(Transactions.journalEntryId)),
       )
       .orderBy(asc(Transactions.id))
 
@@ -220,9 +217,8 @@ export default async function handler(
         const linkedToTransactionIds = [taxTransaction.id]
 
         if (match.searchForBankTransaction) {
-          const bankTransactionId = await searchForBankTransaction(
-            taxTransaction,
-          )
+          const bankTransactionId =
+            await searchForBankTransaction(taxTransaction)
 
           if (bankTransactionId) {
             linkedToTransactionIds.push(bankTransactionId)

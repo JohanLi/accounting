@@ -42,7 +42,7 @@ export function Transaction({ transaction }: Props) {
         <Amount amount={transaction.balance} />
       </td>
       <td className="relative whitespace-nowrap py-4 text-right text-xs">
-        {transaction.linkedToJournalEntryId && (
+        {transaction.journalEntryId && (
           <a
             href="#"
             className="inline-flex items-center text-gray-500 hover:text-gray-800"
@@ -57,7 +57,7 @@ export function Transaction({ transaction }: Props) {
         )}
       </td>
       <td className="text-right">
-        {!transaction.linkedToJournalEntryId && (
+        {!transaction.journalEntryId && (
           <Button
             type="secondary"
             onClick={() => setEditLink(true)}

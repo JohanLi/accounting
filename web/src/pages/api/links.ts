@@ -32,13 +32,13 @@ export default async function handler(
       await db.transaction(async (tx) => {
         await tx
           .update(Transactions)
-          .set({ linkedToJournalEntryId: null })
-          .where(eq(Transactions.linkedToJournalEntryId, journalEntryId))
+          .set({ journalEntryId: null })
+          .where(eq(Transactions.journalEntryId, journalEntryId))
 
         for (const transactionId of transactionIds) {
           await tx
             .update(Transactions)
-            .set({ linkedToJournalEntryId: journalEntryId })
+            .set({ journalEntryId: journalEntryId })
             .where(eq(Transactions.id, transactionId))
         }
       })
@@ -58,25 +58,20 @@ export default async function handler(
         .where(eq(Transactions.id, transactionId))
 
       const currentlyLinkedJournalEntryId =
-        currentlyLinkedJournalEntry[0].linkedToJournalEntryId
+        currentlyLinkedJournalEntry[0].journalEntryId
 
       if (currentlyLinkedJournalEntryId) {
         await tx
           .update(Transactions)
-          .set({ linkedToJournalEntryId: null })
-          .where(
-            eq(
-              Transactions.linkedToJournalEntryId,
-              currentlyLinkedJournalEntryId,
-            ),
-          )
+          .set({ journalEntryId: null })
+          .where(eq(Transactions.journalEntryId, currentlyLinkedJournalEntryId))
       }
 
       if (journalEntryId) {
         for (const tId of [transactionId, ...transactionIds]) {
           await tx
             .update(Transactions)
-            .set({ linkedToJournalEntryId: journalEntryId })
+            .set({ journalEntryId })
             .where(eq(Transactions.id, tId))
         }
       }
