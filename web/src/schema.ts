@@ -40,7 +40,7 @@ export const JournalEntryTransactions = pgTable('journal_entry_transactions', {
   id: serial('id').primaryKey(),
   journalEntryId: integer('journal_entry_id')
     .notNull()
-    .references(() => JournalEntries.id),
+    .references(() => JournalEntries.id, { onDelete: 'cascade' }),
   accountId: smallint('account_id')
     .notNull()
     .references(() => Accounts.id),
