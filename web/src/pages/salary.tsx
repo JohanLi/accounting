@@ -7,7 +7,7 @@ import { getAllIncomeYearsInReverse } from '../utils'
 import { Button } from '../components/Button'
 import { Amount } from '../components/Amount'
 import JournalEntryForm from '../components/JournalEntryForm'
-import useJournalEntries from '../components/useJournalEntries'
+import useJournalEntries from '../hooks/useJournalEntries'
 import { AmountInput, formatAmount } from '../components/AmountInput'
 
 const SALARY_ACCOUNT_ID = 7210
@@ -134,6 +134,7 @@ export default function Salary() {
                 date: new Date(),
                 description: 'Lön',
                 transactions,
+                linkedToTransactionIds: [],
               }}
               onClose={() => {
                 reset()

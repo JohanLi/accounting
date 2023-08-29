@@ -1,4 +1,4 @@
-import { UploadFile } from './pages/api/documents'
+import { DocumentUpload } from './pages/api/documents'
 
 export async function getFileEntries(items: DataTransferItemList) {
   let entries: FileSystemFileEntry[] = []
@@ -54,7 +54,7 @@ function isDirectory(item: FileSystemEntry): item is FileSystemDirectoryEntry {
 }
 
 export async function getFilenameAndData(file: File) {
-  return new Promise<UploadFile>((resolve, reject) => {
+  return new Promise<DocumentUpload>((resolve, reject) => {
     const reader = new FileReader()
     reader.readAsDataURL(file)
 

@@ -1,16 +1,17 @@
 import { useState } from 'react'
 import { Amount } from './Amount'
-import useJournalEntryMutation from './useJournalEntryMutation'
+import useJournalEntryMutation from '../hooks/useJournalEntryMutation'
 import { Button } from './Button'
-import { JournalEntryInsert } from '../pages/api/journalEntries'
+import { JournalEntryUpsert, Transaction } from '../pages/api/journalEntries'
 import { formatDate } from './DateFormatted'
 import { AmountInput } from './AmountInput'
+import DocumentLink from './DocumentLink'
 
 const vatRates = ['0', '0.06', '0.12', '0.25'] as const
 type VatRate = (typeof vatRates)[number]
 
 type Props = {
-  journalEntry?: JournalEntryInsert
+  journalEntry?: JournalEntryUpsert
   onClose: () => void
 }
 
@@ -38,9 +39,9 @@ export default function JournalEntryForm({ journalEntry, onClose }: Props) {
   const [creditAccountId, setCreditAccountId] = useState('')
   const [debitAccountId, setDebitAccountId] = useState('')
 
-  const [transactions, setTransactions] = useState<
-    { accountId: number; amount: number }[]
-  >(journalEntry?.transactions || [])
+  const [transactions, setTransactions] = useState<Transaction[]>(
+    journalEntry?.transactions || [],
+  )
 
   const [amount, setAmount] = useState(0)
   const amountBeforeVat = Math.round(amount / (1 + parseFloat(vatRate)))
@@ -144,6 +145,11 @@ export default function JournalEntryForm({ journalEntry, onClose }: Props) {
             </>
           )}
         </div>
+        {isEdit && (
+          <div className="col-span-1">
+            <DocumentLink id={journalEntry?.documentId} />
+          </div>
+        )}
         <div className="col-span-2">
           <div className="flex space-x-4">
             <Button
@@ -169,7 +175,9 @@ export default function JournalEntryForm({ journalEntry, onClose }: Props) {
                           amount: -amountBeforeVat,
                         },
                       ],
-                  linkedToTransactionIds: journalEntry?.linkedToTransactionIds,
+                  linkedToTransactionIds:
+                    journalEntry?.linkedToTransactionIds || [],
+                  documentId: journalEntry?.documentId,
                 })
 
                 onClose()

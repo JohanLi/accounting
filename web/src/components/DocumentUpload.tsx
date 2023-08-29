@@ -1,6 +1,6 @@
 import { DragEvent, useState } from 'react'
 import { getFilenameAndData, getFileEntries } from '../filesFromDataTransfer'
-import { UploadFile } from '../pages/api/documents'
+import { DocumentUpload } from '../pages/api/documents'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { DocumentArrowUpIcon } from '@heroicons/react/24/solid'
 import { XMarkIcon } from '@heroicons/react/24/outline'
@@ -11,7 +11,7 @@ export default function DocumentUpload() {
   const queryClient = useQueryClient()
 
   const mutation = useMutation({
-    mutationFn: (body: UploadFile[]) =>
+    mutationFn: (body: DocumentUpload[]) =>
       fetch('/api/documents', {
         method: 'PUT',
         headers: {
@@ -60,7 +60,7 @@ export default function DocumentUpload() {
     const files = await Promise.all(
       fileEntries.map(
         (file) =>
-          new Promise<UploadFile>((resolve, reject) => {
+          new Promise<DocumentUpload>((resolve, reject) => {
             file.file((file) => {
               getFilenameAndData(file).then(resolve).catch(reject)
             }, reject)

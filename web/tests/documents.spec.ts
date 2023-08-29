@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { dragAndDropFile, getBase64 } from './utils'
-import { UploadFile } from '../src/pages/api/documents'
+import { DocumentUpload } from '../src/pages/api/documents'
 
 // TODO figure out how to make these tests isolated
 test.describe.serial('upload', () => {
@@ -37,7 +37,7 @@ test.describe.serial('upload', () => {
   test.skip('nothing should happen when uploading a document that already exists', async ({
     request,
   }) => {
-    const uploadFile: UploadFile = {
+    const uploadFile: DocumentUpload = {
       filename: '',
       data: await getBase64('./src/documents/skiing.pdf'),
     }
@@ -59,7 +59,7 @@ test.describe.serial('upload', () => {
   test.skip('uploading two or more identical documents at the same time should fail', async ({
     request,
   }) => {
-    const uploadFile: UploadFile = {
+    const uploadFile: DocumentUpload = {
       filename: '',
       data: await getBase64('./src/documents/mobile.pdf'),
     }

@@ -6,7 +6,7 @@ import {
 } from '../utils'
 import Select from '../components/Select'
 import { JournalEntry } from '../components/JournalEntry'
-import useJournalEntries from '../components/useJournalEntries'
+import useJournalEntries from '../hooks/useJournalEntries'
 
 const filters = ['All', 'Non-linked'] as const
 
@@ -23,12 +23,12 @@ export default function JournalEntries() {
     return null
   }
 
-  let yearFilteredJournalEntries = journalEntries.data.filter((v) =>
-    withinFiscalYear(v, selectedFiscalYear),
+  let yearFilteredJournalEntries = journalEntries.data.filter((j) =>
+    withinFiscalYear(j, selectedFiscalYear),
   )
 
   let yearLinkFilteredJournalEntries = yearFilteredJournalEntries.filter(
-    (v) => !v.hasLink,
+    (j) => !j.linkedToTransactionIds.length,
   )
 
   return (

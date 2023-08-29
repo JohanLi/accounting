@@ -47,30 +47,6 @@ export const JournalEntryTransactions = pgTable('journal_entry_transactions', {
   amount: integer('amount').notNull(),
 })
 
-/*
-  https://orm.drizzle.team/docs/rqb
-  references() affects the database itself, while relations() is an application level abstraction
- */
-export const JournalEntryTransactionsRelations = relations(
-  JournalEntryTransactions,
-  ({ one }) => ({
-    journalEntry: one(JournalEntries, {
-      fields: [JournalEntryTransactions.journalEntryId],
-      references: [JournalEntries.id],
-    }),
-  }),
-)
-
-/*
-  Documents that cannot immediately be used to create a journal entry are
-  treated as "pending". Filename is of interest for pending documents, until
-  they are processed.
-
-  Reasons for being pending:
-  - A non-SEK currency is used. The actual exchange rate will not be known until the corresponding bank transaction is imported and matched
-  - A non-recurring document, where it's not worth the effort to write logic that identifies it
-    Instead, generic logic will be used together with imported bank transactions to determine totals and vat
- */
 export const Documents = pgTable(
   'documents',
   {
@@ -78,9 +54,6 @@ export const Documents = pgTable(
     filename: text('filename'),
     hash: text('hash').notNull(),
     data: bytea('data').notNull(),
-    journalEntryId: integer('journal_entry_id').references(
-      () => JournalEntries.id,
-    ),
     createdAt: timestamp('created_at').notNull().defaultNow(),
   },
   (documents) => ({
@@ -88,30 +61,15 @@ export const Documents = pgTable(
   }),
 )
 
-export const JournalEntryDocumentsRelations = relations(
-  Documents,
-  ({ one }) => ({
-    journalEntry: one(JournalEntries, {
-      fields: [Documents.journalEntryId],
-      references: [JournalEntries.id],
-    }),
-  }),
-)
-
 export const JournalEntries = pgTable('journal_entries', {
   id: serial('id').primaryKey(),
   date: timestamp('date').notNull(),
   description: text('description').notNull(),
+  documentId: integer('document_id').references(() => Documents.id, {
+    onDelete: 'set null',
+  }),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 })
-
-export const JournalEntriesRelations = relations(
-  JournalEntries,
-  ({ many }) => ({
-    transactions: many(JournalEntryTransactions),
-    documents: many(Documents),
-  }),
-)
 
 /*
   TODO
@@ -166,3 +124,33 @@ export const Transactions = pgTable(
     ),
   }),
 )
+
+/*
+  https://orm.drizzle.team/docs/rqb
+  references() affects the database itself, while relations() is an application level abstraction
+ */
+
+export const JournalEntriesRelations = relations(
+  JournalEntries,
+  ({ many }) => ({
+    journalEntryTransactions: many(JournalEntryTransactions),
+    transactions: many(Transactions),
+  }),
+)
+
+export const JournalEntryTransactionsRelations = relations(
+  JournalEntryTransactions,
+  ({ one }) => ({
+    journalEntry: one(JournalEntries, {
+      fields: [JournalEntryTransactions.journalEntryId],
+      references: [JournalEntries.id],
+    }),
+  }),
+)
+
+export const TransactionsRelations = relations(Transactions, ({ one }) => ({
+  journalEntry: one(JournalEntries, {
+    fields: [Transactions.journalEntryId],
+    references: [JournalEntries.id],
+  }),
+}))

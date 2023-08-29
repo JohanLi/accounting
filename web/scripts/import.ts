@@ -102,11 +102,20 @@ async function importDocuments(year: number) {
     const hash = await getPdfHash(data)
 
     try {
-      await db.insert(Documents).values({
-        hash,
-        data,
-        journalEntryId,
-      })
+      const insertedDocument = await db
+        .insert(Documents)
+        .values({
+          hash,
+          data,
+        })
+        .returning({ id: Documents.id })
+
+      await db
+        .update(JournalEntries)
+        .set({
+          documentId: insertedDocument[0].id,
+        })
+        .where(eq(JournalEntries.id, journalEntryId))
     } catch (e: any) {
       if (e.code !== '23505') {
         throw new Error(e)

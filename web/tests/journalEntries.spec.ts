@@ -102,7 +102,7 @@ test.describe('journal entries', () => {
       [5000, 5000],
       [1000, -200, -900],
     ]) {
-      const response = await request.post(`/api/journalEntries`, {
+      const response = await request.put(`/api/journalEntries`, {
         data: {
           date: '2023-08-20',
           description: 'Something',

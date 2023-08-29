@@ -1,14 +1,14 @@
 import { DateFormatted } from './DateFormatted'
 import { Amount } from './Amount'
-import useTransactions from './useTransactions'
+import useTransactions from '../hooks/useTransactions'
 import { Transactions, transactionTypes } from '../schema'
 import { transactionTypeToLabel } from '../pages/transactions/[type]'
 import { useState } from 'react'
 import { classNames } from '../utils'
 import { Button } from './Button'
-import { InferModel } from 'drizzle-orm'
-import useJournalEntries from './useJournalEntries'
-import useLinksMutation from './useLinksMutation'
+import { InferSelectModel } from 'drizzle-orm'
+import useJournalEntries from '../hooks/useJournalEntries'
+import useLinksMutation from '../hooks/useLinksMutation'
 
 /*
   TODO
@@ -27,7 +27,7 @@ import useLinksMutation from './useLinksMutation'
  */
 
 type Props = {
-  transaction: InferModel<typeof Transactions>
+  transaction: InferSelectModel<typeof Transactions>
   onClose: () => void
 }
 
@@ -38,7 +38,7 @@ export function TransactionLinkForm({ transaction, onClose }: Props) {
   const transactions = useTransactions()
 
   const filteredJournalEntries = journalEntries.data?.filter((j) => {
-    const notLinked = !j.hasLink
+    const notLinked = !j.linkedToTransactionIds.length
 
     const closeInTime =
       Math.abs(
@@ -169,8 +169,8 @@ export function TransactionLinkForm({ transaction, onClose }: Props) {
                     {journalEntry.transactions.length && (
                       <table className="min-w-full divide-y divide-gray-300">
                         <tbody className="divide-y divide-gray-200 bg-white">
-                          {journalEntry.transactions.map((transaction) => (
-                            <tr key={transaction.id}>
+                          {journalEntry.transactions.map((transaction, i) => (
+                            <tr key={i}>
                               <td className="w-16 py-2 pr-3 text-sm text-gray-500">
                                 {transaction.accountId}
                               </td>

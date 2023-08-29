@@ -1,13 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { JournalEntryInsert } from '../pages/api/journalEntries'
+import { JournalEntryUpsert } from '../pages/api/journalEntries'
 
 export default function useJournalEntryMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (body: JournalEntryInsert) =>
+    mutationFn: (body: JournalEntryUpsert) =>
       fetch('/api/journalEntries', {
-        method: 'POST',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -16,7 +16,6 @@ export default function useJournalEntryMutation() {
     onSuccess: () =>
       Promise.all([
         queryClient.invalidateQueries({ queryKey: ['journalEntries'] }),
-        queryClient.invalidateQueries({ queryKey: ['transactions'] }),
         queryClient.invalidateQueries({
           queryKey: ['journalEntriesSuggestions'],
         }),

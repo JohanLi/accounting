@@ -1,13 +1,8 @@
 import JournalEntryForm from './JournalEntryForm'
-import { useQuery } from '@tanstack/react-query'
-import { SuggestionsResponse } from '../pages/api/journalEntries/suggestions'
+import { useSuggestions } from '../hooks/useSuggestions'
 
 export default function JournalEntrySuggestions() {
-  const suggestions = useQuery<SuggestionsResponse>({
-    queryKey: ['journalEntriesSuggestions'],
-    queryFn: () =>
-      fetch('/api/journalEntries/suggestions').then((res) => res.json()),
-  })
+  const suggestions = useSuggestions()
 
   if (!suggestions.data) {
     return null
@@ -21,7 +16,10 @@ export default function JournalEntrySuggestions() {
       <div className="mt-4">
         {suggestions.data.map((suggestion) => (
           <JournalEntryForm
-            key={suggestion.linkedToTransactionIds.join(',')}
+            // TODO consider generating a key on the server instead
+            key={`linkedToTransactionIds-${suggestion.linkedToTransactionIds.join(
+              ',',
+            )}-documentId-${suggestion.documentId}`}
             journalEntry={suggestion}
             onClose={() => {}}
           />

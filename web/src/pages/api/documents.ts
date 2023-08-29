@@ -1,17 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import db from '../../db'
-import { eq, InferModel } from 'drizzle-orm'
-import {
-  JournalEntries,
-  Documents,
-  JournalEntryTransactions,
-} from '../../schema'
+import { eq, InferSelectModel } from 'drizzle-orm'
+import { Documents } from '../../schema'
 import { getPdfHash } from '../../getPdfHash'
-import {
-  DocumentDetails,
-  documentToTransactions,
-  parseDetails,
-} from '../../document'
 
 export const config = {
   api: {
@@ -21,13 +12,13 @@ export const config = {
   },
 }
 
-export type UploadFile = {
+export type DocumentUpload = {
   filename: string
   data: string
 }
 
 export type DocumentsResponse = Pick<
-  InferModel<typeof Documents>,
+  InferSelectModel<typeof Documents>,
   'id' | 'filename'
 >[]
 
@@ -52,7 +43,7 @@ export default async function handler(
   }
 
   if (req.method === 'PUT') {
-    const files = req.body as UploadFile[]
+    const files = req.body as DocumentUpload[]
 
     const documents = await Promise.all(
       files.map(async (file) => {
@@ -66,65 +57,11 @@ export default async function handler(
       }),
     )
 
-    const insertedDocuments = await db.transaction(async (tx) => {
-      const insertedDocuments = await tx
-        .insert(Documents)
-        .values(documents)
-        .onConflictDoNothing()
-        .returning()
-
-      const journalEntryDocuments = (
-        await Promise.all(
-          insertedDocuments.map(async (document) => ({
-            ...document,
-            details: await parseDetails(document.data),
-          })),
-        )
-      ).filter(
-        (
-          document,
-        ): document is InferModel<typeof Documents> & {
-          details: DocumentDetails
-        } => document.details !== null,
-      )
-
-      if (journalEntryDocuments.length) {
-        const insertedJournalEntries = await tx
-          .insert(JournalEntries)
-          .values(
-            journalEntryDocuments.map((document) => ({
-              date: document.details.date,
-              description: document.details.description,
-            })),
-          )
-          .returning()
-
-        await tx.insert(JournalEntryTransactions).values(
-          journalEntryDocuments.flatMap((document, i) => {
-            const transactions = documentToTransactions(document.details)
-
-            return transactions.map((transaction) => ({
-              ...transaction,
-              journalEntryId: insertedJournalEntries[i].id,
-            }))
-          }),
-        )
-
-        for (const [i, insertedDocument] of journalEntryDocuments.entries()) {
-          await tx
-            .update(Documents)
-            .set({
-              journalEntryId: insertedJournalEntries[i].id,
-            })
-            .where(eq(Documents.id, insertedDocument.id))
-        }
-      }
-
-      return insertedDocuments.map((document) => ({
-        id: document.id,
-        filename: document.filename,
-      }))
-    })
+    const insertedDocuments = await db
+      .insert(Documents)
+      .values(documents)
+      .onConflictDoNothing()
+      .returning({ id: Documents.id, filename: Documents.filename })
 
     res.status(200).json(insertedDocuments)
     return

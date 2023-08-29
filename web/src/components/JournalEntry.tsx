@@ -1,6 +1,6 @@
 import { DateFormatted } from './DateFormatted'
 import { Amount } from './Amount'
-import DocumentLinks from './DocumentLinks'
+import DocumentLink from './DocumentLink'
 import { LinkIcon } from '@heroicons/react/20/solid'
 import { JournalEntry as JournalEntryType } from '../pages/api/journalEntries'
 import { useState } from 'react'
@@ -57,8 +57,8 @@ export function JournalEntry({ journalEntry }: Props) {
           {journalEntry.transactions.length && (
             <table className="min-w-full divide-y divide-gray-300">
               <tbody className="divide-y divide-gray-200 bg-white">
-                {journalEntry.transactions.map((transaction) => (
-                  <tr key={transaction.id}>
+                {journalEntry.transactions.map((transaction, i) => (
+                  <tr key={i}>
                     <td className="w-16 py-2 pr-3 text-sm text-gray-500">
                       {transaction.accountId}
                     </td>
@@ -72,10 +72,10 @@ export function JournalEntry({ journalEntry }: Props) {
           )}
         </td>
         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-          <DocumentLinks documents={journalEntry.documents} />
+          <DocumentLink id={journalEntry.documentId} />
         </td>
         <td className="relative whitespace-nowrap py-4 text-xs">
-          {journalEntry.hasLink && (
+          {journalEntry.linkedToTransactionIds.length > 0 && (
             <a
               href="#"
               className="inline-flex items-center text-gray-500 hover:text-gray-800"
@@ -91,7 +91,7 @@ export function JournalEntry({ journalEntry }: Props) {
         </td>
         <td className="space-x-2 text-right">
           <Button type="secondary" onClick={() => setEdit(true)} text="Edit" />
-          {!journalEntry.hasLink && (
+          {!journalEntry.linkedToTransactionIds.length && (
             <Button
               type="secondary"
               onClick={() => setEditLink(true)}
