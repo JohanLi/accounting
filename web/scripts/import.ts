@@ -58,12 +58,42 @@ async function importJournalEntries(year: number) {
 
   await db.insert(JournalEntryTransactions).values(
     journalEntries
-      .map(({ transactions, oldId }) =>
-        transactions.map((transaction) => ({
+      .map(({ transactions, oldId, description }) => {
+        /*
+          In the old accounting software, a specific type of journal entry seems
+          to have strange transactions: instead of crediting A and debiting B,
+          it credits A double and then debits both A and B.
+
+          These entries can be identified by:
+          SELECT journal_entry_id, account_id, count(*)
+          FROM journal_entry_transactions
+          GROUP BY journal_entry_id, account_id
+          HAVING count(*) > 1;
+         */
+        if (description === 'Preliminärskatt Aktiebolag') {
+          const accountIdAmountMap: { [key: number]: number } = {}
+
+          for (const transaction of transactions) {
+            if (!accountIdAmountMap[transaction.accountId]) {
+              accountIdAmountMap[transaction.accountId] = transaction.amount
+            } else {
+              accountIdAmountMap[transaction.accountId] += transaction.amount
+            }
+          }
+
+          transactions = Object.entries(accountIdAmountMap).map(
+            ([accountId, amount]) => ({
+              accountId: Number(accountId),
+              amount,
+            }),
+          )
+        }
+
+        return transactions.map((transaction) => ({
           ...transaction,
           journalEntryId: oldIdToId.get(oldId),
-        })),
-      )
+        }))
+      })
       .flat(),
   )
 }
