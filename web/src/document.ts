@@ -1,141 +1,8 @@
 import Decimal from 'decimal.js'
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf'
 import { TextContent } from 'pdfjs-dist/types/web/text_layer_builder'
-
-type Type = 'INCOME' | 'BANKING_COSTS' | 'MOBILE_PROVIDER' | 'WELLNESS'
-type VatRate = '0.25' | '0.12' | '0.06' | '0'
-
-const types: {
-  [key in Type]: {
-    debit: number
-    credit: number
-    vatRate: VatRate
-  }
-} = {
-  INCOME: {
-    debit: 1930,
-    credit: 3011,
-    vatRate: '0.25',
-  },
-  BANKING_COSTS: {
-    debit: 6570,
-    credit: 1930,
-    vatRate: '0',
-  },
-  MOBILE_PROVIDER: {
-    debit: 6212,
-    credit: 1930,
-    vatRate: '0.25',
-  },
-  WELLNESS: {
-    debit: 7699,
-    credit: 2890,
-    vatRate: '0.06',
-  },
-}
-
-type Source = {
-  identifiedBy: string
-  type: Type
-  description: string
-}
-
-const sources: Source[] = [
-  {
-    identifiedBy: 'Developers Bay AB',
-    type: 'INCOME',
-    description: 'Inkomst',
-  },
-  {
-    identifiedBy: 'Skandinaviska Enskilda Banken AB',
-    type: 'BANKING_COSTS',
-    description: 'SEB månadsavgift',
-  },
-  {
-    identifiedBy: 'Hi3G Access AB',
-    type: 'MOBILE_PROVIDER',
-    description: 'Tre företagsabonnemang',
-  },
-  {
-    identifiedBy: 'Flottsbro',
-    type: 'WELLNESS',
-    description: 'Friskvård skidåkning',
-  },
-]
-
-export type DocumentDetails = {
-  total: number
-  vat: number
-  date: Date
-  type: Type
-  description: string
-}
-
-export async function parseDetails(
-  buffer: Buffer,
-): Promise<DocumentDetails | null> {
-  const strings = await getPDFStrings(buffer)
-
-  let source = sources.find((source) => strings.includes(source.identifiedBy))
-
-  if (!source) {
-    source = sources.find((source) =>
-      strings.find((string) => string.includes(source.identifiedBy)),
-    )
-  }
-
-  if (!source) {
-    return null
-  }
-
-  const { vatRate } = types[source.type]
-
-  const monetaryValues = getMonetaryValues(strings)
-
-  if (!monetaryValues.length) {
-    throw Error('Did not find any monetary values')
-  }
-
-  const dates = getDates(strings)
-
-  if (!dates.length) {
-    throw Error('Did not find any dates')
-  }
-
-  const assumedTotal = Decimal.max(...monetaryValues)
-
-  const document: DocumentDetails = {
-    total: assumedTotal.mul(100).toNumber(),
-    vat: 0,
-    date: getLatestDate(dates),
-    type: source.type,
-    description: source.description,
-  }
-
-  if (vatRate !== '0') {
-    const expectedVat = Decimal.sub(
-      assumedTotal,
-      Decimal.div(assumedTotal, Decimal.add(1, vatRate)),
-    ).toFixed(2)
-
-    const foundExpectedVat = monetaryValues.find(
-      (value) =>
-        value === expectedVat ||
-        value === `${expectedVat.replace(',', '.')} SEK`,
-    )
-
-    if (!foundExpectedVat) {
-      // this can occur if the total has been rounded to the nearest krona
-      if (!strings.includes(`Moms ${Decimal.mul(vatRate, 100)}%`)) {
-        throw Error('Did not find the expected VAT rate')
-      }
-    }
-
-    document.vat = new Decimal(expectedVat).mul(100).toNumber()
-  }
-
-  return document
-}
+import { JournalEntryUpsert, Transaction } from './pages/api/journalEntries'
+import { krToOre } from './utils'
 
 export async function getPDFStrings(buffer: Buffer) {
   const pdf = await getDocument({
@@ -164,6 +31,180 @@ export async function getPDFStrings(buffer: Buffer) {
     .flat()
 }
 
+type Characterization =
+  | 'INCOME'
+  | 'BANKING_COSTS'
+  | 'MOBILE_PROVIDER'
+  | 'WELLNESS'
+type VatRate = '0.25' | '0.12' | '0.06' | '0'
+
+const characterizations: {
+  [key in Characterization]: {
+    debit: number
+    credit: number
+    vatRate: VatRate
+  }
+} = {
+  INCOME: {
+    debit: 1930,
+    credit: 3011,
+    vatRate: '0.25',
+  },
+  BANKING_COSTS: {
+    debit: 6570,
+    credit: 1930,
+    vatRate: '0',
+  },
+  MOBILE_PROVIDER: {
+    debit: 6212,
+    credit: 1930,
+    vatRate: '0.25',
+  },
+  /*
+    It's kinda excessive having logic recognizing this document. I did it
+    mainly because the old accounting software handled this specific receipt
+    poorly. It couldn't get the total, and it couldn't get the VAT. It even
+    thought the date of the receipt was my date of birth.
+   */
+  WELLNESS: {
+    debit: 7699,
+    /*
+      2890 will no longer be true. It's used if I pay using my private
+      credit card, but it's a journal entry less if paid using company card.
+     */
+    credit: 2890,
+    vatRate: '0.06',
+  },
+}
+
+type RecognizedDocument = {
+  identifiedBy: string
+  characterization: Characterization
+  description: string
+}
+
+const recognizedDocuments: RecognizedDocument[] = [
+  {
+    identifiedBy: 'Developers Bay AB',
+    characterization: 'INCOME',
+    description: 'Inkomst',
+  },
+  {
+    identifiedBy: 'Skandinaviska Enskilda Banken AB',
+    characterization: 'BANKING_COSTS',
+    description: 'SEB månadsavgift',
+  },
+  {
+    identifiedBy: 'Hi3G Access AB',
+    characterization: 'MOBILE_PROVIDER',
+    description: 'Tre företagsabonnemang',
+  },
+  {
+    identifiedBy: 'Flottsbro',
+    characterization: 'WELLNESS',
+    description: 'Friskvård skidåkning',
+  },
+]
+
+export async function getRecognizedDocument(
+  strings: any[],
+): Promise<Pick<
+  JournalEntryUpsert,
+  'date' | 'description' | 'transactions'
+> | null> {
+  let source = recognizedDocuments.find((source) =>
+    strings.includes(source.identifiedBy),
+  )
+
+  if (!source) {
+    source = recognizedDocuments.find((source) =>
+      strings.find((string) => string.includes(source.identifiedBy)),
+    )
+  }
+
+  if (!source) {
+    return null
+  }
+
+  const { debit, credit, vatRate } = characterizations[source.characterization]
+
+  const monetaryValues = getMonetaryValues(strings)
+
+  if (!monetaryValues.length) {
+    throw Error('Did not find any monetary values')
+  }
+
+  const dates = getDates(strings)
+
+  if (!dates.length) {
+    throw Error('Did not find any dates')
+  }
+
+  const total = Math.max(...monetaryValues)
+  let vat = 0
+
+  if (vatRate !== '0') {
+    const expectedVat = Math.round(total - total / (1 + parseFloat(vatRate)))
+
+    const foundExpectedVat = monetaryValues.find(
+      (value) => value === expectedVat,
+    )
+
+    if (foundExpectedVat === undefined) {
+      // this can occur if the total has been rounded to the nearest krona
+      if (!strings.includes(`Moms ${Decimal.mul(vatRate, 100)}%`)) {
+        throw Error('Did not find the expected VAT rate')
+      }
+    }
+
+    vat = expectedVat
+  }
+
+  let transactions: Transaction[]
+
+  if (source.characterization === 'INCOME') {
+    transactions = [
+      {
+        accountId: debit,
+        amount: total,
+      },
+      {
+        accountId: credit,
+        amount: -(total - vat),
+      },
+      {
+        accountId: 2610, // assumes 25% vat
+        amount: -vat,
+      },
+    ]
+  } else {
+    transactions = [
+      {
+        accountId: debit,
+        amount: total - vat,
+      },
+      {
+        accountId: credit,
+        amount: -total,
+      },
+    ]
+
+    if (vatRate !== '0') {
+      transactions.push({
+        accountId: 2640,
+        amount: vat,
+      })
+    }
+  }
+
+  return {
+    date: getLatestDate(dates),
+    // TODO implement a way to tag journal entries
+    description: `Recognized document – ${source.description}`,
+    transactions,
+  }
+}
+
 function getLatestDate(dates: Date[]) {
   return dates.reduce((latest, date) => {
     if (date > latest) {
@@ -176,6 +217,12 @@ function getLatestDate(dates: Date[]) {
 
 function unique<T>(array: T[]) {
   return [...new Set(array)]
+}
+
+function uniqueDate(array: Date[]) {
+  return [...new Set(array.map((date) => date.getTime()))].map(
+    (time) => new Date(time),
+  )
 }
 
 const monetaryFormats = [
@@ -204,7 +251,7 @@ export function getMonetaryValues(strings: string[]) {
           // using point as decimal separator
           .replace(',', '.'),
       ),
-  )
+  ).map((string) => krToOre(string))
 }
 
 const foreignCurrencyMonetaryFormats = {
@@ -236,7 +283,7 @@ export function getForeignCurrencyMonetaryValues(strings: string[]) {
               // using point as decimal separator
               .replace(',', '.'),
           ),
-      ),
+      ).map((string) => krToOre(string)),
     }
   }
 
@@ -257,7 +304,7 @@ export function getDates(strings: string[]) {
     return []
   }
 
-  return unique(
+  return uniqueDate(
     strings
       .map((string) => string.match(dateFormats[found]))
       .filter((foundDate): foundDate is RegExpMatchArray => foundDate !== null)
@@ -275,44 +322,20 @@ export function getDates(strings: string[]) {
   )
 }
 
-export function documentToTransactions(document: DocumentDetails) {
-  const { total, vat, type } = document
-  const { debit, credit, vatRate } = types[type]
+export async function getUnknownDocument(strings: any[]) {
+  const foreignValues = getForeignCurrencyMonetaryValues(strings)
+  const dates = getDates(strings)
 
-  if (type === 'INCOME') {
-    return [
-      {
-        accountId: debit,
-        amount: total,
-      },
-      {
-        accountId: credit,
-        amount: -(document.total - document.vat),
-      },
-      {
-        accountId: 2610, // assumes 25% vat
-        amount: -vat,
-      },
-    ]
-  }
-
-  const transactions = [
-    {
-      accountId: debit,
-      amount: document.total - document.vat,
+  return {
+    date: dates[0],
+    // TODO implement a way to tag journal entries
+    description: 'Unknown document – ',
+    transactions: [],
+    options: {
+      dates,
+      ...(foreignValues
+        ? foreignValues
+        : { values: getMonetaryValues(strings) }),
     },
-    {
-      accountId: credit,
-      amount: -total,
-    },
-  ]
-
-  if (vatRate !== '0') {
-    transactions.push({
-      accountId: 2640,
-      amount: vat,
-    })
   }
-
-  return transactions
 }

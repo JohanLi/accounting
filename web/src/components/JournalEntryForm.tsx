@@ -2,37 +2,32 @@ import { useState } from 'react'
 import { Amount } from './Amount'
 import useJournalEntryMutation from '../hooks/useJournalEntryMutation'
 import { Button } from './Button'
-import { JournalEntryUpsert, Transaction } from '../pages/api/journalEntries'
-import { formatDate } from './DateFormatted'
+import { Transaction } from '../pages/api/journalEntries'
+import { DateFormatted, formatDate } from './DateFormatted'
 import { AmountInput } from './AmountInput'
 import DocumentLink from './DocumentLink'
+import { Suggestion } from '../pages/api/journalEntries/suggestions'
 
 const vatRates = ['0', '0.06', '0.12', '0.25'] as const
 type VatRate = (typeof vatRates)[number]
 
 type Props = {
-  journalEntry?: JournalEntryUpsert
+  journalEntry?: Suggestion
   onClose: () => void
 }
 
 // TODO cancelling should reset the transactions' values
 
 export default function JournalEntryForm({ journalEntry, onClose }: Props) {
-  /*
-    For new entries, the values of each account transaction are derived from a
-    single value together with the VAT rate (if any), credit and debit. They
-    have at most three transactions.
-
-    However, imported entries do not follow this pattern – some of them are
-    aggregated, containing more than three transactions (particularly salaries).
-   */
-  const isEdit = !!journalEntry
+  const isEdit = !!journalEntry?.transactions.length
 
   const mutation = useJournalEntryMutation()
 
-  const [date, setDate] = useState(isEdit ? formatDate(journalEntry.date) : '')
+  const [date, setDate] = useState(
+    journalEntry?.date ? formatDate(journalEntry.date) : '',
+  )
   const [description, setDescription] = useState(
-    isEdit ? journalEntry.description : '',
+    journalEntry?.description || '',
   )
   const [vatRate, setVatRate] = useState<VatRate>('0')
 
@@ -47,17 +42,36 @@ export default function JournalEntryForm({ journalEntry, onClose }: Props) {
   const amountBeforeVat = Math.round(amount / (1 + parseFloat(vatRate)))
   const amountVat = amount - amountBeforeVat
 
+  const dates = journalEntry?.options?.dates || false
+  const values = journalEntry?.options?.values || false
+
   return (
     <>
       <div className="grid grid-cols-12 gap-x-4">
         <label className="col-span-2">
           <div>Date</div>
-          <input
-            type="text"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="w-full"
-          />
+          {!dates && (
+            <input
+              type="text"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="w-full"
+            />
+          )}
+          {!!dates &&
+            dates.map((d) => (
+              <label
+                key={formatDate(d)}
+                className="flex items-center space-x-4"
+              >
+                <input
+                  type="radio"
+                  checked={date === formatDate(d)}
+                  onChange={() => setDate(formatDate(d))}
+                />
+                <DateFormatted date={d} />
+              </label>
+            ))}
         </label>
         <label className="col-span-3">
           <div>Description</div>
@@ -71,8 +85,26 @@ export default function JournalEntryForm({ journalEntry, onClose }: Props) {
         {!isEdit && (
           <>
             <label className="col-span-1">
-              <div>Amount</div>
-              <AmountInput value={amount} onChange={setAmount} />
+              <div>
+                Amount
+                {!!journalEntry?.options?.foreignCurrency && (
+                  <span className="ml-1 text-xs">
+                    {journalEntry.options.foreignCurrency}
+                  </span>
+                )}
+              </div>
+              {!values && <AmountInput value={amount} onChange={setAmount} />}
+              {!!values &&
+                values.map((value) => (
+                  <label key={value} className="flex items-center space-x-4">
+                    <input
+                      type="radio"
+                      checked={amount === value}
+                      onChange={() => setAmount(value)}
+                    />
+                    <Amount amount={value} />
+                  </label>
+                ))}
             </label>
             <div className="col-span-1">
               <div>VAT</div>
@@ -145,7 +177,7 @@ export default function JournalEntryForm({ journalEntry, onClose }: Props) {
             </>
           )}
         </div>
-        {isEdit && (
+        {!!journalEntry?.documentId && (
           <div className="col-span-1">
             <DocumentLink id={journalEntry?.documentId} />
           </div>

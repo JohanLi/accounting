@@ -1,30 +1,14 @@
 import { DragEvent, useState } from 'react'
 import { getFilenameAndData, getFileEntries } from '../filesFromDataTransfer'
 import { DocumentUpload } from '../pages/api/documents'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { DocumentArrowUpIcon } from '@heroicons/react/24/solid'
 import { XMarkIcon } from '@heroicons/react/24/outline'
+import { useDocumentMutation } from '../hooks/useDocumentMutation'
 
 export default function DocumentUpload() {
   const [isDragOver, setIsDragOver] = useState(false)
 
-  const queryClient = useQueryClient()
-
-  const mutation = useMutation({
-    mutationFn: (body: DocumentUpload[]) =>
-      fetch('/api/documents', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      }).then((res) => res.json()),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['documents'] })
-      queryClient.invalidateQueries({ queryKey: ['totals'] })
-      queryClient.invalidateQueries({ queryKey: ['journalEntries'] })
-    },
-  })
+  const mutation = useDocumentMutation()
 
   const onDragOver = (e: DragEvent) => {
     // without this, dropping a document will open it in a new tab

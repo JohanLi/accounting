@@ -1,7 +1,11 @@
 import db from '../db'
 import { Documents, JournalEntries } from '../schema'
 import { asc, eq, isNull } from 'drizzle-orm'
-import { documentToTransactions, parseDetails } from '../document'
+import {
+  getPDFStrings,
+  getRecognizedDocument,
+  getUnknownDocument,
+} from '../document'
 
 export async function getDocumentSuggestions() {
   const pendingDocuments = await db
@@ -19,17 +23,22 @@ export async function getDocumentSuggestions() {
 
   return Promise.all(
     pendingDocuments.map(async (document) => {
-      const details = await parseDetails(document.data)
+      const strings = await getPDFStrings(document.data)
 
-      if (!details) {
-        return null
+      const recognizedDocument = await getRecognizedDocument(strings)
+
+      if (recognizedDocument) {
+        return {
+          ...recognizedDocument,
+          linkedToTransactionIds: [],
+          documentId: document.id,
+        }
       }
 
+      const unknownDocument = await getUnknownDocument(strings)
+
       return {
-        date: details.date,
-        // TODO implement a way to tag journal entries
-        description: `Dokument – ${details.description}`,
-        transactions: documentToTransactions(details),
+        ...unknownDocument,
         linkedToTransactionIds: [],
         documentId: document.id,
       }

@@ -58,7 +58,11 @@ export function getAllIncomeYearsInReverse() {
   return years
 }
 
-export function krToOre(kr: string | number) {
+export function krToOre(kr: string | number | Decimal) {
+  if (kr instanceof Decimal) {
+    return kr.mul(100).round().toNumber()
+  }
+
   return Decimal.mul(kr, 100).round().toNumber()
 }
 
