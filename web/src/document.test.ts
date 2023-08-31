@@ -1,8 +1,9 @@
-import { expect, test } from 'vitest'
+import { expect, test, describe } from 'vitest'
 import {
   getRecognizedDocument,
   getForeignCurrencyMonetaryValues,
   getPDFStrings,
+  getMonetaryValues,
 } from './document'
 import { readFile } from 'fs/promises'
 
@@ -88,32 +89,82 @@ test('parse', async () => {
   })
 })
 
-test('getForeignCurrencyMonetaryValues', () => {
-  expect(getForeignCurrencyMonetaryValues(['€5.20', '€0.00', '€5.20'])).toEqual(
-    {
+describe('getMonetaryValues', () => {
+  test('works for known formats, returning the amount in ören', () => {
+    expect(getMonetaryValues(['1,23 SEK'])).toEqual([123])
+    expect(getMonetaryValues(['12.34 SEK'])).toEqual([1234])
+    expect(getMonetaryValues(['2.555,20'])).toEqual([255520])
+    expect(getMonetaryValues(['380,00'])).toEqual([38000])
+  })
+
+  test('uses only the first found format', () => {
+    expect(
+      getMonetaryValues(['1,23 SEK', '12.34 SEK', '2.555,20', '380,00']),
+    ).toEqual([123])
+  })
+
+  test('removes duplicates', () => {
+    expect(getMonetaryValues(['4,34 SEK', '4,34 SEK'])).toEqual([434])
+  })
+
+  test('sorts in descending order', () => {
+    expect(getMonetaryValues(['12,34', '55,20', '32,10'])).toEqual([
+      5520, 3210, 1234,
+    ])
+  })
+})
+
+describe('getForeignCurrencyMonetaryValues', () => {
+  test('works for known formats, returning the amount in cents', () => {
+    expect(getForeignCurrencyMonetaryValues(['€5.20'])).toEqual({
       foreignCurrency: 'EUR',
-      values: [520, 0],
-    },
-  )
+      values: [520],
+    })
 
-  expect(getForeignCurrencyMonetaryValues(['159.00 EUR', '0.00 EUR'])).toEqual({
-    foreignCurrency: 'EUR',
-    values: [15900, 0],
+    expect(getForeignCurrencyMonetaryValues(['159.00 EUR'])).toEqual({
+      foreignCurrency: 'EUR',
+      values: [15900],
+    })
+
+    expect(getForeignCurrencyMonetaryValues(['$12.34 USD'])).toEqual({
+      foreignCurrency: 'USD',
+      values: [1234],
+    })
   })
 
-  expect(
-    getForeignCurrencyMonetaryValues(['$12.34 ($100/year)', '$12.34 USD']),
-  ).toEqual({
-    foreignCurrency: 'USD',
-    values: [1234],
+  test('does not pick up on SEK', () => {
+    expect(
+      getForeignCurrencyMonetaryValues([
+        '1,23 SEK',
+        '12.34 SEK',
+        '2.555,20',
+        '380,00',
+      ]),
+    ).toEqual(null)
   })
 
-  expect(
-    getForeignCurrencyMonetaryValues([
-      '12,34',
-      '12,34 SEK',
-      '12.34',
-      '12.34 SEK',
-    ]),
-  ).toEqual(null)
+  test('uses only the first found format', () => {
+    expect(getForeignCurrencyMonetaryValues(['€5.20', '159.00 EUR'])).toEqual({
+      foreignCurrency: 'EUR',
+      values: [520],
+    })
+  })
+
+  test('removes duplicates', () => {
+    expect(
+      getForeignCurrencyMonetaryValues(['159.00 EUR', '159.00 EUR']),
+    ).toEqual({
+      foreignCurrency: 'EUR',
+      values: [15900],
+    })
+  })
+
+  test('sorts in descending order', () => {
+    expect(
+      getForeignCurrencyMonetaryValues(['59.00 EUR', '159.00 EUR']),
+    ).toEqual({
+      foreignCurrency: 'EUR',
+      values: [15900, 5900],
+    })
+  })
 })

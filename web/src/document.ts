@@ -140,7 +140,7 @@ export async function getRecognizedDocument(
     throw Error('Did not find any dates')
   }
 
-  const total = Math.max(...monetaryValues)
+  const total = monetaryValues[0]
   let vat = 0
 
   if (vatRate !== '0') {
@@ -226,10 +226,10 @@ function uniqueDate(array: Date[]) {
 }
 
 const monetaryFormats = [
-  /(\d+,\d+) SEK/,
-  /(\d+.\d+) SEK/,
-  /(\d+.\d+,\d+)/,
-  /(\d+,\d+)/,
+  /(\d+,\d{2}) SEK/,
+  /(\d+.\d{2}) SEK/,
+  /(\d+.\d{3},\d{2})/,
+  /(\d+,\d{2})/,
 ]
 export function getMonetaryValues(strings: string[]) {
   const found = monetaryFormats.find((regex) =>
@@ -251,12 +251,14 @@ export function getMonetaryValues(strings: string[]) {
           // using point as decimal separator
           .replace(',', '.'),
       ),
-  ).map((string) => krToOre(string))
+  )
+    .map((string) => krToOre(string))
+    .sort((a, b) => b - a)
 }
 
 const foreignCurrencyMonetaryFormats = {
-  EUR: [/€(\d+.\d+)/, /(\d+.\d+) EUR/],
-  USD: [/\$(\d+.\d+)/],
+  EUR: [/€(\d+.\d{2})/, /(\d+.\d{2}) EUR/],
+  USD: [/\$(\d+.\d{2})/],
 }
 export function getForeignCurrencyMonetaryValues(strings: string[]) {
   for (const [foreignCurrency, monetaryFormats] of Object.entries(
@@ -276,14 +278,10 @@ export function getForeignCurrencyMonetaryValues(strings: string[]) {
         strings
           .map((string) => string.match(found))
           .filter((found): found is RegExpMatchArray => found !== null)
-          .map((found) =>
-            found[1]
-              // invoice
-              .replace(/.(\d{3})/, '$1')
-              // using point as decimal separator
-              .replace(',', '.'),
-          ),
-      ).map((string) => krToOre(string)),
+          .map((found) => found[1]),
+      )
+        .map((string) => krToOre(string))
+        .sort((a, b) => b - a),
     }
   }
 

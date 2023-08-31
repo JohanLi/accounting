@@ -38,11 +38,11 @@ export default function JournalEntryForm({ journalEntry, onClose }: Props) {
     journalEntry?.transactions || [],
   )
 
-  const [amount, setAmount] = useState(0)
+  const [amount, setAmount] = useState(journalEntry?.options?.values[0] || 0)
   const amountBeforeVat = Math.round(amount / (1 + parseFloat(vatRate)))
   const amountVat = amount - amountBeforeVat
 
-  const dates = journalEntry?.options?.dates || false
+  const dates = journalEntry?.options?.dates || []
   const values = journalEntry?.options?.values || false
 
   return (
@@ -50,7 +50,7 @@ export default function JournalEntryForm({ journalEntry, onClose }: Props) {
       <div className="grid grid-cols-12 gap-x-4">
         <label className="col-span-2">
           <div>Date</div>
-          {!dates && (
+          {!dates.length && (
             <input
               type="text"
               value={date}
@@ -58,7 +58,7 @@ export default function JournalEntryForm({ journalEntry, onClose }: Props) {
               className="w-full"
             />
           )}
-          {!!dates &&
+          {dates.length > 0 &&
             dates.map((d) => (
               <label
                 key={formatDate(d)}
