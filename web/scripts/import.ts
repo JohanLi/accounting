@@ -52,6 +52,8 @@ async function importJournalEntries(year: number) {
     .values(journalEntries)
     .returning()
 
+  oldIdToId.clear()
+
   journalEntries.forEach((v, i) => {
     oldIdToId.set(v.oldId, insertedJournalEntries[i].id)
   })
