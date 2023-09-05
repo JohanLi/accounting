@@ -69,6 +69,7 @@ export const JournalEntries = pgTable('journal_entries', {
     onDelete: 'set null',
   }),
   createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at'),
 })
 
 /*

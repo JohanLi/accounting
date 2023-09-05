@@ -1,11 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { desc, eq, InferInsertModel, InferSelectModel } from 'drizzle-orm'
+import { desc, eq, InferInsertModel, InferSelectModel, sql } from 'drizzle-orm'
 import db from '../../db'
 import {
   JournalEntries,
   JournalEntryTransactions,
   Transactions,
 } from '../../schema'
+import { JournalEntryInputError, validate } from '../../validateJournalEntry'
 
 export type Transaction = {
   accountId: number
@@ -22,17 +23,7 @@ export type JournalEntry = InferSelectModel<typeof JournalEntries> & {
   linkedToTransactionIds: number[]
 }
 
-function isBalanced(entry: JournalEntryUpsert) {
-  return entry.transactions.reduce((acc, v) => acc + v.amount, 0) === 0
-}
-
-export class InputError extends Error {}
-
 async function upsertJournalEntry(entry: JournalEntryUpsert) {
-  if (!isBalanced(entry)) {
-    throw new InputError('Transactions do not balance')
-  }
-
   const { transactions, linkedToTransactionIds, ...rest } = entry
   rest.date = new Date(rest.date)
 
@@ -42,7 +33,11 @@ async function upsertJournalEntry(entry: JournalEntryUpsert) {
       .values(rest)
       .onConflictDoUpdate({
         target: JournalEntries.id,
-        set: { date: rest.date, description: rest.description },
+        set: {
+          date: rest.date,
+          description: rest.description,
+          updatedAt: sql`NOW()`,
+        },
       })
       .returning()
 
@@ -84,12 +79,13 @@ export default async function handler(
     const entry = req.body as JournalEntryUpsert
 
     try {
-      const upsertedEntry = await upsertJournalEntry(entry)
+      const validatedEntry = validate(entry)
+      const upsertedEntry = await upsertJournalEntry(validatedEntry)
 
       res.status(200).json([upsertedEntry])
       return
     } catch (e) {
-      if (e instanceof InputError) {
+      if (e instanceof JournalEntryInputError) {
         res.status(400).json({ error: e.message })
         return
       }
