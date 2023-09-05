@@ -7,6 +7,7 @@ import { DateFormatted, formatDate } from './DateFormatted'
 import { AmountInput } from './AmountInput'
 import DocumentLink from './DocumentLink'
 import { Suggestion } from '../pages/api/journalEntries/suggestions'
+import { DateInput } from './DateInput'
 
 const vatRates = ['0', '0.06', '0.12', '0.25'] as const
 type VatRate = (typeof vatRates)[number]
@@ -50,14 +51,7 @@ export default function JournalEntryForm({ journalEntry, onClose }: Props) {
       <div className="grid grid-cols-12 gap-x-4">
         <label className="col-span-2">
           <div>Date</div>
-          {!dates.length && (
-            <input
-              type="text"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="w-full"
-            />
-          )}
+          {!dates.length && <DateInput value={date} onChange={setDate} />}
           {dates.length > 0 &&
             dates.map((d) => (
               <label
