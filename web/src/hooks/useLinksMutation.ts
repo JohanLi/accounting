@@ -16,6 +16,9 @@ export default function useLinksMutation() {
     onSuccess: () =>
       Promise.all([
         queryClient.invalidateQueries({ queryKey: ['journalEntries'] }),
+        queryClient.invalidateQueries({
+          queryKey: ['journalEntriesSuggestions'],
+        }),
         queryClient.invalidateQueries({ queryKey: ['transactions'] }),
       ]),
   })
