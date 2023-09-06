@@ -32,7 +32,7 @@ export default function JournalEntryForm({ journalEntry, onClose }: Props) {
   )
   const [vatRate, setVatRate] = useState<VatRate>('0')
 
-  const [creditAccountId, setCreditAccountId] = useState('')
+  const [creditAccountId, setCreditAccountId] = useState('1930')
   const [debitAccountId, setDebitAccountId] = useState('')
 
   const [transactions, setTransactions] = useState<Transaction[]>(
@@ -141,17 +141,18 @@ export default function JournalEntryForm({ journalEntry, onClose }: Props) {
               </div>
             ))}
           {!isEdit && (
-            <>
-              <label className="flex items-center space-x-4">
-                <input
-                  type="text"
-                  value={debitAccountId}
-                  onChange={(e) => setDebitAccountId(e.target.value)}
-                  className="w-24"
-                />
-                <Amount amount={amount} />
-              </label>
+            /*
+              TODO
+                An important assumption made here is that all "suggestions"
+                are treated as purchases. I think it's fine for now, because
+                the only sale entries I have are handled as a
+                "Recognized document".
 
+                I also think it's fine to assume 1930 and
+                2640 (in the event of VAT), with the third account ID being
+                populated after you select from a few options.
+             */
+            <>
               <label className="flex items-center space-x-4">
                 <input
                   type="text"
@@ -159,13 +160,23 @@ export default function JournalEntryForm({ journalEntry, onClose }: Props) {
                   onChange={(e) => setCreditAccountId(e.target.value)}
                   className="w-24"
                 />
-                <Amount amount={-amountBeforeVat} />
+                <Amount amount={-amount} />
+              </label>
+
+              <label className="flex items-center space-x-4">
+                <input
+                  type="text"
+                  value={debitAccountId}
+                  onChange={(e) => setDebitAccountId(e.target.value)}
+                  className="w-24"
+                />
+                <Amount amount={amountBeforeVat} />
               </label>
 
               {amountVat > 0 && (
                 <label className="flex items-center space-x-4">
                   <input type="text" disabled value="2640" className="w-24" />
-                  <Amount amount={-amountVat} />
+                  <Amount amount={amountVat} />
                 </label>
               )}
             </>
@@ -189,16 +200,16 @@ export default function JournalEntryForm({ journalEntry, onClose }: Props) {
                     ? transactions
                     : [
                         {
+                          accountId: parseInt(creditAccountId),
+                          amount: -amount,
+                        },
+                        {
                           accountId: parseInt(debitAccountId),
-                          amount: amount,
+                          amount: amountBeforeVat,
                         },
                         {
                           accountId: 2640,
-                          amount: -amountVat,
-                        },
-                        {
-                          accountId: parseInt(creditAccountId),
-                          amount: -amountBeforeVat,
+                          amount: amountVat,
                         },
                       ],
                   linkedToTransactionIds:
