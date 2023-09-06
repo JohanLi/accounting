@@ -77,7 +77,7 @@ export default function Salary() {
   ]
 
   return (
-    <Layout>
+    <Layout title="Salary">
       <div className="flex">
         <div className="flex space-x-8">
           <h1 className="text-base font-semibold leading-6 text-gray-900">

@@ -38,7 +38,13 @@ export default function Transactions() {
   )
 
   return (
-    <Layout>
+    <Layout
+      title={
+        !activeType
+          ? 'Transactions'
+          : `Transactions (${transactionTypeToLabel[activeType]})`
+      }
+    >
       <div className="flex space-x-6">
         {transactionTypes.map((type) => {
           return (

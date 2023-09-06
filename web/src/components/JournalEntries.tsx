@@ -4,8 +4,8 @@ import {
   getAllFiscalYearsInReverse,
   withinFiscalYear,
 } from '../utils'
-import Select from '../components/Select'
-import { JournalEntry } from '../components/JournalEntry'
+import Select from './Select'
+import { JournalEntry } from './JournalEntry'
 import useJournalEntries from '../hooks/useJournalEntries'
 
 const filters = ['All', 'Non-linked'] as const

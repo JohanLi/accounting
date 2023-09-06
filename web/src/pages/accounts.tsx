@@ -19,7 +19,7 @@ export default function Accounts() {
   })
 
   return (
-    <Layout>
+    <Layout title="Accounts">
       <div className="flex justify-end">
         <div className="flex items-center space-x-4">
           <div className="text-gray-500">FY</div>
