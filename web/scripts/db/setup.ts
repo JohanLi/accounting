@@ -126,6 +126,10 @@ async function main() {
         description: 'Biljetter',
       },
       {
+        id: 5831,
+        description: 'Kost och logi i Sverige',
+      },
+      {
         id: 5832,
         description: 'Kost och logi i utlandet',
       },
