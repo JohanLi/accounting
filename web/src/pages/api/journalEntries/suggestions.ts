@@ -4,6 +4,7 @@ import { filterNull } from '../../../utils'
 import { getDocumentSuggestions } from '../../../suggestions/documentSuggestions'
 import { getBankSavingsSuggestions } from '../../../suggestions/bankSavingsSuggestions'
 import { getTaxSuggestions } from '../../../suggestions/taxSuggestions'
+import { getInsuranceSuggestions } from '../../../suggestions/insuranceSuggestions'
 
 export type Suggestion = JournalEntryUpsert & {
   options?: {
@@ -21,6 +22,7 @@ export default async function handler(
     const taxSuggestions = await getTaxSuggestions()
     const bankSavingsSuggestions = await getBankSavingsSuggestions()
     const documentSuggestions = await getDocumentSuggestions()
+    const insuranceSuggestions = await getInsuranceSuggestions()
 
     res
       .status(200)
@@ -29,6 +31,7 @@ export default async function handler(
           ...taxSuggestions,
           ...bankSavingsSuggestions,
           ...documentSuggestions,
+          ...insuranceSuggestions,
         ]),
       )
     return
