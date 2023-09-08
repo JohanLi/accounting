@@ -320,6 +320,18 @@ export function getDates(strings: string[]) {
   )
 }
 
+/*
+  Unsure how to best handle foreign currencies in particular.
+  An elaborate solution could be to detect them, apply a "range" of conversion
+  rates, and check against bank transactions within a date window to
+  provide value suggestions.
+
+  In practice, foreign payments are uncommon for me outside of Google Workspace
+  and perhaps some yearly receipts here or there.
+
+  Additionally, the journal entry transactions need to include reverse
+  charge VAT.
+ */
 export async function getUnknownDocument(strings: any[]) {
   const foreignValues = getForeignCurrencyMonetaryValues(strings)
   const dates = getDates(strings)
