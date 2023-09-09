@@ -56,19 +56,25 @@ export async function getGoogleWorkspaceDocument(strings: any[]) {
     transactions: [
       {
         accountId: 1930,
-        amount: -total,
+        /*
+         TODO
+           Evaluate if it'd be a good practice to force such values to be
+           negative, or at least throw an exception if they aren't.
+           (I was caught off guard by a double negative)
+         */
+        amount: total,
       },
       {
         accountId: 2614,
-        amount: -vat,
-      },
-      {
-        accountId: 2645,
         amount: vat,
       },
       {
+        accountId: 2645,
+        amount: -vat,
+      },
+      {
         accountId: 4535,
-        amount: total,
+        amount: -total,
       },
     ],
     linkedToTransactionIds: [transactions[0].id],
