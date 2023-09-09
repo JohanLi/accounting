@@ -205,7 +205,7 @@ export async function getRecognizedDocument(
   }
 }
 
-function getLatestDate(dates: Date[]) {
+export function getLatestDate(dates: Date[]) {
   return dates.reduce((latest, date) => {
     if (date > latest) {
       return date

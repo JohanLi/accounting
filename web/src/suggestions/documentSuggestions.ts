@@ -6,6 +6,7 @@ import {
   getRecognizedDocument,
   getUnknownDocument,
 } from '../document'
+import { getGoogleWorkspaceDocument } from '../documentGoogleWorkflow'
 
 export async function getDocumentSuggestions() {
   const pendingDocuments = await db
@@ -31,6 +32,15 @@ export async function getDocumentSuggestions() {
         return {
           ...recognizedDocument,
           linkedToTransactionIds: [],
+          documentId: document.id,
+        }
+      }
+
+      const googleWorkspaceDocument = await getGoogleWorkspaceDocument(strings)
+
+      if (googleWorkspaceDocument) {
+        return {
+          ...googleWorkspaceDocument,
           documentId: document.id,
         }
       }
