@@ -53,7 +53,19 @@ export default function Accounts() {
                 scope="col"
                 className="py-3.5 text-right text-sm font-semibold text-gray-900"
               >
-                Total
+                Incoming
+              </th>
+              <th
+                scope="col"
+                className="py-3.5 text-right text-sm font-semibold text-gray-900"
+              >
+                This year
+              </th>
+              <th
+                scope="col"
+                className="py-3.5 text-right text-sm font-semibold text-gray-900"
+              >
+                Outgoing
               </th>
             </tr>
           </thead>
@@ -67,7 +79,13 @@ export default function Accounts() {
                   {account.description}
                 </td>
                 <td className="whitespace-nowrap py-4 text-right text-sm">
-                  <Amount amount={account.total} />
+                  <Amount amount={account.totals.incoming} />
+                </td>
+                <td className="whitespace-nowrap py-4 text-right text-sm">
+                  <Amount amount={account.totals.thisYear} />
+                </td>
+                <td className="whitespace-nowrap py-4 text-right text-sm">
+                  <Amount amount={account.totals.outgoing} />
                 </td>
               </tr>
             ))}
