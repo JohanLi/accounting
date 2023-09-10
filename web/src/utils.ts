@@ -66,6 +66,10 @@ export function krToOre(kr: string | number | Decimal) {
   return Decimal.mul(kr, 100).round().toNumber()
 }
 
+export function oreToKrona(ore: number) {
+  return Decimal.div(ore, 100).toFixed(2)
+}
+
 export function getHash(input: Buffer | string) {
   return crypto.createHash('sha256').update(input).digest('hex')
 }
