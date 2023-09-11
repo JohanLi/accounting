@@ -23,7 +23,7 @@ export type JournalEntry = InferSelectModel<typeof JournalEntries> & {
   linkedToTransactionIds: number[]
 }
 
-async function upsertJournalEntry(entry: JournalEntryUpsert) {
+export async function upsertJournalEntry(entry: JournalEntryUpsert) {
   const { transactions, linkedToTransactionIds, ...rest } = entry
   rest.date = new Date(rest.date)
 

@@ -3,6 +3,8 @@ import db from '../../src/db'
 import { Accounts } from '../../src/schema'
 import { sql } from 'drizzle-orm'
 
+// these values are largely based on https://www.bas.se/wp-content/uploads/2022/01/Kontoplan-2022.pdf
+
 async function main() {
   await migrate(db, { migrationsFolder: 'drizzle' })
 
@@ -56,6 +58,10 @@ async function main() {
       {
         id: 2510,
         description: 'Skatteskulder',
+      },
+      {
+        id: 2512,
+        description: 'Beräknad inkomstskatt',
       },
       {
         id: 2610,

@@ -12,13 +12,12 @@
  */
 
 import fs from 'fs/promises'
-import db from '../src/db'
-import { Accounts } from '../src/schema'
-import { getFiscalYear, oreToKrona } from '../src/utils'
-import { getAccounts } from '../src/pages/api/accounts'
+import db from '../../src/db'
+import { Accounts } from '../../src/schema'
+import { getFiscalYear, oreToKrona } from '../../src/utils'
+import { getAccounts } from '../../src/pages/api/accounts'
 import iconv from 'iconv-lite'
-
-const YEAR = 2023
+import { YEAR } from './year'
 
 function formatDate(date: Date) {
   const year = date.getFullYear()
@@ -72,12 +71,12 @@ async function main() {
     .join('\n')
 
   const results = accounts
-    .filter((a) => a.id >= 3000)
+    .filter((a) => a.id >= 3000 && a.id <= 8799)
     .map((a) => `#RES 0 ${a.id} ${oreToKrona(a.totals.thisYear)}`)
     .join('\n')
 
   const lastResults = lastAccounts
-    .filter((a) => a.id >= 3000)
+    .filter((a) => a.id >= 3000 && a.id <= 8799)
     .map((a) => `#RES -1 ${a.id} ${oreToKrona(a.totals.thisYear)}`)
     .join('\n')
 
@@ -110,10 +109,7 @@ ${results}
 ${lastResults}
   `.trim()
 
-  await fs.writeFile(
-    `./src/documents/${YEAR}.sie`,
-    iconv.encode(string, 'CP437'),
-  )
+  await fs.writeFile(`./${YEAR}.sie`, iconv.encode(string, 'CP437'))
 
   process.exit(0)
 }
