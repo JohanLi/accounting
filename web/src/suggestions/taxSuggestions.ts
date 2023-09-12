@@ -11,6 +11,11 @@ import { and, asc, eq, gte, InferInsertModel, isNull } from 'drizzle-orm'
   match tax account transactions with entries one-to-one:
   when Personalskatt and Arbetsgivaravgift are withdrawn from the tax account,
   they actually show up as separate transactions.
+
+  TODO
+    Debit and credit appears reversed – this is because the amounts
+    are negative. For less confusion, all transactions across the codebase
+    should be created based on non-negative values.
  */
 
 function taxAccountMap(description: string): {
@@ -54,15 +59,10 @@ function taxAccountMap(description: string): {
     return {
       debit: 1630,
       /*
-        TODO
-          My previous accounting software used 2510 Skatteskulder,
-          but two sources recommend using 2518 – Betald F-skatt to
-          keep different types of taxes separate.
-
-          https://www.fortnox.se/fortnox-foretagsguide/bokforingstips/preliminarskatt-i-aktiebolag
-          https://www.arsredovisning-online.se/bokfora_slutlig_skatt
+        https://www.fortnox.se/fortnox-foretagsguide/bokforingstips/preliminarskatt-i-aktiebolag
+        https://www.arsredovisning-online.se/bokfora_slutlig_skatt
        */
-      credit: 2510, // Skatteskulder
+      credit: 2518, // Betald F-skatt
       description: 'Debiterad preliminärskatt',
     }
   }
@@ -76,11 +76,10 @@ function taxAccountMap(description: string): {
     }
   }
 
-  // TODO more research needs to be done on this one
   if (description === 'Tillgodoförd debiterad preliminärskatt') {
     return {
       debit: 1630,
-      credit: 2510,
+      credit: 2518,
       description: 'Tillgodoförd debiterad preliminärskatt',
     }
   }

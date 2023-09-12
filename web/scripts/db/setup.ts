@@ -64,6 +64,10 @@ async function main() {
         description: 'Beräknad inkomstskatt',
       },
       {
+        id: 2518,
+        description: 'Betald preliminärskatt',
+      },
+      {
         id: 2610,
         description: 'Utgående moms 25%',
       },
