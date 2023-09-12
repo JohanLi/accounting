@@ -117,16 +117,7 @@ async function main() {
 
   const corporateTaxTransaction = [
     {
-      /*
-        Previously, 2510 was used instead of 2512. It doesn't matter much,
-        but not using 2510 for everything Skatteverket-related lets you be
-        more "granular" in understanding what types of taxes you're owed.
-
-        Preliminary tax should in the future use 2518 instead of 2510. Then,
-        2512 can be compared against 2518, rather than all types of taxes
-        being aggregated into 2510.
-       */
-      accountId: 2512,
+      accountId: 2510,
       amount: -amount,
     },
     {
@@ -137,7 +128,7 @@ async function main() {
 
   const journalEntry = {
     date: endInclusive,
-    description: `Corporate tax ${YEAR}`,
+    description: 'Skatt på årets resultat',
     transactions: corporateTaxTransaction,
     linkedToTransactionIds: [],
   }

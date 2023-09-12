@@ -60,14 +60,6 @@ async function main() {
         description: 'Skatteskulder',
       },
       {
-        id: 2512,
-        description: 'Beräknad inkomstskatt',
-      },
-      {
-        id: 2518,
-        description: 'Betald preliminärskatt',
-      },
-      {
         id: 2610,
         description: 'Utgående moms 25%',
       },

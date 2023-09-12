@@ -62,7 +62,7 @@ function taxAccountMap(description: string): {
         https://www.fortnox.se/fortnox-foretagsguide/bokforingstips/preliminarskatt-i-aktiebolag
         https://www.arsredovisning-online.se/bokfora_slutlig_skatt
        */
-      credit: 2518, // Betald F-skatt
+      credit: 2510, // Skatteskulder
       description: 'Debiterad preliminärskatt',
     }
   }
@@ -79,7 +79,7 @@ function taxAccountMap(description: string): {
   if (description === 'Tillgodoförd debiterad preliminärskatt') {
     return {
       debit: 1630,
-      credit: 2518,
+      credit: 2510,
       description: 'Tillgodoförd debiterad preliminärskatt',
     }
   }
