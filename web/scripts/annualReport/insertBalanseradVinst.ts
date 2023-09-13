@@ -14,7 +14,7 @@ async function main() {
      I submitted the annual report for FY 2022
      */
     date: new Date('2023-01-08'),
-    description: 'Balanserad vinst eller förlust',
+    description: 'Resultatdisposition',
     transactions: [
       { accountId: 2091, amount: -amount },
       { accountId: 2098, amount },
