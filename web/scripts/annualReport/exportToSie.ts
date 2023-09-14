@@ -29,56 +29,74 @@ function formatDate(date: Date) {
     .padStart(2, '0')}`
 }
 
+const START_DATE = new Date('2020-10-23')
+
 async function main() {
-  const { startInclusive, endExclusive } = getFiscalYear(YEAR)
-
-  const endInclusive = new Date(endExclusive)
-  endInclusive.setDate(endInclusive.getDate() - 1)
-
-  const lastStartInclusive = new Date(startInclusive)
-  lastStartInclusive.setFullYear(lastStartInclusive.getFullYear() - 1)
-
-  const lastEndInclusive = new Date(endInclusive)
-  lastEndInclusive.setFullYear(lastEndInclusive.getFullYear() - 1)
-
   const allAccounts = (await db.select().from(Accounts).orderBy(Accounts.id))
     .map((a) => `#KONTO ${a.id} "${a.description}"`)
     .join('\n')
 
-  const accounts = await getAccounts(YEAR)
-  const lastAccounts = await getAccounts(YEAR - 1)
+  const RAR = []
+  const IB = []
+  const UB = []
+  const RES = []
 
-  /*
-    Incoming and outgoing are only applicable to account IDs 1000–2999
-    https://vismaspcs.se/ekonomiska-termer/vad-ar-utgaende-balans
-   */
-  const incoming = accounts
-    .filter((a) => a.id < 3000)
-    .map((a) => `#IB 0 ${a.id} ${oreToKrona(a.totals.incoming)}`)
-    .join('\n')
-  const lastIncoming = lastAccounts
-    .filter((a) => a.id < 3000)
-    .map((a) => `#IB -1 ${a.id} ${oreToKrona(a.totals.incoming)}`)
-    .join('\n')
+  for (let year = YEAR; year >= 2021; year--) {
+    let { startInclusive, endInclusive } = getFiscalYear(year)
 
-  const outgoing = accounts
-    .filter((a) => a.id < 3000)
-    .map((a) => `#UB 0 ${a.id} ${oreToKrona(a.totals.outgoing)}`)
-    .join('\n')
-  const lastOutgoing = lastAccounts
-    .filter((a) => a.id < 3000)
-    .map((a) => `#UB -1 ${a.id} ${oreToKrona(a.totals.outgoing)}`)
-    .join('\n')
+    /*
+     Don't think this matters, but it affects how the date range is shown
+     in the annual report
+     */
+    if (startInclusive < START_DATE) {
+      startInclusive = START_DATE
+    }
 
-  const results = accounts
-    .filter((a) => a.id >= 3000 && a.id <= 8799)
-    .map((a) => `#RES 0 ${a.id} ${oreToKrona(a.totals.thisYear)}`)
-    .join('\n')
+    const fiscalYearOffset = year - YEAR
 
-  const lastResults = lastAccounts
-    .filter((a) => a.id >= 3000 && a.id <= 8799)
-    .map((a) => `#RES -1 ${a.id} ${oreToKrona(a.totals.thisYear)}`)
-    .join('\n')
+    RAR.push(
+      `#RAR ${fiscalYearOffset} ${formatDate(startInclusive)} ${formatDate(
+        endInclusive,
+      )}`,
+    )
+
+    const accounts = await getAccounts(year)
+
+    /*
+      Incoming and outgoing are only applicable to account IDs 1000–2999
+      https://vismaspcs.se/ekonomiska-termer/vad-ar-utgaende-balans
+     */
+
+    IB.push(
+      accounts
+        .filter((a) => a.id < 3000)
+        .map(
+          (a) =>
+            `#IB ${fiscalYearOffset} ${a.id} ${oreToKrona(a.totals.incoming)}`,
+        )
+        .join('\n'),
+    )
+
+    UB.push(
+      accounts
+        .filter((a) => a.id < 3000)
+        .map(
+          (a) =>
+            `#UB ${fiscalYearOffset} ${a.id} ${oreToKrona(a.totals.outgoing)}`,
+        )
+        .join('\n'),
+    )
+
+    RES.push(
+      accounts
+        .filter((a) => a.id >= 3000 && a.id <= 8799)
+        .map(
+          (a) =>
+            `#RES ${fiscalYearOffset} ${a.id} ${oreToKrona(a.totals.thisYear)}`,
+        )
+        .join('\n'),
+    )
+  }
 
   /*
     #VER is not mandatory for SIE 4E, but I wonder if adding it enables
@@ -97,16 +115,12 @@ async function main() {
 #SIETYP 4
 #FNAMN "Ternary AB"
 #ORGNR 5592784465
-#RAR 0 ${formatDate(startInclusive)} ${formatDate(endInclusive)}
-#RAR -1 ${formatDate(lastStartInclusive)} ${formatDate(lastEndInclusive)}
+${RAR.join('\n')}
 ${allAccounts}
 #KPTYP BAS2014
-${incoming}
-${lastIncoming}
-${outgoing}
-${lastOutgoing}
-${results}
-${lastResults}
+${IB.join('\n')}
+${UB.join('\n')}
+${RES.join('\n')}
   `.trim()
 
   await fs.writeFile(`./${YEAR}.sie`, iconv.encode(string, 'CP437'))
