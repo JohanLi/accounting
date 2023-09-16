@@ -1,22 +1,15 @@
-import { useQuery } from '@tanstack/react-query'
 import Layout from '../components/Layout'
-import { AccountsResponse } from './api/accounts'
 import { Amount } from '../components/Amount'
 import { useState } from 'react'
 import Select from '../components/Select'
 import { getAllFiscalYearsInReverse } from '../utils'
+import { useAccountTotals } from '../hooks/useAccountTotals'
 
-export default function Accounts() {
+export default function AccountTotals() {
   // TODO hardcoded to 2023 right now, as no entries exist for 2024 yet
   const [selectedFiscalYear, setSelectedFiscalYear] = useState(2023)
 
-  const accounts = useQuery<AccountsResponse>({
-    queryKey: ['accounts', selectedFiscalYear],
-    queryFn: () =>
-      fetch(`/api/accounts?fiscalYear=${selectedFiscalYear}`).then((res) =>
-        res.json(),
-      ),
-  })
+  const accountTotals = useAccountTotals(selectedFiscalYear)
 
   return (
     <Layout title="Accounts">
@@ -59,7 +52,7 @@ export default function Accounts() {
                 scope="col"
                 className="py-3.5 text-right text-sm font-semibold text-gray-900"
               >
-                This year
+                Result
               </th>
               <th
                 scope="col"
@@ -70,22 +63,22 @@ export default function Accounts() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {accounts.data?.map((account) => (
-              <tr key={account.id}>
+            {accountTotals.data?.map((a) => (
+              <tr key={a.id}>
                 <td className="whitespace-nowrap py-4 pr-3 text-xs text-gray-500">
-                  {account.id}
+                  {a.id}
                 </td>
                 <td className="whitespace-nowrap py-4 pr-3 text-sm font-medium text-gray-900">
-                  {account.description}
+                  {a.description}
                 </td>
                 <td className="whitespace-nowrap py-4 text-right text-sm">
-                  <Amount amount={account.totals.incoming} />
+                  <Amount amount={a.openingBalance} />
                 </td>
                 <td className="whitespace-nowrap py-4 text-right text-sm">
-                  <Amount amount={account.totals.thisYear} />
+                  <Amount amount={a.result} />
                 </td>
                 <td className="whitespace-nowrap py-4 text-right text-sm">
-                  <Amount amount={account.totals.outgoing} />
+                  <Amount amount={a.closingBalance} />
                 </td>
               </tr>
             ))}

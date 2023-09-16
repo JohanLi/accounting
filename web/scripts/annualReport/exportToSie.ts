@@ -1,8 +1,4 @@
 /*
-  TODO
-    Terminology will need to be revised. For instance, it's called
-    "opening balance" and "closing balance".
-
   The format is SIE 4E, described here:
   https://sie.se/wp-content/uploads/2020/05/SIE_filformat_ver_4B_080930.pdf
 
@@ -15,7 +11,7 @@ import fs from 'fs/promises'
 import db from '../../src/db'
 import { Accounts } from '../../src/schema'
 import { getFiscalYear, oreToKrona } from '../../src/utils'
-import { getAccounts } from '../../src/pages/api/accounts'
+import { getAccountTotals } from '../../src/pages/api/accountTotals'
 import iconv from 'iconv-lite'
 import { YEAR } from './year'
 
@@ -60,7 +56,7 @@ async function main() {
       )}`,
     )
 
-    const accounts = await getAccounts(year)
+    const accounts = await getAccountTotals(year)
 
     /*
       Incoming and outgoing are only applicable to account IDs 1000–2999
@@ -72,7 +68,7 @@ async function main() {
         .filter((a) => a.id < 3000)
         .map(
           (a) =>
-            `#IB ${fiscalYearOffset} ${a.id} ${oreToKrona(a.totals.incoming)}`,
+            `#IB ${fiscalYearOffset} ${a.id} ${oreToKrona(a.openingBalance)}`,
         )
         .join('\n'),
     )
@@ -82,18 +78,15 @@ async function main() {
         .filter((a) => a.id < 3000)
         .map(
           (a) =>
-            `#UB ${fiscalYearOffset} ${a.id} ${oreToKrona(a.totals.outgoing)}`,
+            `#UB ${fiscalYearOffset} ${a.id} ${oreToKrona(a.closingBalance)}`,
         )
         .join('\n'),
     )
 
     RES.push(
       accounts
-        .filter((a) => a.id >= 3000 && a.id <= 8799)
-        .map(
-          (a) =>
-            `#RES ${fiscalYearOffset} ${a.id} ${oreToKrona(a.totals.thisYear)}`,
-        )
+        .filter((a) => a.id >= 3000)
+        .map((a) => `#RES ${fiscalYearOffset} ${a.id} ${oreToKrona(a.result)}`)
         .join('\n'),
     )
   }

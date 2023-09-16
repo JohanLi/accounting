@@ -8,7 +8,7 @@ const tabs = [
     startsWith: '/transactions',
   },
   { name: 'Salary', href: '/salary' },
-  { name: 'Accounts', href: '/accounts' },
+  { name: 'Account totals', href: '/accountTotals' },
 ]
 
 export default function Nav() {
