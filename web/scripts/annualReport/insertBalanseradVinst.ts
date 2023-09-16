@@ -1,5 +1,5 @@
 import { upsertJournalEntry } from '../../src/pages/api/journalEntries'
-import { YEAR } from './year'
+import { YEAR } from './constants'
 
 async function main() {
   if (YEAR !== 2023) {

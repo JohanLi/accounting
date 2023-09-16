@@ -8,12 +8,13 @@
  */
 
 import fs from 'fs/promises'
-import db from '../../src/db'
-import { Accounts } from '../../src/schema'
 import { getFiscalYear, oreToKrona } from '../../src/utils'
-import { getAccountTotals } from '../../src/pages/api/accountTotals'
+import {
+  getAccounts,
+  getAccountTotals,
+} from '../../src/pages/api/accountTotals'
 import iconv from 'iconv-lite'
-import { YEAR } from './year'
+import { ACCOUNT_ID_BALANCE_END_EXCLUSIVE, YEAR } from './constants'
 
 function formatDate(date: Date) {
   const year = date.getFullYear()
@@ -25,10 +26,8 @@ function formatDate(date: Date) {
     .padStart(2, '0')}`
 }
 
-const START_DATE = new Date('2020-10-23')
-
 async function main() {
-  const allAccounts = (await db.select().from(Accounts).orderBy(Accounts.id))
+  const KONTO = (await getAccounts())
     .map((a) => `#KONTO ${a.id} "${a.description}"`)
     .join('\n')
 
@@ -37,18 +36,10 @@ async function main() {
   const UB = []
   const RES = []
 
-  for (let year = YEAR; year >= 2021; year--) {
+  for (const fiscalYearOffset of [0, -1]) {
+    const year = YEAR + fiscalYearOffset
+
     let { startInclusive, endInclusive } = getFiscalYear(year)
-
-    /*
-     Don't think this matters, but it affects how the date range is shown
-     in the annual report
-     */
-    if (startInclusive < START_DATE) {
-      startInclusive = START_DATE
-    }
-
-    const fiscalYearOffset = year - YEAR
 
     RAR.push(
       `#RAR ${fiscalYearOffset} ${formatDate(startInclusive)} ${formatDate(
@@ -58,14 +49,9 @@ async function main() {
 
     const accounts = await getAccountTotals(year)
 
-    /*
-      Incoming and outgoing are only applicable to account IDs 1000–2999
-      https://vismaspcs.se/ekonomiska-termer/vad-ar-utgaende-balans
-     */
-
     IB.push(
       accounts
-        .filter((a) => a.id < 3000)
+        .filter((a) => a.id < ACCOUNT_ID_BALANCE_END_EXCLUSIVE)
         .map(
           (a) =>
             `#IB ${fiscalYearOffset} ${a.id} ${oreToKrona(a.openingBalance)}`,
@@ -75,7 +61,7 @@ async function main() {
 
     UB.push(
       accounts
-        .filter((a) => a.id < 3000)
+        .filter((a) => a.id < ACCOUNT_ID_BALANCE_END_EXCLUSIVE)
         .map(
           (a) =>
             `#UB ${fiscalYearOffset} ${a.id} ${oreToKrona(a.closingBalance)}`,
@@ -85,7 +71,7 @@ async function main() {
 
     RES.push(
       accounts
-        .filter((a) => a.id >= 3000)
+        .filter((a) => a.id >= ACCOUNT_ID_BALANCE_END_EXCLUSIVE)
         .map((a) => `#RES ${fiscalYearOffset} ${a.id} ${oreToKrona(a.result)}`)
         .join('\n'),
     )
@@ -109,7 +95,7 @@ async function main() {
 #FNAMN "Ternary AB"
 #ORGNR 5592784465
 ${RAR.join('\n')}
-${allAccounts}
+${KONTO}
 #KPTYP BAS2014
 ${IB.join('\n')}
 ${UB.join('\n')}

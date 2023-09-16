@@ -1,4 +1,4 @@
-import { YEAR } from './year'
+import { YEAR } from './constants'
 import db from '../../src/db'
 import { and, desc, gte, lt } from 'drizzle-orm'
 import { JournalEntries } from '../../src/schema'

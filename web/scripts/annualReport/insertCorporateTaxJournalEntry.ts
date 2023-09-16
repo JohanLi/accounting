@@ -1,5 +1,5 @@
 import { getFiscalYear, oreToKrona } from '../../src/utils'
-import { YEAR } from './year'
+import { YEAR } from './constants'
 import db from '../../src/db'
 import { JournalEntries, JournalEntryTransactions } from '../../src/schema'
 import { and, eq, gte, inArray, lt, lte, sql } from 'drizzle-orm'

@@ -7,10 +7,9 @@ import {
   JournalEntries,
 } from '../../schema'
 import { getFiscalYear } from '../../utils'
+import { ACCOUNT_ID_BALANCE_END_EXCLUSIVE } from '../../../scripts/annualReport/constants'
 
-const BALANCE_END_EXCLUSIVE = 3000
-
-async function getAccounts() {
+export async function getAccounts() {
   return db.select().from(Accounts).orderBy(asc(Accounts.id))
 }
 
@@ -34,7 +33,7 @@ async function getOpeningBalance(fiscalYear: number) {
     )
     .where(
       and(
-        lt(Accounts.id, BALANCE_END_EXCLUSIVE),
+        lt(Accounts.id, ACCOUNT_ID_BALANCE_END_EXCLUSIVE),
         lt(JournalEntries.date, startInclusive),
       ),
     )
@@ -103,7 +102,7 @@ export async function getAccountTotals(fiscalYear: number) {
   totals.forEach((t) => {
     accountTotals[t.id].result = t.amount
     accountTotals[t.id].closingBalance =
-      t.id < BALANCE_END_EXCLUSIVE
+      t.id < ACCOUNT_ID_BALANCE_END_EXCLUSIVE
         ? accountTotals[t.id].closingBalance + t.amount
         : 0
   })
