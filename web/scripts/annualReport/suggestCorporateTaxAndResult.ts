@@ -3,7 +3,15 @@ import { YEAR } from './constants'
 import db from '../../src/db'
 import { JournalEntries, JournalEntryTransactions } from '../../src/schema'
 import { and, eq, gte, inArray, lt, lte, sql } from 'drizzle-orm'
-import { upsertJournalEntry } from '../../src/pages/api/journalEntries'
+import { Suggestion } from '../../src/pages/api/journalEntries/suggestions'
+
+/*
+  The third-party service I use to submit the annual report calculates
+  these values as well.
+
+  Until I'm sure what I'm doing, and this code is unit-tested, journal entries
+  suggested here are always compared against the third-party service.
+ */
 
 const CORPORATE_TAX_RATE = 0.206
 
@@ -109,33 +117,50 @@ async function main() {
   const roundedDownKrona = Math.floor(profitAndLossTaxable / 1000) * 10
   const tax = Math.floor(roundedDownKrona * CORPORATE_TAX_RATE)
 
-  console.log(`Profit and Loss: ${oreToKrona(profitAndLossTaxable)}`)
+  console.log(`Profit and Loss: ${oreToKrona(profitAndLoss)}`)
+  console.log(`Profit and Loss (taxable): ${oreToKrona(profitAndLossTaxable)}`)
   console.log(`Rounded down to nearest ten: ${roundedDownKrona}`)
   console.log(`Tax: ${tax}`)
 
-  const amount = tax * 100
+  const taxAmount = tax * 100
 
-  const corporateTaxTransaction = [
-    {
-      accountId: 2510,
-      amount: -amount,
-    },
-    {
-      accountId: 8910,
-      amount,
-    },
-  ]
-
-  const journalEntry = {
+  const suggestionCorporateTax: Suggestion = {
     date: endInclusive,
     description: 'Skatt på årets resultat',
-    transactions: corporateTaxTransaction,
+    transactions: [
+      {
+        accountId: 2510,
+        amount: -taxAmount,
+      },
+      {
+        accountId: 8910,
+        amount: taxAmount,
+      },
+    ],
     linkedToTransactionIds: [],
   }
 
-  console.log(JSON.stringify(journalEntry, null, 2))
+  console.log(JSON.stringify(suggestionCorporateTax, null, 2))
 
-  await upsertJournalEntry(journalEntry)
+  const resultAmount = profitAndLoss - taxAmount
+
+  const suggestionResult: Suggestion = {
+    date: endInclusive,
+    description: 'Årets resultat',
+    transactions: [
+      {
+        accountId: 2099,
+        amount: -resultAmount,
+      },
+      {
+        accountId: 8999,
+        amount: resultAmount,
+      },
+    ],
+    linkedToTransactionIds: [],
+  }
+
+  console.log(JSON.stringify(suggestionResult, null, 2))
 
   process.exit(0)
 }

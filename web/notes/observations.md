@@ -43,3 +43,25 @@ thing a half dozen times to download a few receipts. Because of this, I tend
 to log in infrequently and download multiple receipts in one go. With my
 VAT reporting frequency changing to quarterly, I might need to do this more
 often.
+
+### Rounding, cents/ören being huge time-wasters
+
+Sigh. It's like the 80/20 rule. Except here, we're talking about dedicating
+a lot of time to handle a couple of kronor here and there due to rounding
+conventions:
+
+- "Det skattemässiga resultatet avrundas sedan nedåt till närmaste tiotal"
+- After the above is done and corporate tax is calculated, the result is floored
+
+- VAT is floored to the nearest krona. The decimals are moved to account 3740,
+  and has an effect on your revenue.
+
+I understand too little to grasp why the above rounding conventions (?) exist.
+As far as I can tell, it's rooted in laws from the 60s and 70s? Come to think
+of it, Skatteverket only ever seems to deal with whole kronor when looking
+through all transactions. It just feels inconsistent, because you most certainly
+handle decimals elsewhere (such as with invoices).
+
+It seems similar to the case with physical receipts, where people digitize
+them as soon as possible, but still need to store the physical receipt in
+a folder due to antiquated laws.

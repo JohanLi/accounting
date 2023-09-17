@@ -50,3 +50,11 @@ subscriptions like Google Workspace. They should sum to 0.
 #### Rounding down to the nearest krona
 
 5000.90 SEK becomes 5000.00 SEK. 0.90 SEK is moved to account 3740.
+
+"redovisning och inbetalning av mervärdesskatt till statsverket alltid görs i hela krontal"
+
+"lag om avrundning av vissa öresbelopp (1970:1029)"
+
+Source: https://www4.skatteverket.se/rattsligvagledning/edition/2015.2/321578.html#ref-cite-sfs-20111261-1
+
+One thing to note is that 3740 affects your revenue.

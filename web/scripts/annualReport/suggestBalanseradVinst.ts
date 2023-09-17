@@ -1,5 +1,5 @@
-import { upsertJournalEntry } from '../../src/pages/api/journalEntries'
 import { YEAR } from './constants'
+import { Suggestion } from '../../src/pages/api/journalEntries/suggestions'
 
 async function main() {
   if (YEAR !== 2023) {
@@ -8,7 +8,7 @@ async function main() {
 
   const amount = 13216889
 
-  const journalEntry = {
+  const suggestion: Suggestion = {
     /*
      the exact date isn't important, but it should be around the time
      I submitted the annual report for FY 2022
@@ -22,7 +22,7 @@ async function main() {
     linkedToTransactionIds: [],
   }
 
-  await upsertJournalEntry(journalEntry)
+  console.log(JSON.stringify(suggestion, null, 2))
 
   process.exit(0)
 }
