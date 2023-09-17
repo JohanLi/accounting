@@ -7,25 +7,20 @@ Treated as a debt to Skatteverket.
 "Ingående moms" is when you make purchases. Always account 2640. This
 is what you get back from Skatteverket/it's treated as a credit.
 
+Sources:
+- https://www.fortnox.se/fortnox-foretagsguide/bokforingstips/moms
+
 VAT returns/declarations are done every month, quarter, or year depending
 on revenue. When I started the company, I only had to do it yearly. After
 FY 2023, it'll be done quarterly.
 
 #### VAT return journal entry
 
-On the last day of a reporting period, the VAT accounts are moved to 2650.
+On the last day of a reporting period, zero all VAT accounts. If VAT is owed
+(which it most likely is), move it to 2650. Otherwise, move it to 1650.
 
-Example:
-
-| Account | Amount |
-|---------|---------|
-| 2610    | -200000 |
-| 2640    | 10000   |
-| 2650    | -190000 |
-
-In this case, I owe Skatteverket 190000 SEK.
-
-Sources: https://www.fortnox.se/fortnox-foretagsguide/bokforingstips/moms
+The number should be floored to the nearest krona. The remainder is moved
+to account 3740.
 
 #### 1650 or 2650?
 

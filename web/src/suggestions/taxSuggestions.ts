@@ -39,7 +39,7 @@ function taxAccountMap(description: string): {
   ) {
     return {
       debit: 1630,
-      credit: 8314, // Skattefria ränteintäkter
+      credit: 8314, // Skattefria ränteintäkter (Ej skattepliktiga intäkter)
       description: 'Intäktsränta',
     }
   }
@@ -50,7 +50,7 @@ function taxAccountMap(description: string): {
   ) {
     return {
       debit: 1630,
-      credit: 8423, // Kostnadsränta för skatter och avgifter
+      credit: 8423, // Kostnadsränta för skatter och avgifter (Ej avdragsgilla kostnader)
       description: 'Kostnadsränta',
     }
   }
@@ -67,20 +67,28 @@ function taxAccountMap(description: string): {
     }
   }
 
-  // TODO more research needs to be done on this one
-  if (description === 'Utbetalning') {
-    return {
-      debit: 2510,
-      credit: 1930,
-      description: 'Utbetalning',
-    }
-  }
-
   if (description === 'Tillgodoförd debiterad preliminärskatt') {
     return {
       debit: 1630,
       credit: 2510,
       description: 'Tillgodoförd debiterad preliminärskatt',
+    }
+  }
+
+  /*
+    I'm not sure what exactly triggers this, but it seems to be related to:
+    - when you've paid too much in preliminary tax, and after it's compared against the actual value
+    - same as above, but for VAT (perhaps related to amending a VAT return?)
+
+    Usually, it's two transactions from Skatteverket: the first one "refunds"
+    your tax account and the second one moves it from your tax account to your
+    bank account. "Utbetalning" is the second transaction.
+   */
+  if (description === 'Utbetalning') {
+    return {
+      debit: 1630,
+      credit: 1930,
+      description: 'Utbetalning',
     }
   }
 
