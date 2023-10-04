@@ -2,7 +2,7 @@ import Decimal from 'decimal.js'
 
 /*
   Brytpunkter 2023
-  - Statlig inkomstskatt: 598,500
+  - Statlig inkomstskatt: 613,900
   - Högsta inkomsten som utgör underlag för allmän pension: 599,250
  */
 
@@ -12,7 +12,8 @@ import Decimal from 'decimal.js'
   - From the results, calculate a "personal tax rate". This is of interest because I don't pay myself a monthly salary – instead I do it in large clump.
  */
 export const PERSONAL_TAX = {
-  annualSalary: 60000000,
+  annualSalary: 61390000,
+  // the actual rate is slightly higher, because I initially assumed a lower brytpunkt
   rate: new Decimal('0.23798'),
 }
 
