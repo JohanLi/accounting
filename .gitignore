@@ -28,4 +28,4 @@ next-env.d.ts
 # turbo
 .turbo
 
-backup.sql
+*.sql
