@@ -1,14 +1,22 @@
 /*
-  Tre offers a direct link to a dedicated invoice page.
-  The default naming of invoices contains a random ID.
+  Their invoices aren't static but generated based on the latest "template".
+  Some time after the summer of 2023, a major change to that template occurred.
 
-  Their UI contains invoice IDs that, through GraphQL, gets mapped to an API.
+  Before, the invoices themselves were extremely invasive: you got a detailed
+  log of all the numbers you called, when you called, and how long each
+  call lasted along with whom you messaged. You could also see a daily
+  breakdown of data usage. It makes even less sense when you consider the
+  fact that my phone plan is unlimited – none of that information is relevant
+  for billing purposes.
+
+  It's all gone now, thankfully.
  */
 
 import cssText from 'data-text:./style.css'
 import type { PlasmoCSConfig } from 'plasmo'
 
 import Download from '../download'
+import { waitFor } from '../utils'
 
 export const config: PlasmoCSConfig = {
   matches: ['https://www.tre.se/mitt3/fakturor'],
@@ -20,42 +28,40 @@ export const getStyle = () => {
   return style
 }
 
-type Document = {
-  accountNumber: string
-  invoiceNumber: string
-  issueDate: string
+// unfortunately, you can't ever be sure they don't treat this as a password somewhere
+const accountNumber = process.env.PLASMO_PUBLIC_TRE_ACCOUNT_NUMBER
+
+if (!accountNumber) {
+  throw new Error('Missing PLASMO_PUBLIC_TRE_ACCOUNT_NUMBER')
 }
 
-export type Download = {
-  url: string
-  filename: string
-}
+const selector = 'a[href^="/mitt3/fakturor/"]'
 
 async function getDownloads() {
-  const nextData = document
-    .getElementById('__NEXT_DATA__')
-    ?.textContent?.trim()
+  await waitFor(selector)
 
-  if (!nextData) {
-    throw new Error('Was not able to get __NEXT_DATA__')
-  }
+  return [...document.querySelectorAll(selector)].map((element) => {
+    const match = element.getAttribute('href').match(/\/mitt3\/fakturor\/(\d+)/)
 
-  const { apolloState } = JSON.parse(nextData).props
+    if (match) {
+      const invoiceNumber = match[1]
 
-  if (!apolloState) {
-    throw new Error('Was not able to get apolloState')
-  }
+      return {
+        url: `https://www.tre.se/t/api/invoices/my3/api/v1/accounts/${accountNumber}/invoices/${invoiceNumber}/document?errorCallback=/mitt3/fakturor`,
+        filename: `bookkeeping/tre/tre-${invoiceNumber}.pdf`,
+      }
+    }
 
-  return (Object.values(apolloState) as Document[])
-    .filter((value: any) => value['__typename'] === 'My3Invoice')
-    .map((value) => ({
-      url: `https://www.tre.se/t/api/invoices/my3/api/v1/accounts/${value.accountNumber}/invoices/${value.invoiceNumber}/document?errorCallback=/mitt3/fakturor`,
-      filename: `bookkeeping/tre/tre-${new Date(
-        Number(value.issueDate),
-      ).toLocaleDateString('sv-SE')}.pdf`,
-    }))
+    console.log(element)
+    throw new Error('One of the invoice links does not seem to have an ID')
+  })
 }
 
 export default function Tre() {
-  return <Download getDownloads={getDownloads} requestInit={{ credentials: 'include' }} />
+  return (
+    <Download
+      getDownloads={getDownloads}
+      requestInit={{ credentials: 'include' }}
+    />
+  )
 }
