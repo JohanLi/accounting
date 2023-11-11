@@ -2,6 +2,7 @@ import { useState } from 'react'
 import {
   classNames,
   getAllFiscalYearsInReverse,
+  getCurrentFiscalYear,
   withinFiscalYear,
 } from '../utils'
 import Select from './Select'
@@ -13,8 +14,9 @@ const filters = ['All', 'Non-linked'] as const
 export default function JournalEntries() {
   const journalEntries = useJournalEntries()
 
-  // TODO hardcoded to 2023 right now, as no entries exist for 2024 yet
-  const [selectedFiscalYear, setSelectedFiscalYear] = useState(2023)
+  const [selectedFiscalYear, setSelectedFiscalYear] = useState(
+    getCurrentFiscalYear(),
+  )
 
   const [activeFilter, setActiveFilter] =
     useState<(typeof filters)[number]>('All')

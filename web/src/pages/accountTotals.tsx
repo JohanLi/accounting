@@ -2,12 +2,13 @@ import Layout from '../components/Layout'
 import { Amount } from '../components/Amount'
 import { useState } from 'react'
 import Select from '../components/Select'
-import { getAllFiscalYearsInReverse } from '../utils'
+import { getAllFiscalYearsInReverse, getCurrentFiscalYear } from '../utils'
 import { useAccountTotals } from '../hooks/useAccountTotals'
 
 export default function AccountTotals() {
-  // TODO hardcoded to 2023 right now, as no entries exist for 2024 yet
-  const [selectedFiscalYear, setSelectedFiscalYear] = useState(2023)
+  const [selectedFiscalYear, setSelectedFiscalYear] = useState(
+    getCurrentFiscalYear(),
+  )
 
   const accountTotals = useAccountTotals(selectedFiscalYear)
 

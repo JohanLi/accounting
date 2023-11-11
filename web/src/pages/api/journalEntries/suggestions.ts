@@ -5,6 +5,7 @@ import { getDocumentSuggestions } from '../../../suggestions/documentSuggestions
 import { getBankSavingsSuggestions } from '../../../suggestions/bankSavingsSuggestions'
 import { getTaxSuggestions } from '../../../suggestions/taxSuggestions'
 import { getInsuranceSuggestions } from '../../../suggestions/insuranceSuggestions'
+import { getAccountsReceivablePaidSuggestions } from '../../../suggestions/accountsReceivablePaidSuggestions'
 
 export type Suggestion = JournalEntryUpsert & {
   options?: {
@@ -23,6 +24,8 @@ export default async function handler(
     const bankSavingsSuggestions = await getBankSavingsSuggestions()
     const documentSuggestions = await getDocumentSuggestions()
     const insuranceSuggestions = await getInsuranceSuggestions()
+    const accountsReceivablePaidSuggestions =
+      await getAccountsReceivablePaidSuggestions()
 
     res
       .status(200)
@@ -32,6 +35,7 @@ export default async function handler(
           ...bankSavingsSuggestions,
           ...documentSuggestions,
           ...insuranceSuggestions,
+          ...accountsReceivablePaidSuggestions,
         ]),
       )
     return
