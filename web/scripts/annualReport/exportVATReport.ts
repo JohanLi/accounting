@@ -17,9 +17,15 @@
   but you still need to explicitly include it.
  */
 
-import { getAccountTotals } from '../../src/pages/api/accountTotals'
-import { YEAR } from './constants'
 import fs from 'fs/promises'
+import { getCurrentFiscalYear, getFiscalYear } from '../../src/utils'
+import db from '../../src/db'
+import {
+  Accounts,
+  JournalEntries,
+  JournalEntryTransactions,
+} from '../../src/schema'
+import { and, eq, gte, lt, sql } from 'drizzle-orm'
 
 /*
   The inputs are actually mapped to more accounts than I've added, but many
@@ -77,37 +83,67 @@ const VAT_MAP: {
     VAT reports.
  */
 async function main() {
-  const accounts = await getAccountTotals(YEAR)
+  const quarter = 1
+  const { startInclusive } = getFiscalYear(getCurrentFiscalYear())
+
+  const startInclusiveQuarter = new Date(startInclusive)
+  startInclusiveQuarter.setMonth(startInclusive.getMonth() + (quarter - 1) * 3)
+
+  const endExclusiveQuarter = new Date(startInclusiveQuarter)
+  endExclusiveQuarter.setMonth(startInclusiveQuarter.getMonth() + 3)
+
+  const accounts = await db
+    .select({
+      id: Accounts.id,
+      // `::int` explanation: https://github.com/drizzle-team/drizzle-orm/issues/999
+      amount: sql<number>`sum(amount)::int`,
+    })
+    .from(Accounts)
+    .innerJoin(
+      JournalEntryTransactions,
+      eq(Accounts.id, JournalEntryTransactions.accountId),
+    )
+    .innerJoin(
+      JournalEntries,
+      eq(JournalEntryTransactions.journalEntryId, JournalEntries.id),
+    )
+    .where(
+      and(
+        gte(JournalEntries.date, startInclusiveQuarter),
+        lt(JournalEntries.date, endExclusiveQuarter),
+      ),
+    )
+    .groupBy(Accounts.id)
 
   const elements: string[] = []
 
-  let total = 0
+  let totalKr = 0
 
   Object.entries(VAT_MAP).forEach(
     ([id, { accountIds, xmlElement, invert }]) => {
       let elementTotal = accounts
         .filter((a) => accountIds.includes(a.id))
-        .reduce((acc, a) => acc + a.result, 0)
+        .reduce((acc, a) => acc + a.amount, 0)
 
       if (invert) {
         elementTotal = -elementTotal
       }
 
+      elementTotal = Math.trunc(elementTotal / 100)
+
       if (['10', '30'].includes(id)) {
-        total += elementTotal
+        totalKr += elementTotal
       }
 
       if (id === '48') {
-        total -= elementTotal
+        totalKr -= elementTotal
       }
 
-      elements.push(
-        `<${xmlElement}>${Math.trunc(elementTotal / 100)}</${xmlElement}>`,
-      )
+      elements.push(`<${xmlElement}>${elementTotal}</${xmlElement}>`)
     },
   )
 
-  elements.push(`<MomsBetala>${Math.trunc(total / 100)}</MomsBetala>`)
+  elements.push(`<MomsBetala>${totalKr}</MomsBetala>`)
 
   const string = `
 <?xml version="1.0" encoding="ISO-8859-1"?>
@@ -115,7 +151,7 @@ async function main() {
 <eSKDUpload Version="6.0">
   <OrgNr>559278-4465</OrgNr>
   <Moms>
-    <Period>202306</Period>
+    <Period>202309</Period>
     ${elements.join('\n    ')}
   </Moms>
 </eSKDUpload>
