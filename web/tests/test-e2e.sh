@@ -9,4 +9,4 @@ docker compose --file docker-compose.test.yml up -d --wait
 
 sh ./scripts/reset.sh
 
-playwright test
+pnpm exec playwright test
