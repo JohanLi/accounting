@@ -34,10 +34,9 @@ jobs:
       - name: Add .env
         run: echo '${{ secrets.WEB_ENV }}' > web/.env
 
-      - run: pnpm test
-
-      - name: Install Playwright Browsers
-        run: pnpm exec playwright install --with-deps
+      - name: Run tests
+        run: |
+          pnpm test
+          pnpm exec playwright install --with-deps
+          pnpm run test-e2e
         working-directory: web
-
-      - run: pnpm run test-e2e

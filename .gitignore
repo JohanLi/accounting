@@ -25,7 +25,4 @@ next-env.d.ts
 /tests/report
 /tests/results
 
-# turbo
-.turbo
-
 *.sql

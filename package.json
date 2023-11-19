@@ -3,15 +3,12 @@
   "packageManager": "pnpm@7.15.0",
   "private": true,
   "scripts": {
-    "setup": "turbo run setup",
-    "test": "turbo run test",
-    "test-e2e": "turbo run test-e2e",
-    "dev": "turbo run dev",
+    "setup": "pnpm --filter web run setup",
+    "dev": "pnpm run -r dev",
     "prepare": "husky install",
-    "pre-commit": "turbo run pre-commit"
+    "pre-commit": "pnpm run -r pre-commit"
   },
   "devDependencies": {
-    "husky": "^8.0.3",
-    "turbo": "^1.10.16"
+    "husky": "^8.0.3"
   }
 }
