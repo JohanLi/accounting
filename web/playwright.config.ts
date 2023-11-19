@@ -23,4 +23,6 @@ export default defineConfig({
     command: `PORT=${PORT} next dev`,
     url: 'http://localhost:3001',
   },
+  // There's no application support for accounts. Would need a separate database for each worker
+  workers: 1,
 })

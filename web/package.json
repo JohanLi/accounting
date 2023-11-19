@@ -3,12 +3,12 @@
   "version": "0.1.0",
   "scripts": {
     "setup": "sh ./scripts/setup.sh",
-    "import": "pnpm run node scripts/import.ts",
+    "swc": "node -r @swc-node/register",
+    "import": "pnpm run swc scripts/import.ts",
     "reset": "sh ./scripts/reset.sh",
     "dev": "next dev",
     "test": "vitest",
     "test-e2e": "sh ./tests/test-e2e.sh",
-    "node": "node -r @swc-node/register",
     "pre-commit": "npx lint-staged && CI=true pnpm test && tsc --noEmit"
   },
   "lint-staged": {

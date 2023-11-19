@@ -1,73 +1,60 @@
-import { test, expect } from '@playwright/test'
-import { dragAndDropFile, getBase64 } from './utils'
-import { DocumentUpload } from '../src/pages/api/documents'
+import { expect, test } from '@playwright/test'
+import { dragAndDropFile, expectSuggestion } from './utils'
 
-// TODO figure out how to make these tests isolated
-test.describe.serial('upload', () => {
-  test.skip('uploading documents should result in the correct totals', async ({
+test('for each uploaded document, a suggestion is created', async ({
+  page,
+}) => {
+  await page.goto('/')
+
+  await dragAndDropFile(page, [
+    './src/documents/bank.pdf',
+    './src/documents/invoice.pdf',
+  ])
+
+  await expect(page.getByText('Uploaded 2 new document(s)')).toBeVisible()
+
+  await expectSuggestion(
     page,
-  }) => {
-    await page.goto('/')
+    {
+      date: '2023-04-03',
+      description: 'Recognized document – SEB månadsavgift',
+      transactions: [
+        ['6570', '130'],
+        ['1930', '−130'],
+      ],
+    },
+    0,
+  )
 
-    const dropLocator = await page.getByText('Drop documents here')
+  await expectSuggestion(
+    page,
+    {
+      date: '2023-01-14',
+      description: 'Recognized document – Inkomst',
+      transactions: [
+        /*
+        " " as well as "−" is likely a result of Intl.NumberFormat
+        TODO consider formatting using an own function instead
+       */
+        ['1930', '206 850'],
+        ['3011', '−165 480'],
+        ['2610', '−41 370'],
+      ],
+    },
+    1,
+  )
+})
 
-    await dragAndDropFile(
-      page,
-      dropLocator,
-      './src/documents/bank.pdf',
-      'bank.pdf',
-    )
+test('after uploading a document that already exists, no suggestion should be created', async ({
+  page,
+}) => {
+  await page.goto('/')
 
-    await dragAndDropFile(
-      page,
-      dropLocator,
-      './src/documents/invoice.pdf',
-      'invoice.pdf',
-    )
+  await dragAndDropFile(page, ['./src/documents/mobile.pdf'])
 
-    const bankRow = page.locator('tr:has-text("Bank 1") td:last-child')
+  await expect(page.getByText('Uploaded 1 new document(s)')).toBeVisible()
 
-    await expect(bankRow).toHaveText('206 720')
+  await dragAndDropFile(page, ['./src/documents/mobile.pdf'])
 
-    const invoicedRow = page.locator('tr:has-text("Invoiced") td:last-child')
-
-    await expect(invoicedRow).toHaveText('−165 480')
-  })
-
-  test.skip('nothing should happen when uploading a document that already exists', async ({
-    request,
-  }) => {
-    const uploadFile: DocumentUpload = {
-      filename: '',
-      data: await getBase64('./src/documents/skiing.pdf'),
-    }
-
-    let response = await request.post(`/api/documents`, {
-      data: [uploadFile],
-    })
-
-    expect((await response.json()).length).toEqual(1)
-
-    response = await request.post(`/api/documents`, {
-      data: [uploadFile],
-    })
-
-    expect((await response.json()).length).toEqual(0)
-  })
-
-  // TODO should also verify that nothing should be created if this happens
-  test.skip('uploading two or more identical documents at the same time should fail', async ({
-    request,
-  }) => {
-    const uploadFile: DocumentUpload = {
-      filename: '',
-      data: await getBase64('./src/documents/mobile.pdf'),
-    }
-
-    let response = await request.post(`/api/documents`, {
-      data: [uploadFile, uploadFile],
-    })
-
-    expect(response.status()).toEqual(500)
-  })
+  await expect(page.getByText('Uploaded 0 new document(s)')).toBeVisible()
 })

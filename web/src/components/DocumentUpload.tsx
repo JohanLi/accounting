@@ -30,16 +30,31 @@ export default function DocumentUpload() {
       This is a hack to get the tests to work.
      */
     const isPlaywrightTest = items[0].webkitGetAsEntry() === null
-    if (isPlaywrightTest) {
-      const file = items[0].getAsFile()
 
-      if (file) {
-        mutation.mutate([await getFilenameAndData(file)])
+    if (isPlaywrightTest) {
+      const files: DocumentUpload[] = []
+
+      for (const item of items) {
+        const file = item.getAsFile()
+
+        if (file) {
+          files.push(await getFilenameAndData(file))
+        }
       }
 
+      mutation.mutate(files)
       return
     }
 
+    /*
+      TODO
+        Consider dropping support for handling directories. This seemed useful
+        initially because the majority of documents were supposed to come
+        from the file system.
+
+        However, many documents now come from the Chrome extension sending
+        POST requests. Documents are also stored directly in the database.
+     */
     const fileEntries = await getFileEntries(items)
     const files = await Promise.all(
       fileEntries.map(
