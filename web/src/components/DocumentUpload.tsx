@@ -1,14 +1,32 @@
 import { DragEvent, useState } from 'react'
-import { getFilenameAndData, getFileEntries } from '../filesFromDataTransfer'
 import { DocumentUpload } from '../pages/api/documents'
 import { DocumentArrowUpIcon } from '@heroicons/react/24/solid'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { useDocumentMutation } from '../hooks/useDocumentMutation'
+import { getErrorMessage } from '../utils'
+
+function getFilenameAndData(file: File) {
+  return new Promise<DocumentUpload>((resolve, reject) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+
+    reader.onload = () => {
+      // https://developer.mozilla.org/en-US/docs/Web/API/FileReader/readAsDataURL
+      let data = reader.result as string
+      data = data.substring(data.indexOf(',') + 1)
+
+      resolve({ filename: file.name, data })
+    }
+
+    reader.onerror = (error) => reject(error)
+  })
+}
 
 export default function DocumentUpload() {
   const [isDragOver, setIsDragOver] = useState(false)
 
   const mutation = useDocumentMutation()
+  const [error, setError] = useState('')
 
   const onDragOver = (e: DragEvent) => {
     // without this, dropping a document will open it in a new tab
@@ -21,53 +39,45 @@ export default function DocumentUpload() {
 
     setIsDragOver(false)
 
-    const { items } = e.dataTransfer
-
     /*
-      When Playwright tests dropping files, webkitGetAsEntry()
-      does not produce a FileSystemFileEntry.
+     Interesting gotcha: https://stackoverflow.com/questions/55658851/javascript-datatransfer-items-not-persisting-through-async-calls
 
-      This is a hack to get the tests to work.
+     Another note: working with DataTransferItem, I've often had to check
+     its properties and methods. However, any time I command + click to go to
+     declaration, the giant 30k LOC lib.dom.d.ts lags my editor.
      */
-    const isPlaywrightTest = items[0].webkitGetAsEntry() === null
+    const files = await Promise.all(
+      [...e.dataTransfer.items].map((item) => {
+        /*
+          I used to support dragging in nested folders with PDFs in them,
+          but it requires a lot of code to support due to a lack of high-level
+          APIs. Additionally, I had issues getting webkitGetAsEntry() to work
+          in Playwright tests.
 
-    if (isPlaywrightTest) {
-      const files: DocumentUpload[] = []
+          Initially, I envisioned downloading many documents to the file system.
+          This is no longer the case – documents go straight to the database.
+          Therefore, there's little value in supporting folders at all.
+         */
+        if (item.type !== 'application/pdf') {
+          throw Error('Folders and non-PDF files are not supported')
+        }
 
-      for (const item of items) {
         const file = item.getAsFile()
 
-        if (file) {
-          files.push(await getFilenameAndData(file))
+        if (!file) {
+          throw Error('Error getting file')
         }
-      }
 
-      mutation.mutate(files)
-      return
-    }
-
-    /*
-      TODO
-        Consider dropping support for handling directories. This seemed useful
-        initially because the majority of documents were supposed to come
-        from the file system.
-
-        However, many documents now come from the Chrome extension sending
-        POST requests. Documents are also stored directly in the database.
-     */
-    const fileEntries = await getFileEntries(items)
-    const files = await Promise.all(
-      fileEntries.map(
-        (file) =>
-          new Promise<DocumentUpload>((resolve, reject) => {
-            file.file((file) => {
-              getFilenameAndData(file).then(resolve).catch(reject)
-            }, reject)
-          }),
-      ),
+        return getFilenameAndData(file)
+      }),
     )
 
     mutation.mutate(files)
+  }
+
+  const reset = () => {
+    setError('')
+    mutation.reset()
   }
 
   /*
@@ -80,11 +90,11 @@ export default function DocumentUpload() {
     <div className="max-w-2xl">
       <div
         className="relative mt-4 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10"
-        onDrop={onDrop}
+        onDrop={(e) => onDrop(e).catch((e) => setError(getErrorMessage(e)))}
         onDragOver={onDragOver}
         onDragEnter={() => {
           setIsDragOver(true)
-          mutation.reset()
+          reset()
         }}
         onDragLeave={() => setIsDragOver(false)}
       >
@@ -113,19 +123,16 @@ export default function DocumentUpload() {
                 type="button"
                 className="inline-flex rounded-md bg-green-50 p-1.5 text-green-500 hover:bg-green-100"
               >
-                <XMarkIcon
-                  className="h-5 w-5"
-                  onClick={() => mutation.reset()}
-                />
+                <XMarkIcon className="h-5 w-5" onClick={() => reset()} />
               </button>
             </div>
           </div>
         </div>
       )}
-      {mutation.error && (
+      {(error || mutation.error) && (
         <div className="mt-4 flex items-center bg-red-50 p-4">
           <div className="text-sm font-medium text-red-800">
-            There was an error when uploading
+            {error ? error : mutation.error?.message}
           </div>
           <div className="ml-auto">
             <div className="-mx-1.5 -my-1.5">
@@ -133,10 +140,7 @@ export default function DocumentUpload() {
                 type="button"
                 className="inline-flex rounded-md bg-red-50 p-1.5 text-red-500 hover:bg-red-100"
               >
-                <XMarkIcon
-                  className="h-5 w-5"
-                  onClick={() => mutation.reset()}
-                />
+                <XMarkIcon className="h-5 w-5" onClick={() => reset()} />
               </button>
             </div>
           </div>

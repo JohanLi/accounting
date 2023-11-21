@@ -79,3 +79,12 @@ export function getHash(input: Buffer | string) {
 export function filterNull<T>(input: T[]) {
   return input.filter((x: T): x is Exclude<typeof x, null> => x !== null)
 }
+
+// taken from https://kentcdodds.com/blog/get-a-catch-block-error-message-with-typescript
+export function getErrorMessage(error: unknown) {
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  return String(error)
+}

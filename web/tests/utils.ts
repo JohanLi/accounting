@@ -24,7 +24,7 @@ export async function dragAndDropFile(page: Page, filePaths: string[]) {
           await fetch(`data:application/octet-stream;base64,${base64}`)
         ).blob()
 
-        dt.items.add(new File([blob], ''))
+        dt.items.add(new File([blob], '', { type: 'application/pdf' }))
       }
 
       return dt
