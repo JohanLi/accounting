@@ -6,24 +6,24 @@
     "dev": "plasmo dev"
   },
   "dependencies": {
-    "@plasmohq/messaging": "^0.5.0",
+    "@plasmohq/messaging": "^0.6.0",
     "iconv-lite": "^0.6.3",
-    "p-limit": "^4.0.0",
-    "plasmo": "0.83.0",
+    "p-limit": "4.0.0",
+    "plasmo": "0.84.0",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
   "devDependencies": {
     "@plasmohq/prettier-plugin-sort-imports": "4.0.1",
-    "@types/chrome": "0.0.250",
-    "@types/node": "20.9.0",
-    "@types/react": "18.2.37",
-    "@types/react-dom": "18.2.15",
+    "@types/chrome": "0.0.253",
+    "@types/node": "20.9.4",
+    "@types/react": "18.2.38",
+    "@types/react-dom": "18.2.17",
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.31",
-    "prettier": "3.0.3",
+    "prettier": "3.1.0",
     "tailwindcss": "^3.3.5",
-    "typescript": "5.2.2"
+    "typescript": "5.3.2"
   },
   "manifest": {
     "host_permissions": [
