@@ -30,6 +30,5 @@ next-env.d.ts
 # will be added later
 /drizzle/
 
-scripts/oldBankTransactions.ts
 *.sie
 *.xml
