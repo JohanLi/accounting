@@ -7,8 +7,10 @@ import {
 } from './document'
 import { readFile } from 'fs/promises'
 
+import { documentDir } from '../tests/documents/documentDir'
+
 async function getRecognizedDocumentFromFile(filename: string) {
-  const data = await readFile(`${__dirname}/documents/${filename}`)
+  const data = await readFile(`${documentDir}/${filename}`)
   const strings = await getPDFStrings(data)
   return getRecognizedDocument(strings)
 }

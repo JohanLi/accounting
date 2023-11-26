@@ -1,5 +1,6 @@
 import { expect, Page } from '@playwright/test'
 import { readFile } from 'fs/promises'
+import { documentDir } from './documents/documentDir'
 
 /*
   adapted from https://github.com/microsoft/playwright/issues/13364#issuecomment-1156288428
@@ -8,10 +9,10 @@ import { readFile } from 'fs/promises'
   There's no readFile nor Buffer in the browser – it receives the file contents
   as base64
  */
-export async function dragAndDropFile(page: Page, filePaths: string[]) {
+export async function dragAndDropDocuments(page: Page, filenames: string[]) {
   const base64List = await Promise.all(
-    filePaths.map(async (filepath) =>
-      (await readFile(filepath)).toString('base64'),
+    filenames.map(async (filename) =>
+      (await readFile(`${documentDir}/${filename}`)).toString('base64'),
     ),
   )
 

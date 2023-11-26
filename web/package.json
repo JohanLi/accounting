@@ -4,7 +4,6 @@
   "scripts": {
     "setup": "sh ./scripts/setup.sh",
     "swc": "node -r @swc-node/register",
-    "import": "pnpm run swc scripts/import.ts",
     "reset": "sh ./scripts/reset.sh",
     "dev": "next dev",
     "test": "vitest",

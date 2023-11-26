@@ -1,17 +1,23 @@
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf'
 import { TextContent } from 'pdfjs-dist/types/web/text_layer_builder'
-import { readdir, writeFile } from 'fs/promises'
+import fs from 'fs/promises'
+import { writeFile } from '../../src/utilsNode'
+import { documentDir } from './documentDir'
 
-async function main() {
-  const dir = `${__dirname}/../src/documents`
+// this script is used to help me write parsing logic for a new PDF variant
 
-  const filesInDirectory = (await readdir(dir)).filter((file) =>
+async function exportDocumentStrings() {
+  const writeDir = `${documentDir}/output`
+
+  await fs.rm(writeDir, { recursive: true, force: true })
+
+  const filesInDirectory = (await fs.readdir(documentDir)).filter((file) =>
     file.endsWith('.pdf'),
   )
 
   for (const file of filesInDirectory) {
     const pdf = await getDocument({
-      url: `${dir}/${file}`,
+      url: `${documentDir}/${file}`,
       useSystemFonts: true,
     }).promise
 
@@ -27,10 +33,8 @@ async function main() {
     const strings = (await Promise.all(pageTextContent))
       .map((text) =>
         text.items
-          .map((item) => {
-            // @ts-ignore
-            return item.str
-          })
+          // @ts-ignore
+          .map((item) => item.str)
           .flat(),
       )
       .flat()
@@ -38,13 +42,13 @@ async function main() {
     const metadata = await pdf.getMetadata()
 
     await writeFile(
-      `${dir}/${file}.json`,
+      `${writeDir}/${file}`.replace(/\.pdf$/, '.json'),
       JSON.stringify({ metadata, strings }, null, 2),
     )
   }
 }
 
-main().catch((e) => {
+exportDocumentStrings().catch((e) => {
   console.error(e)
   process.exit(1)
 })

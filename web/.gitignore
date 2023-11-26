@@ -20,15 +20,15 @@ npm-debug.log*
 *.tsbuildinfo
 next-env.d.ts
 
-.idea
-/src/documents
-/scripts/journalEntries
+# Custom
+/tests/documents/files
+*.sie
+*.xml
+*.sql
 
+# Playwright
 /tests/report
 /tests/results
 
 # will be added later
 /drizzle/
-
-*.sie
-*.xml

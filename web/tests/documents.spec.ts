@@ -1,15 +1,12 @@
 import { expect, test } from '@playwright/test'
-import { dragAndDropFile, expectSuggestion } from './utils'
+import { dragAndDropDocuments, expectSuggestion } from './utils'
 
 test('for each uploaded document, a suggestion is created', async ({
   page,
 }) => {
   await page.goto('/')
 
-  await dragAndDropFile(page, [
-    './src/documents/bank.pdf',
-    './src/documents/invoice.pdf',
-  ])
+  await dragAndDropDocuments(page, ['bank.pdf', 'invoice.pdf'])
 
   await expect(page.getByText('Uploaded 2 new document(s)')).toBeVisible()
 
@@ -50,11 +47,11 @@ test('after uploading a document that already exists, no suggestion should be cr
 }) => {
   await page.goto('/')
 
-  await dragAndDropFile(page, ['./src/documents/mobile.pdf'])
+  await dragAndDropDocuments(page, ['mobile.pdf'])
 
   await expect(page.getByText('Uploaded 1 new document(s)')).toBeVisible()
 
-  await dragAndDropFile(page, ['./src/documents/mobile.pdf'])
+  await dragAndDropDocuments(page, ['mobile.pdf'])
 
   await expect(page.getByText('Uploaded 0 new document(s)')).toBeVisible()
 })
