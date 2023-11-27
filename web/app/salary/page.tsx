@@ -1,14 +1,15 @@
+'use client'
+
 import { useState } from 'react'
-import Select from '../components/Select'
-import { JournalEntry } from '../components/JournalEntry'
-import Layout from '../components/Layout'
-import { getSalaryTaxes, PERSONAL_TAX } from '../tax'
-import { getAllIncomeYearsInReverse } from '../utils'
-import { Button } from '../components/Button'
-import { Amount } from '../components/Amount'
-import JournalEntryForm from '../components/JournalEntryForm'
-import useJournalEntries from '../hooks/useJournalEntries'
-import { AmountInput, formatAmount } from '../components/AmountInput'
+import Select from '../../src/components/Select'
+import { JournalEntry } from '../../src/components/JournalEntry'
+import { getSalaryTaxes, PERSONAL_TAX } from '../../src/tax'
+import { getAllIncomeYearsInReverse } from '../../src/utils'
+import { Button } from '../../src/components/Button'
+import { Amount } from '../../src/components/Amount'
+import JournalEntryForm from '../../src/components/JournalEntryForm'
+import useJournalEntries from '../../src/hooks/useJournalEntries'
+import { AmountInput, formatAmount } from '../../src/components/AmountInput'
 
 const SALARY_ACCOUNT_ID = 7210
 
@@ -77,7 +78,7 @@ export default function Salary() {
   ]
 
   return (
-    <Layout title="Salary">
+    <>
       <div className="flex">
         <div className="flex space-x-8">
           <h1 className="text-base font-semibold leading-6 text-gray-900">
@@ -184,6 +185,6 @@ export default function Salary() {
           ))}
         </tbody>
       </table>
-    </Layout>
+    </>
   )
 }

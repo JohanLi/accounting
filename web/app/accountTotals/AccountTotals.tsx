@@ -1,9 +1,13 @@
-import Layout from '../components/Layout'
-import { Amount } from '../components/Amount'
+'use client'
+
+import { Amount } from '../../src/components/Amount'
 import { useState } from 'react'
-import Select from '../components/Select'
-import { getAllFiscalYearsInReverse, getCurrentFiscalYear } from '../utils'
-import { useAccountTotals } from '../hooks/useAccountTotals'
+import Select from '../../src/components/Select'
+import {
+  getAllFiscalYearsInReverse,
+  getCurrentFiscalYear,
+} from '../../src/utils'
+import { useAccountTotals } from '../../src/hooks/useAccountTotals'
 
 export default function AccountTotals() {
   const [selectedFiscalYear, setSelectedFiscalYear] = useState(
@@ -13,7 +17,7 @@ export default function AccountTotals() {
   const accountTotals = useAccountTotals(selectedFiscalYear)
 
   return (
-    <Layout title="Accounts">
+    <>
       <div className="flex justify-end">
         <div className="flex items-center space-x-4">
           <div className="text-gray-500">FY</div>
@@ -86,6 +90,6 @@ export default function AccountTotals() {
           </tbody>
         </table>
       </div>
-    </Layout>
+    </>
   )
 }

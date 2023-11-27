@@ -1,34 +1,27 @@
-import { useQuery } from '@tanstack/react-query'
-import Layout from '../../components/Layout'
-import { TransactionsResponse } from '../api/transactions'
-import { classNames } from '../../utils'
-import { useState } from 'react'
-import { TransactionType, transactionTypes } from '../../schema'
-import { Transaction } from '../../components/Transaction'
-import { useRouter } from 'next/router'
-import Link from 'next/link'
+'use client'
 
-export const transactionTypeToLabel: {
-  [key in TransactionType]: string
-} = {
-  bankRegular: 'Företagskonto',
-  bankSavings: 'Sparkonto',
-  bankOld: 'Gamla företagskontot',
-  bankPersonal: 'Privat konto',
-  tax: 'Skattekonto',
-}
+import { useQuery } from '@tanstack/react-query'
+import { TransactionsResponse } from '../../../src/pages/api/transactions'
+import { classNames } from '../../../src/utils'
+import { useState } from 'react'
+import { TransactionType, transactionTypes } from '../../../src/schema'
+import { Transaction } from '../../../src/components/Transaction'
+import Link from 'next/link'
+import { transactionTypeToLabel } from './transactionTypeToLabel'
 
 const filters = ['All', 'Non-linked'] as const
 
-export default function Transactions() {
-  const router = useRouter()
-
+export default function Transactions({
+  params,
+}: {
+  params: { type: TransactionType }
+}) {
   const transactions = useQuery<TransactionsResponse>({
     queryKey: ['transactions'],
     queryFn: () => fetch('/api/transactions').then((res) => res.json()),
   })
 
-  const activeType = router.query.type as TransactionType
+  const activeType = params.type
 
   const [activeFilter, setActiveFilter] =
     useState<(typeof filters)[number]>('All')
@@ -38,13 +31,7 @@ export default function Transactions() {
   )
 
   return (
-    <Layout
-      title={
-        !activeType
-          ? 'Transactions'
-          : `Transactions (${transactionTypeToLabel[activeType]})`
-      }
-    >
+    <>
       <div className="flex space-x-6">
         {transactionTypes.map((type) => {
           return (
@@ -143,6 +130,6 @@ export default function Transactions() {
           </div>
         </>
       )}
-    </Layout>
+    </>
   )
 }

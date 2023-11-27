@@ -1,4 +1,6 @@
-import { useRouter } from 'next/router'
+'use client'
+
+import { usePathname } from 'next/navigation'
 import Link, { LinkProps } from 'next/link'
 import { PropsWithChildren } from 'react'
 
@@ -20,7 +22,7 @@ export default function ActiveLink({
   startsWith,
   ...props
 }: PropsWithChildren<ActiveLinkProps>) {
-  const { pathname } = useRouter()
+  const pathname = usePathname() || ''
 
   const isActive = !startsWith
     ? pathname === props.href
