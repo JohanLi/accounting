@@ -40,3 +40,5 @@ const currentYear = new Date().getFullYear()
 if (currentYear !== 2023) {
   throw new Error('New year – tax rates need to be updated')
 }
+
+export const SALARY_ACCOUNT_ID = 7210

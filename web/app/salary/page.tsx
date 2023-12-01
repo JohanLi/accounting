@@ -1,40 +1,31 @@
-'use client'
-
-import { useState } from 'react'
-import Select from '../../src/components/Select'
-import { JournalEntry } from '../../src/components/JournalEntry'
-import { getSalaryTaxes, PERSONAL_TAX } from '../../src/tax'
-import { getAllIncomeYearsInReverse } from '../../src/utils'
-import { Button } from '../../src/components/Button'
+import { JournalEntry } from '../components/JournalEntry'
+import { getJournalEntries } from './getJournalEntries'
 import { Amount } from '../../src/components/Amount'
-import JournalEntryForm from '../../src/components/JournalEntryForm'
-import useJournalEntries from '../../src/hooks/useJournalEntries'
-import { AmountInput, formatAmount } from '../../src/components/AmountInput'
+import { getAllIncomeYearsInReverse } from '../../src/utils'
+import Select from '../components/Select'
+import { SALARY_ACCOUNT_ID } from '../../src/tax'
+import SalaryForm from './SalaryForm'
+import { Metadata } from 'next'
 
-const SALARY_ACCOUNT_ID = 7210
+export const metadata: Metadata = {
+  title: 'Salary',
+}
 
-// test case: switching years should close an opened create form
+export default async function Salary({
+  searchParams,
+}: {
+  searchParams: { year: string }
+}) {
+  const journalEntries = await getJournalEntries()
 
-export default function Salary() {
-  const journalEntries = useJournalEntries()
+  const currentYear = new Date().getFullYear()
+  const selectedIncomeYear = parseInt(searchParams.year) || currentYear
+  const items = getAllIncomeYearsInReverse().map((year) => ({
+    href: year === currentYear ? '/salary' : `/salary?year=${year}`,
+    value: year,
+  }))
 
-  const [selectedIncomeYear, setSelectedIncomeYear] = useState(
-    new Date().getFullYear(),
-  )
-
-  const [create, setCreate] = useState(false)
-  const [amount, setAmount] = useState(0)
-
-  const reset = () => {
-    setCreate(false)
-    setAmount(0)
-  }
-
-  if (!journalEntries.data) {
-    return null
-  }
-
-  let yearFilteredJournalEntries = journalEntries.data.filter(
+  let yearFilteredJournalEntries = journalEntries.filter(
     (journalEntry) =>
       new Date(journalEntry.date).getFullYear() === selectedIncomeYear &&
       journalEntry.transactions.find((t) => t.accountId === SALARY_ACCOUNT_ID),
@@ -50,33 +41,6 @@ export default function Salary() {
     0,
   )
 
-  const reachedLimit = incomeThisYear >= PERSONAL_TAX.annualSalary
-
-  const { preliminaryIncomeTax, payrollTax } = getSalaryTaxes(amount)
-
-  const transactions = [
-    {
-      accountId: 1930, // Bankkonto
-      amount: -(amount - preliminaryIncomeTax),
-    },
-    {
-      accountId: 2710, // Personalskatt
-      amount: -preliminaryIncomeTax,
-    },
-    {
-      accountId: 2731, // Avräkning lagstadgade sociala avgifter
-      amount: -payrollTax,
-    },
-    {
-      accountId: SALARY_ACCOUNT_ID, // Löner till tjänstemän
-      amount,
-    },
-    {
-      accountId: 7510, // Arbetsgivaravgifter
-      amount: payrollTax,
-    },
-  ]
-
   return (
     <>
       <div className="flex">
@@ -88,63 +52,10 @@ export default function Salary() {
         </div>
         <div className="ml-auto flex items-center space-x-4">
           <div className="text-gray-500">Year</div>
-          <Select
-            value={selectedIncomeYear}
-            onChange={(year) => {
-              setSelectedIncomeYear(year)
-              reset()
-            }}
-            items={getAllIncomeYearsInReverse()}
-          />
+          <Select selectedValue={selectedIncomeYear} items={items} />
         </div>
       </div>
-      <div className="mb-24 mt-4">
-        {!create && (
-          <>
-            <Button
-              type="primary"
-              disabled={reachedLimit}
-              onClick={() => setCreate(true)}
-              text="Create"
-            />
-            {reachedLimit && (
-              <div className="mt-4 max-w-md text-sm text-red-500">
-                You have reached the annual salary limit of{' '}
-                {formatAmount(PERSONAL_TAX.annualSalary)}, which the effective
-                tax rate is based on. If you intend to pay more, you need to
-                re-calculate the tax rate.
-              </div>
-            )}
-          </>
-        )}
-        {create && (
-          <div>
-            <label className="block max-w-md">
-              <div>Amount</div>
-              <AmountInput
-                value={amount}
-                onChange={setAmount}
-                placeholder={`max ${formatAmount(
-                  PERSONAL_TAX.annualSalary - incomeThisYear,
-                )}`}
-              />
-            </label>
-            <JournalEntryForm
-              key={amount}
-              journalEntry={{
-                date: new Date(),
-                description: 'Lön',
-                transactions,
-                linkedToTransactionIds: [],
-              }}
-              onClose={() => {
-                reset()
-              }}
-            />
-          </div>
-        )}
-      </div>
-
+      <SalaryForm incomeThisYear={incomeThisYear} />
       <h2 className="text-base font-semibold leading-6 text-gray-900">
         Journal entries
       </h2>
