@@ -44,16 +44,16 @@ export default async function Salary({
   return (
     <>
       <div className="flex">
-        <div className="flex space-x-8">
-          <h1 className="text-base font-semibold leading-6 text-gray-900">
+        <h2 className="flex w-64 justify-between">
+          <span className="text-base font-semibold leading-6 text-gray-900">
             Income this year
-          </h1>
+          </span>
           <Amount amount={incomeThisYear} />
-        </div>
-        <div className="ml-auto flex items-center space-x-4">
+        </h2>
+        <label className="ml-auto flex items-center space-x-4">
           <div className="text-gray-500">Year</div>
           <Select selectedValue={selectedIncomeYear} items={items} />
-        </div>
+        </label>
       </div>
       {selectedIncomeYear === currentYear && (
         <SalaryForm incomeThisYear={incomeThisYear} />

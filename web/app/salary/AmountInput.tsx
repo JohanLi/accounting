@@ -1,8 +1,5 @@
-/*
-  I prefer sv-SE, because most documents involved with my accounting use space as the thousand separator.
-  However, Intl.NumberFormat() sv-SE uses non-breaking spaces as well as the actual minus symbol,
-  both of which are a nuisance.
- */
+import { formatCentsAsDollars } from '../../src/components/Amount'
+
 export function displayCentsAsDollars(amount: number | '-') {
   if (amount === 0) {
     return ''
@@ -12,9 +9,7 @@ export function displayCentsAsDollars(amount: number | '-') {
     return amount
   }
 
-  return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 })
-    .format(amount / 100)
-    .replace(/,/g, ' ')
+  return formatCentsAsDollars(amount)
 }
 
 export function displayToCents(display: string) {

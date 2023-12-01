@@ -35,7 +35,7 @@ test.describe('journal entries', () => {
       date,
       description,
       transactions: [
-        [creditAccountId, '−1 234'],
+        [creditAccountId, '-1 234'],
         [debitAccountId, '1 164'],
         ['2640', '70'],
       ],
@@ -69,8 +69,8 @@ test.describe('journal entries', () => {
       date: editedDate,
       description: editedDescription,
       transactions: [
-        ['3011', '−8 000'],
-        ['2610', '−2 000'],
+        ['3011', '-8 000'],
+        ['2610', '-2 000'],
         ['1930', '10 000'],
       ],
     })
