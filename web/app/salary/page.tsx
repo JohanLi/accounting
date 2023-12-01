@@ -55,7 +55,9 @@ export default async function Salary({
           <Select selectedValue={selectedIncomeYear} items={items} />
         </div>
       </div>
-      <SalaryForm incomeThisYear={incomeThisYear} />
+      {selectedIncomeYear === currentYear && (
+        <SalaryForm incomeThisYear={incomeThisYear} />
+      )}
       <h2 className="text-base font-semibold leading-6 text-gray-900">
         Journal entries
       </h2>

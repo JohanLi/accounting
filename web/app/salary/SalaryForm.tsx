@@ -15,13 +15,20 @@ type Props = {
   incomeThisYear: number
 }
 
+/*
+  This form isn't used much, so it's already quite excessive in business logic that improves the UX.
+  Because I'm the sole user, and due to lack of incentives, there's little reason to do server-side validation.
+ */
+
 export default function SalaryForm(props: Props) {
   const router = useRouter()
 
   const [amount, setAmount] = useState<NumberOrMinus>(0)
-  const amountInvalid = amount === '-' || amount <= 0
 
-  const reachedLimit = props.incomeThisYear >= PERSONAL_TAX.annualSalary
+  const max = PERSONAL_TAX.annualSalary - props.incomeThisYear
+  const reachedLimit = max <= 0
+
+  const amountInvalid = amount === '-' || amount <= 0 || amount > max
 
   return (
     <div className="mb-24 mt-4">
@@ -51,9 +58,7 @@ export default function SalaryForm(props: Props) {
             <AmountInput
               value={amount}
               onChange={setAmount}
-              placeholder={`max ${displayCentsAsDollars(
-                PERSONAL_TAX.annualSalary - props.incomeThisYear,
-              )}`}
+              placeholder={`max ${displayCentsAsDollars(max)}`}
             />
           </label>
           <Submit disabled={amountInvalid} />
