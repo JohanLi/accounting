@@ -1,5 +1,5 @@
 import { YEAR } from '../../scripts/annualReport/constants'
-import { getAccountTotals } from '../pages/api/accountTotals'
+import { getAccountTotals } from '../../app/accountTotals/getAccountTotals'
 import { Suggestion } from '../pages/api/journalEntries/suggestions'
 
 const VAT_ACCOUNT_IDS = [2610, 2620, 2630, 2640, 2614, 2645, 1650, 2650]

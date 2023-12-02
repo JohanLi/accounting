@@ -12,7 +12,7 @@ import { getFiscalYear, oreToKrona } from '../../src/utils'
 import {
   getAccounts,
   getAccountTotals,
-} from '../../src/pages/api/accountTotals'
+} from '../../app/accountTotals/getAccountTotals'
 import iconv from 'iconv-lite'
 import { ACCOUNT_ID_BALANCE_END_EXCLUSIVE, YEAR } from './constants'
 

@@ -1,8 +1,8 @@
 import { expect, describe, test, vi } from 'vitest'
 import { suggestVat } from './suggestVat'
-import { getAccountTotals } from '../pages/api/accountTotals'
+import { getAccountTotals } from '../../app/accountTotals/getAccountTotals'
 
-vi.mock('../pages/api/accountTotals', () => ({
+vi.mock('../../app/accountTotals/getAccountTotals', () => ({
   getAccountTotals: vi.fn(),
 }))
 

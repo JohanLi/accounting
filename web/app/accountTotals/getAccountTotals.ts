@@ -1,13 +1,12 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
 import { and, asc, eq, gte, lt, sql } from 'drizzle-orm'
-import db from '../../db'
+import db from '../../src/db'
 import {
   Accounts,
   JournalEntryTransactions,
   JournalEntries,
-} from '../../schema'
-import { getFiscalYear } from '../../utils'
-import { ACCOUNT_ID_BALANCE_END_EXCLUSIVE } from '../../../scripts/annualReport/constants'
+} from '../../src/schema'
+import { getFiscalYear } from '../../src/utils'
+import { ACCOUNT_ID_BALANCE_END_EXCLUSIVE } from '../../scripts/annualReport/constants'
 
 export async function getAccounts() {
   return db.select().from(Accounts).orderBy(asc(Accounts.id))
@@ -74,10 +73,6 @@ type AccountTotal = {
   closingBalance: number
 }
 
-export type AccountTotalsResponse = ({
-  id: number
-} & AccountTotal)[]
-
 export async function getAccountTotals(fiscalYear: number) {
   const accounts = await getAccounts()
   const openingBalance = await getOpeningBalance(fiscalYear)
@@ -111,20 +106,4 @@ export async function getAccountTotals(fiscalYear: number) {
     id: Number(id),
     ...totals,
   }))
-}
-
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<AccountTotalsResponse>,
-) {
-  if (req.method === 'GET') {
-    const fiscalYear = Number(req.query.fiscalYear)
-
-    const accounts = await getAccountTotals(fiscalYear)
-
-    res.status(200).json(accounts)
-    return
-  }
-
-  res.status(405)
 }

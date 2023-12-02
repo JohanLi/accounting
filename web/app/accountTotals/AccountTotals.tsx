@@ -1,37 +1,41 @@
-'use client'
-
 import { Amount } from '../../src/components/Amount'
-import { useState } from 'react'
-import Select from '../../src/components/Select'
+import Select from '../components/Select'
 import {
   getAllFiscalYearsInReverse,
   getCurrentFiscalYear,
 } from '../../src/utils'
-import { useAccountTotals } from '../../src/hooks/useAccountTotals'
+import { getAccountTotals } from './getAccountTotals'
 
-export default function AccountTotals() {
-  const [selectedFiscalYear, setSelectedFiscalYear] = useState(
-    getCurrentFiscalYear(),
-  )
+export default async function AccountTotals({
+  searchParams,
+}: {
+  searchParams: { fiscalYear: string }
+}) {
+  const currentFiscalYear = getCurrentFiscalYear()
+  const selectedFiscalYear =
+    parseInt(searchParams.fiscalYear) || currentFiscalYear
+  const items = getAllFiscalYearsInReverse().map((fiscalYear) => ({
+    href:
+      fiscalYear === currentFiscalYear
+        ? '/accountTotals'
+        : `/accountTotals?fiscalYear=${fiscalYear}`,
+    value: fiscalYear,
+  }))
 
-  const accountTotals = useAccountTotals(selectedFiscalYear)
+  const accountTotals = await getAccountTotals(selectedFiscalYear)
 
   return (
     <>
       <div className="flex justify-end">
-        <div className="flex items-center space-x-4">
+        <label className="flex items-center space-x-4">
           <div className="text-gray-500">FY</div>
-          <Select
-            value={selectedFiscalYear}
-            onChange={setSelectedFiscalYear}
-            items={getAllFiscalYearsInReverse()}
-          />
-        </div>
+          <Select selectedValue={selectedFiscalYear} items={items} />
+        </label>
       </div>
       <div>
-        <h1 className="text-base font-semibold leading-6 text-gray-900">
+        <h2 className="text-base font-semibold leading-6 text-gray-900">
           Accounts
-        </h1>
+        </h2>
         <table className="min-w-full divide-y divide-gray-300">
           <thead>
             <tr>
@@ -68,7 +72,7 @@ export default function AccountTotals() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {accountTotals.data?.map((a) => (
+            {accountTotals.map((a) => (
               <tr key={a.id}>
                 <td className="whitespace-nowrap py-4 pr-3 text-xs text-gray-500">
                   {a.id}
