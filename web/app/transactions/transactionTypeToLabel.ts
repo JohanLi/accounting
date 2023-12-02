@@ -1,4 +1,4 @@
-import { TransactionType } from '../../../src/schema'
+import { TransactionType } from '../../src/schema'
 
 export const transactionTypeToLabel: {
   [key in TransactionType]: string

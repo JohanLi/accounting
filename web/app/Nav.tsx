@@ -4,7 +4,7 @@ const tabs = [
   { name: 'Home', href: '/' },
   {
     name: 'Transactions',
-    href: '/transactions/bankRegular',
+    href: '/transactions',
     startsWith: '/transactions',
   },
   { name: 'Salary', href: '/salary' },

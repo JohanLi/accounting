@@ -1,5 +1,7 @@
+'use client'
+
 import { useState } from 'react'
-import { InferModel } from 'drizzle-orm'
+import { InferSelectModel } from 'drizzle-orm'
 import { Transactions } from '../schema'
 import { DateFormatted } from './DateFormatted'
 import { Amount } from './Amount'
@@ -8,7 +10,7 @@ import { Button } from './Button'
 import { TransactionLinkForm } from './TransactionLinkForm'
 
 type Props = {
-  transaction: InferModel<typeof Transactions>
+  transaction: InferSelectModel<typeof Transactions>
 }
 
 export function Transaction({ transaction }: Props) {

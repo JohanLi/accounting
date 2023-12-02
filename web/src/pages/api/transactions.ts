@@ -68,6 +68,13 @@ function throwIfWrongSequence(
   })
 }
 
+export function getTransactions() {
+  return db
+    .select()
+    .from(Transactions)
+    .orderBy(desc(Transactions.date), desc(Transactions.id))
+}
+
 async function getExternalId(...fields: string[]) {
   return getHash(fields.join('-'))
 }
@@ -77,10 +84,7 @@ const handler = async (
   res: NextApiResponse<TransactionsResponse>,
 ) => {
   if (req.method === 'GET') {
-    const transactions = await db
-      .select()
-      .from(Transactions)
-      .orderBy(desc(Transactions.date), desc(Transactions.id))
+    const transactions = await getTransactions()
 
     res.status(200).json(transactions)
     return
