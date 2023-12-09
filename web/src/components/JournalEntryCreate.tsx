@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from 'react'
 import JournalEntryForm from './JournalEntryForm'
 import { Button } from './Button'

@@ -1,3 +1,5 @@
+'use client'
+
 import { DragEvent, useState } from 'react'
 import { DocumentUpload } from '../pages/api/documents'
 import { DocumentArrowUpIcon } from '@heroicons/react/24/solid'

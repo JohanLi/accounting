@@ -1,4 +1,4 @@
-import { JournalEntryUpsert } from './pages/api/journalEntries'
+import { JournalEntryUpsert } from '../app/upsertJournalEntry'
 
 export class JournalEntryInputError extends Error {}
 

@@ -1,8 +1,10 @@
+'use client'
+
 import { DateFormatted } from './DateFormatted'
 import { Amount } from './Amount'
 import DocumentLink from './DocumentLink'
 import { LinkIcon } from '@heroicons/react/20/solid'
-import { JournalEntry as JournalEntryType } from '../pages/api/journalEntries'
+import { JournalEntry as JournalEntryType } from '../../app/journalEntries'
 import { useState } from 'react'
 import JournalEntryForm from './JournalEntryForm'
 import { Button } from './Button'

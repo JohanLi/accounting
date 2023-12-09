@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { JournalEntryUpsert } from '../pages/api/journalEntries'
+import { JournalEntryUpsert } from '../../app/upsertJournalEntry'
 
 export function useSuggestions() {
   return useQuery<JournalEntryUpsert[]>({

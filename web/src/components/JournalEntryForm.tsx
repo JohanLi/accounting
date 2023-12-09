@@ -1,13 +1,15 @@
 import { useState } from 'react'
 import { Amount } from './Amount'
-import useJournalEntryMutation from '../hooks/useJournalEntryMutation'
 import { Button } from './Button'
-import { Transaction } from '../pages/api/journalEntries'
+import { Transaction } from '../../app/journalEntries'
 import { DateFormatted, formatDate } from './DateFormatted'
 import { AmountInput } from './AmountInput'
 import DocumentLink from './DocumentLink'
 import { Suggestion } from '../pages/api/journalEntries/suggestions'
 import { DateInput } from './DateInput'
+import { Submit } from '../../app/components/Submit'
+import { upsertJournalEntry } from '../../app/upsertJournalEntry'
+import { useRouter } from 'next/navigation'
 
 const vatRates = ['0', '0.06', '0.12', '0.25'] as const
 type VatRate = (typeof vatRates)[number]
@@ -20,9 +22,9 @@ type Props = {
 // TODO cancelling should reset the transactions' values
 
 export default function JournalEntryForm({ journalEntry, onClose }: Props) {
-  const isEdit = !!journalEntry?.transactions.length
+  const router = useRouter()
 
-  const mutation = useJournalEntryMutation()
+  const isEdit = !!journalEntry?.transactions.length
 
   const [date, setDate] = useState(
     journalEntry?.date ? formatDate(journalEntry.date) : '',
@@ -198,10 +200,9 @@ export default function JournalEntryForm({ journalEntry, onClose }: Props) {
       )}
       <div className="col-span-2">
         <div className="flex space-x-4">
-          <Button
-            type="primary"
-            onClick={async () => {
-              await mutation.mutateAsync({
+          <form
+            action={async () => {
+              const entry = {
                 id: journalEntry?.id,
                 date: new Date(date),
                 description,
@@ -224,12 +225,16 @@ export default function JournalEntryForm({ journalEntry, onClose }: Props) {
                 linkedToTransactionIds:
                   journalEntry?.linkedToTransactionIds || [],
                 documentId: journalEntry?.documentId,
-              })
+              }
 
+              await upsertJournalEntry(entry)
+
+              router.refresh()
               onClose()
             }}
-            text="Submit"
-          />
+          >
+            <Submit disabled={false} />
+          </form>
           <Button type="secondary" onClick={onClose} text="Cancel" />
         </div>
       </div>

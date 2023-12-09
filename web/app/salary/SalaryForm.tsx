@@ -9,7 +9,7 @@ import {
 } from './AmountInput'
 import { create } from './create'
 import { useRouter } from 'next/navigation'
-import { Submit } from './Submit'
+import { Submit } from '../components/Submit'
 
 type Props = {
   incomeThisYear: number

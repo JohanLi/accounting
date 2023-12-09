@@ -1,8 +1,7 @@
 'use server'
 
 import { getSalaryTaxes, SALARY_ACCOUNT_ID } from '../../src/tax'
-import { validate } from '../../src/validateJournalEntry'
-import { upsertJournalEntry } from '../../src/pages/api/journalEntries'
+import { upsertJournalEntry } from '../upsertJournalEntry'
 
 export async function create(amount: number) {
   const { preliminaryIncomeTax, payrollTax } = getSalaryTaxes(amount)
@@ -30,13 +29,12 @@ export async function create(amount: number) {
     },
   ]
 
-  const entry = {
+  const journalEntry = {
     date: new Date(),
     description: 'Lön',
     transactions,
     linkedToTransactionIds: [],
   }
 
-  const validatedEntry = validate(entry)
-  return upsertJournalEntry(validatedEntry)
+  return upsertJournalEntry(journalEntry)
 }

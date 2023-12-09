@@ -1,9 +1,21 @@
-import { JournalEntry as JournalEntryType } from '../journalEntries'
-import db from '../../src/db'
-import { desc } from 'drizzle-orm'
-import { JournalEntries } from '../../src/schema'
+import { and, desc, gte, InferSelectModel, lt } from 'drizzle-orm'
+import db from '../src/db'
+import { JournalEntries } from '../src/schema'
+import { getFiscalYear } from '../src/utils'
 
-export async function getJournalEntries(): Promise<JournalEntryType[]> {
+export type Transaction = {
+  accountId: number
+  amount: number
+}
+
+export type JournalEntry = InferSelectModel<typeof JournalEntries> & {
+  transactions: Transaction[]
+  linkedToTransactionIds: number[]
+}
+
+export async function getJournalEntries(fiscalYear: number) {
+  const { startInclusive, endExclusive } = getFiscalYear(fiscalYear)
+
   const journalEntries = await db.query.JournalEntries.findMany({
     with: {
       journalEntryTransactions: {
@@ -18,6 +30,10 @@ export async function getJournalEntries(): Promise<JournalEntryType[]> {
         },
       },
     },
+    where: and(
+      gte(JournalEntries.date, startInclusive),
+      lt(JournalEntries.date, endExclusive),
+    ),
     orderBy: [desc(JournalEntries.date), desc(JournalEntries.id)],
   })
 

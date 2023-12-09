@@ -1,6 +1,6 @@
 import { DateFormatted } from './DateFormatted'
 import { Amount } from './Amount'
-import { JournalEntry as JournalEntryType } from '../pages/api/journalEntries'
+import { JournalEntry as JournalEntryType } from '../../app/journalEntries'
 import useTransactions from '../hooks/useTransactions'
 import { transactionTypes } from '../schema'
 import { transactionTypeToLabel } from '../../app/transactions/transactionTypeToLabel'

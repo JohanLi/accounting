@@ -1,7 +1,8 @@
 import Decimal from 'decimal.js'
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf'
 import { TextContent } from 'pdfjs-dist/types/web/text_layer_builder'
-import { JournalEntryUpsert, Transaction } from './pages/api/journalEntries'
+import { Transaction } from '../app/journalEntries'
+import { JournalEntryUpsert } from '../app/upsertJournalEntry'
 import { krToOre } from './utils'
 
 export async function getPDFStrings(buffer: Buffer) {

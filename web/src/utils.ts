@@ -1,4 +1,4 @@
-import { JournalEntry } from './pages/api/journalEntries'
+import { JournalEntry } from '../app/journalEntries'
 import Decimal from 'decimal.js'
 import crypto from 'crypto'
 
@@ -40,14 +40,6 @@ export function getFiscalYear(year: number) {
     endInclusive,
     endExclusive,
   }
-}
-
-export function withinFiscalYear(journalEntry: JournalEntry, year: number) {
-  const { startInclusive, endExclusive } = getFiscalYear(year)
-  return (
-    new Date(journalEntry.date) >= startInclusive &&
-    new Date(journalEntry.date) < endExclusive
-  )
 }
 
 export function getAllIncomeYearsInReverse() {
