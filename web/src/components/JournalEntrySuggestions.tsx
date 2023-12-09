@@ -1,12 +1,8 @@
 import JournalEntryForm from './JournalEntryForm'
-import { useSuggestions } from '../hooks/useSuggestions'
+import { getSuggestions } from '../../app/suggestions'
 
-export default function JournalEntrySuggestions() {
-  const suggestions = useSuggestions()
-
-  if (!suggestions.data) {
-    return null
-  }
+export default async function JournalEntrySuggestions() {
+  const suggestions = await getSuggestions()
 
   return (
     <div className="mt-8">
@@ -14,14 +10,13 @@ export default function JournalEntrySuggestions() {
         Suggestions
       </h1>
       <div className="mt-4">
-        {suggestions.data.map((suggestion) => (
+        {suggestions.map((suggestion) => (
           <JournalEntryForm
             // TODO consider generating a key on the server instead
             key={`linkedToTransactionIds-${suggestion.linkedToTransactionIds.join(
               ',',
             )}-documentId-${suggestion.documentId}`}
             journalEntry={suggestion}
-            onClose={() => {}}
           />
         ))}
       </div>

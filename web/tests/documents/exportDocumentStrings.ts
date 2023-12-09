@@ -1,4 +1,4 @@
-import { getDocument } from 'pdfjs-dist/legacy/build/pdf'
+import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 import { TextContent } from 'pdfjs-dist/types/web/text_layer_builder'
 import fs from 'fs/promises'
 import { writeFile } from '../../src/utilsNode'
@@ -6,6 +6,7 @@ import { documentDir } from './documentDir'
 
 // this script is used to help me write parsing logic for a new PDF variant
 
+// TODO doesn't work since the upgrade of pdfjs-dist. This can be built into the UI instead
 async function exportDocumentStrings() {
   const writeDir = `${documentDir}/output`
 

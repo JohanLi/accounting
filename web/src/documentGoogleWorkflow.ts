@@ -46,6 +46,7 @@ export async function getGoogleWorkspaceDocument(strings: any[]) {
     )
   }
 
+  // TODO handle case where transactions is []
   const total = transactions[0].amount
   const vat = Math.round(total - total / (1 + 0.25))
 

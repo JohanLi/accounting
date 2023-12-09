@@ -1,5 +1,5 @@
 import Decimal from 'decimal.js'
-import { getDocument } from 'pdfjs-dist/legacy/build/pdf'
+import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 import { TextContent } from 'pdfjs-dist/types/web/text_layer_builder'
 import { Transaction } from '../app/journalEntries'
 import { JournalEntryUpsert } from '../app/upsertJournalEntry'
@@ -24,7 +24,7 @@ export async function getPDFStrings(buffer: Buffer) {
     .map((text) =>
       text.items
         .map((item) => {
-          // @ts-ignore
+          // @ts-expect-error
           return item.str
         })
         .flat(),

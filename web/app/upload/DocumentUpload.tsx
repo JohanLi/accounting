@@ -1,11 +1,11 @@
 'use client'
 
 import { DragEvent, useState } from 'react'
-import { DocumentUpload } from '../pages/api/documents'
+import { DocumentUpload } from '../../src/pages/api/documents'
 import { DocumentArrowUpIcon } from '@heroicons/react/24/solid'
 import { XMarkIcon } from '@heroicons/react/24/outline'
-import { useDocumentMutation } from '../hooks/useDocumentMutation'
-import { getErrorMessage } from '../utils'
+import { getErrorMessage } from '../../src/utils'
+import { useRouter } from 'next/navigation'
 
 function getFilenameAndData(file: File) {
   return new Promise<DocumentUpload>((resolve, reject) => {
@@ -25,9 +25,11 @@ function getFilenameAndData(file: File) {
 }
 
 export default function DocumentUpload() {
+  const router = useRouter()
+
   const [isDragOver, setIsDragOver] = useState(false)
 
-  const mutation = useDocumentMutation()
+  const [success, setSuccess] = useState('')
   const [error, setError] = useState('')
 
   const onDragOver = (e: DragEvent) => {
@@ -74,12 +76,32 @@ export default function DocumentUpload() {
       }),
     )
 
-    mutation.mutate(files)
+    try {
+      /*
+        Converting this to a Server Action has proven to be challenging, due to this endpoint using pdfjs-dist.
+        Since this endpoint needs to exist for the Chrome extension anyway, it's not worth the hassle of figuring
+        out the Server Action issues.
+       */
+      const response = await fetch('/api/documents', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(files),
+      })
+
+      const data = await response.json()
+
+      setSuccess(`Uploaded ${data.length} new document(s)`)
+      router.refresh()
+    } catch (e) {
+      setError(getErrorMessage(e))
+    }
   }
 
   const reset = () => {
     setError('')
-    mutation.reset()
+    setSuccess('')
   }
 
   /*
@@ -114,11 +136,9 @@ export default function DocumentUpload() {
           </div>
         </div>
       </div>
-      {mutation.data && (
+      {success && (
         <div className="mt-4 flex items-center bg-green-50 p-4">
-          <div className="text-sm font-medium text-green-800">
-            Uploaded {mutation.data.length} new document(s)
-          </div>
+          <div className="text-sm font-medium text-green-800">{success}</div>
           <div className="ml-auto">
             <div className="-mx-1.5 -my-1.5">
               <button
@@ -131,11 +151,9 @@ export default function DocumentUpload() {
           </div>
         </div>
       )}
-      {(error || mutation.error) && (
+      {error && (
         <div className="mt-4 flex items-center bg-red-50 p-4">
-          <div className="text-sm font-medium text-red-800">
-            {error ? error : mutation.error?.message}
-          </div>
+          <div className="text-sm font-medium text-red-800">{error}</div>
           <div className="ml-auto">
             <div className="-mx-1.5 -my-1.5">
               <button

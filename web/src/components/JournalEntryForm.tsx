@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from 'react'
 import { Amount } from './Amount'
 import { Button } from './Button'
@@ -5,7 +7,7 @@ import { Transaction } from '../../app/journalEntries'
 import { DateFormatted, formatDate } from './DateFormatted'
 import { AmountInput } from './AmountInput'
 import DocumentLink from './DocumentLink'
-import { Suggestion } from '../pages/api/journalEntries/suggestions'
+import { Suggestion } from '../../app/suggestions'
 import { DateInput } from './DateInput'
 import { Submit } from '../../app/components/Submit'
 import { upsertJournalEntry } from '../../app/upsertJournalEntry'
@@ -16,7 +18,7 @@ type VatRate = (typeof vatRates)[number]
 
 type Props = {
   journalEntry?: Suggestion
-  onClose: () => void
+  onClose?: () => void
 }
 
 // TODO cancelling should reset the transactions' values
@@ -214,6 +216,7 @@ export default function JournalEntryForm({ journalEntry, onClose }: Props) {
                         amount: -amount,
                       },
                       {
+                        // TODO this can remain '' and result in NaN, needs fixing
                         accountId: parseInt(debitAccountId),
                         amount: amountBeforeVat,
                       },
@@ -230,12 +233,23 @@ export default function JournalEntryForm({ journalEntry, onClose }: Props) {
               await upsertJournalEntry(entry)
 
               router.refresh()
-              onClose()
+
+              if (onClose) {
+                onClose()
+              }
             }}
           >
             <Submit disabled={false} />
           </form>
-          <Button type="secondary" onClick={onClose} text="Cancel" />
+          <Button
+            type="secondary"
+            onClick={() => {
+              if (onClose) {
+                onClose()
+              }
+            }}
+            text="Cancel"
+          />
         </div>
       </div>
     </div>

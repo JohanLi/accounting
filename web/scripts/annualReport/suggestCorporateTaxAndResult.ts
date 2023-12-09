@@ -3,7 +3,7 @@ import { YEAR } from './constants'
 import db from '../../src/db'
 import { JournalEntries, JournalEntryTransactions } from '../../src/schema'
 import { and, eq, gte, inArray, lt, lte, sql } from 'drizzle-orm'
-import { Suggestion } from '../../src/pages/api/journalEntries/suggestions'
+import { Suggestion } from '../../app/suggestions'
 
 /*
   The third-party service I use to submit the annual report calculates

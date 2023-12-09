@@ -1,4 +1,3 @@
-import { JournalEntry } from '../app/journalEntries'
 import Decimal from 'decimal.js'
 import crypto from 'crypto'
 

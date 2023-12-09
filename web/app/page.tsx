@@ -7,7 +7,8 @@ import Select from './components/Select'
 import { JournalEntry } from '../src/components/JournalEntry'
 import { getJournalEntries } from './journalEntries'
 import JournalEntryCreate from '../src/components/JournalEntryCreate'
-import DocumentUpload from '../src/components/DocumentUpload'
+import DocumentUpload from './upload/DocumentUpload'
+import JournalEntrySuggestions from '../src/components/JournalEntrySuggestions'
 
 const filters = ['All', 'Non-linked'] as const
 
@@ -35,6 +36,7 @@ export default async function Home({
     <>
       <DocumentUpload />
       <JournalEntryCreate />
+      <JournalEntrySuggestions />
       <div className="flex items-center justify-end space-x-4">
         {filters.map((filter) => {
           const count =
