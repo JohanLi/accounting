@@ -1,8 +1,8 @@
 'use server'
 
 import { eq } from 'drizzle-orm'
-import db from '../../src/db'
-import { Transactions } from '../../src/schema'
+import db from '../db'
+import { Transactions } from '../schema'
 
 export async function updateLinks(
   journalEntryId: number,

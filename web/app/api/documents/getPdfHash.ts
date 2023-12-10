@@ -1,5 +1,5 @@
-import { getPDFStrings } from './document'
-import { getHash } from './utils'
+import { getPDFStrings } from '../../document'
+import { getHash } from '../../utils'
 
 /*
   Developers Bay generates a slightly different PDF each time you download

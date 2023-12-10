@@ -7,5 +7,5 @@ rm -rf drizzle/
 
 pnpm run swc scripts/db/teardown.ts
 
-pnpm drizzle-kit generate:pg --schema=./src/schema.ts
+pnpm drizzle-kit generate:pg --schema=./app/schema.ts
 pnpm run swc scripts/db/setup.ts

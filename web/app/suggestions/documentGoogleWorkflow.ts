@@ -1,6 +1,6 @@
-import { getDates, getLatestDate } from './document'
-import db from './db'
-import { Transactions } from './schema'
+import { getDates, getLatestDate } from '../document'
+import db from '../db'
+import { Transactions } from '../schema'
 import { and, eq, gte, isNull, lte } from 'drizzle-orm'
 
 const TIME_WINDOW_DAYS = 10

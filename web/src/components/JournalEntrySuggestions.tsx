@@ -1,5 +1,5 @@
 import JournalEntryForm from './JournalEntryForm'
-import { getSuggestions } from '../../app/suggestions'
+import { getSuggestions } from '../../app/suggestions/suggestions'
 
 export default async function JournalEntrySuggestions() {
   const suggestions = await getSuggestions()

@@ -8,7 +8,7 @@
  */
 
 import fs from 'fs/promises'
-import { getFiscalYear, oreToKrona } from '../../src/utils'
+import { getFiscalYear, oreToKrona } from '../../app/utils'
 import {
   getAccounts,
   getAccountTotals,

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { PERSONAL_TAX } from '../../src/tax'
+import { PERSONAL_TAX } from '../tax'
 import {
   AmountInput,
   displayCentsAsDollars,

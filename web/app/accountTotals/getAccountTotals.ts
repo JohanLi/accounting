@@ -1,11 +1,7 @@
 import { and, asc, eq, gte, lt, sql } from 'drizzle-orm'
-import db from '../../src/db'
-import {
-  Accounts,
-  JournalEntryTransactions,
-  JournalEntries,
-} from '../../src/schema'
-import { getFiscalYear } from '../../src/utils'
+import db from '../db'
+import { Accounts, JournalEntryTransactions, JournalEntries } from '../schema'
+import { getFiscalYear } from '../utils'
 import { ACCOUNT_ID_BALANCE_END_EXCLUSIVE } from '../../scripts/annualReport/constants'
 
 export async function getAccounts() {

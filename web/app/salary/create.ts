@@ -1,7 +1,7 @@
 'use server'
 
-import { getSalaryTaxes, SALARY_ACCOUNT_ID } from '../../src/tax'
-import { upsertJournalEntry } from '../upsertJournalEntry'
+import { getSalaryTaxes, SALARY_ACCOUNT_ID } from '../tax'
+import { updateJournalEntry } from '../actions/updateJournalEntry'
 
 export async function create(amount: number) {
   const { preliminaryIncomeTax, payrollTax } = getSalaryTaxes(amount)
@@ -36,5 +36,5 @@ export async function create(amount: number) {
     linkedToTransactionIds: [],
   }
 
-  return upsertJournalEntry(journalEntry)
+  return updateJournalEntry(journalEntry)
 }

@@ -1,22 +1,22 @@
 'use server'
 
-import { validate } from '../src/validateJournalEntry'
-import db from '../src/db'
+import { validate } from './validateJournalEntry'
+import db from '../db'
 import {
   JournalEntries,
   JournalEntryTransactions,
   Transactions,
-} from '../src/schema'
+} from '../schema'
 import { eq, InferInsertModel, sql } from 'drizzle-orm'
-import { Transaction } from './journalEntries'
+import { Transaction } from '../journalEntries'
 
-export type JournalEntryUpsert = InferInsertModel<typeof JournalEntries> & {
+export type JournalEntryUpdate = InferInsertModel<typeof JournalEntries> & {
   transactions: Transaction[]
   linkedToTransactionIds: number[]
 }
 
-export async function upsertJournalEntry(
-  unvalidatedJournalEntry: JournalEntryUpsert,
+export async function updateJournalEntry(
+  unvalidatedJournalEntry: JournalEntryUpdate,
 ) {
   const journalEntry = validate(unvalidatedJournalEntry)
 
@@ -24,7 +24,7 @@ export async function upsertJournalEntry(
   rest.date = new Date(rest.date)
 
   return db.transaction(async (tx) => {
-    const upsertedEntry = await tx
+    const updatedEntry = await tx
       .insert(JournalEntries)
       .values(rest)
       .onConflictDoUpdate({
@@ -39,12 +39,12 @@ export async function upsertJournalEntry(
 
     await tx
       .delete(JournalEntryTransactions)
-      .where(eq(JournalEntryTransactions.journalEntryId, upsertedEntry[0].id))
+      .where(eq(JournalEntryTransactions.journalEntryId, updatedEntry[0].id))
 
     await tx.insert(JournalEntryTransactions).values(
       transactions.map((t) => ({
         ...t,
-        journalEntryId: upsertedEntry[0].id,
+        journalEntryId: updatedEntry[0].id,
       })),
     )
 
@@ -55,12 +55,12 @@ export async function upsertJournalEntry(
        */
       await tx
         .update(Transactions)
-        .set({ journalEntryId: upsertedEntry[0].id })
+        .set({ journalEntryId: updatedEntry[0].id })
         .where(eq(Transactions.id, linkedToTransactionId))
     }
 
     return {
-      ...upsertedEntry[0],
+      ...updatedEntry[0],
       transactions,
       linkedToTransactionIds,
     }

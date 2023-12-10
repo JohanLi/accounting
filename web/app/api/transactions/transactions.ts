@@ -1,4 +1,4 @@
-import { getHash } from '../../../src/utils'
+import { getHash } from '../../utils'
 import { z } from 'zod'
 import {
   and,
@@ -11,12 +11,8 @@ import {
   ne,
   or,
 } from 'drizzle-orm'
-import {
-  JournalEntries,
-  Transactions,
-  transactionTypeEnum,
-} from '../../../src/schema'
-import db from '../../../src/db'
+import { JournalEntries, Transactions, transactionTypeEnum } from '../../schema'
+import db from '../../db'
 
 const outgoingSchema = z.object({
   outgoingAmount: z.string(),

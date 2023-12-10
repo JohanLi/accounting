@@ -1,7 +1,7 @@
 import { Fragment } from 'react'
 import { Menu, Transition } from '@headlessui/react'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
-import { classNames } from '../utils'
+import { classNames } from '../../app/utils'
 
 type Props<T> = {
   value: T

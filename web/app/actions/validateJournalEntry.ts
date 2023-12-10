@@ -1,8 +1,8 @@
-import { JournalEntryUpsert } from '../app/upsertJournalEntry'
+import { JournalEntryUpdate } from './updateJournalEntry'
 
 export class JournalEntryInputError extends Error {}
 
-export function validate(entry: JournalEntryUpsert) {
+export function validate(entry: JournalEntryUpdate) {
   if (!entry.date) {
     throw new JournalEntryInputError('Date not provided')
   }

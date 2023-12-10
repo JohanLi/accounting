@@ -7,10 +7,10 @@ import { Transaction } from '../../app/journalEntries'
 import { DateFormatted, formatDate } from './DateFormatted'
 import { AmountInput } from './AmountInput'
 import DocumentLink from './DocumentLink'
-import { Suggestion } from '../../app/suggestions'
+import { Suggestion } from '../../app/suggestions/suggestions'
 import { DateInput } from './DateInput'
 import { Submit } from '../../app/components/Submit'
-import { upsertJournalEntry } from '../../app/upsertJournalEntry'
+import { updateJournalEntry } from '../../app/actions/updateJournalEntry'
 import { useRouter } from 'next/navigation'
 
 const vatRates = ['0', '0.06', '0.12', '0.25'] as const
@@ -230,7 +230,7 @@ export default function JournalEntryForm({ journalEntry, onClose }: Props) {
                 documentId: journalEntry?.documentId,
               }
 
-              await upsertJournalEntry(entry)
+              await updateJournalEntry(entry)
 
               router.refresh()
 

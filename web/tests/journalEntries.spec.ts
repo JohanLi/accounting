@@ -1,5 +1,5 @@
 import { test } from '@playwright/test'
-import { getCurrentFiscalYear } from '../src/utils'
+import { getCurrentFiscalYear } from '../app/utils'
 import { expectEntry } from './utils'
 
 test.describe('journal entries', () => {

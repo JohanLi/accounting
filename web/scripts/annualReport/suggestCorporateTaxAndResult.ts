@@ -1,9 +1,9 @@
-import { getFiscalYear, oreToKrona } from '../../src/utils'
+import { getFiscalYear, oreToKrona } from '../../app/utils'
 import { YEAR } from './constants'
-import db from '../../src/db'
-import { JournalEntries, JournalEntryTransactions } from '../../src/schema'
+import db from '../../app/db'
+import { JournalEntries, JournalEntryTransactions } from '../../app/schema'
 import { and, eq, gte, inArray, lt, lte, sql } from 'drizzle-orm'
-import { Suggestion } from '../../app/suggestions'
+import { Suggestion } from '../../app/suggestions/suggestions'
 
 /*
   The third-party service I use to submit the annual report calculates

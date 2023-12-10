@@ -1,7 +1,7 @@
-import db from '../../../src/db'
-import { Transactions } from '../../../src/schema'
+import db from '../../db'
+import { Transactions } from '../../schema'
 import { InferInsertModel } from 'drizzle-orm'
-import { krToOre } from '../../../src/utils'
+import { krToOre } from '../../utils'
 import {
   getExternalId,
   getTransactionsForLinkForm,

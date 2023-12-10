@@ -1,7 +1,7 @@
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 import { TextContent } from 'pdfjs-dist/types/web/text_layer_builder'
 import fs from 'fs/promises'
-import { writeFile } from '../../src/utilsNode'
+import { writeFile } from './utilsNode'
 import { documentDir } from './documentDir'
 
 // this script is used to help me write parsing logic for a new PDF variant

@@ -1,6 +1,6 @@
 import { expect, describe, test, vi } from 'vitest'
 import { suggestVat } from './suggestVat'
-import { getAccountTotals } from '../../app/accountTotals/getAccountTotals'
+import { getAccountTotals } from '../accountTotals/getAccountTotals'
 
 vi.mock('../../app/accountTotals/getAccountTotals', () => ({
   getAccountTotals: vi.fn(),

@@ -1,7 +1,7 @@
 import { JournalEntry as JournalEntryType } from '../journalEntries'
-import db from '../../src/db'
+import db from '../db'
 import { desc } from 'drizzle-orm'
-import { JournalEntries } from '../../src/schema'
+import { JournalEntries } from '../schema'
 
 export async function getJournalEntries(): Promise<JournalEntryType[]> {
   const journalEntries = await db.query.JournalEntries.findMany({

@@ -1,4 +1,4 @@
-import { suggestVat } from '../../src/suggestions/suggestVat'
+import { suggestVat } from '../../app/suggestions/suggestVat'
 
 /*
   TODO

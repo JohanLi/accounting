@@ -4,7 +4,7 @@ import { DragEvent, useState } from 'react'
 import { DocumentUpload } from '../api/documents/route'
 import { DocumentArrowUpIcon } from '@heroicons/react/24/solid'
 import { XMarkIcon } from '@heroicons/react/24/outline'
-import { getErrorMessage } from '../../src/utils'
+import { getErrorMessage } from '../utils'
 import { useRouter } from 'next/navigation'
 
 function getFilenameAndData(file: File) {

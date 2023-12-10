@@ -1,7 +1,7 @@
-import db from '../../../src/db'
+import db from '../../db'
 import { eq } from 'drizzle-orm'
-import { Documents } from '../../../src/schema'
-import { getPdfHash } from '../../../src/getPdfHash'
+import { Documents } from '../../schema'
+import { getPdfHash } from './getPdfHash'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)

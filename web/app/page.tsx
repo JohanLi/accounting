@@ -2,7 +2,7 @@ import {
   classNames,
   getAllFiscalYearsInReverse,
   getCurrentFiscalYear,
-} from '../src/utils'
+} from './utils'
 import Select from './components/Select'
 import { JournalEntry } from '../src/components/JournalEntry'
 import { getJournalEntries } from './journalEntries'

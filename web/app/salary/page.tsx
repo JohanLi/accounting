@@ -1,9 +1,9 @@
 import { JournalEntry } from '../components/JournalEntry'
 import { getJournalEntries } from './getJournalEntries'
 import { Amount } from '../../src/components/Amount'
-import { getAllIncomeYearsInReverse } from '../../src/utils'
+import { getAllIncomeYearsInReverse } from '../utils'
 import Select from '../components/Select'
-import { SALARY_ACCOUNT_ID } from '../../src/tax'
+import { SALARY_ACCOUNT_ID } from '../tax'
 import SalaryForm from './SalaryForm'
 import { Metadata } from 'next'
 

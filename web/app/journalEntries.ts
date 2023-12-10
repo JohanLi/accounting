@@ -1,7 +1,7 @@
 import { and, desc, gte, InferSelectModel, lt } from 'drizzle-orm'
-import db from '../src/db'
-import { JournalEntries } from '../src/schema'
-import { getFiscalYear } from '../src/utils'
+import db from './db'
+import { JournalEntries } from './schema'
+import { getFiscalYear } from './utils'
 
 export type Transaction = {
   accountId: number

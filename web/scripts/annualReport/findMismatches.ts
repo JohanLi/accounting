@@ -1,8 +1,8 @@
 import { YEAR } from './constants'
-import db from '../../src/db'
+import db from '../../app/db'
 import { and, desc, gte, lt } from 'drizzle-orm'
-import { JournalEntries } from '../../src/schema'
-import { getFiscalYear } from '../../src/utils'
+import { JournalEntries } from '../../app/schema'
+import { getFiscalYear } from '../../app/utils'
 
 /*
   There's a 10 öre difference when comparing my journal entries against the

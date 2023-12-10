@@ -18,13 +18,13 @@
  */
 
 import fs from 'fs/promises'
-import { getCurrentFiscalYear, getFiscalYear } from '../../src/utils'
-import db from '../../src/db'
+import { getCurrentFiscalYear, getFiscalYear } from '../../app/utils'
+import db from '../../app/db'
 import {
   Accounts,
   JournalEntries,
   JournalEntryTransactions,
-} from '../../src/schema'
+} from '../../app/schema'
 import { and, eq, gte, lt, sql } from 'drizzle-orm'
 
 /*

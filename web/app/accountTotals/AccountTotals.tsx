@@ -1,9 +1,6 @@
 import { Amount } from '../../src/components/Amount'
 import Select from '../components/Select'
-import {
-  getAllFiscalYearsInReverse,
-  getCurrentFiscalYear,
-} from '../../src/utils'
+import { getAllFiscalYearsInReverse, getCurrentFiscalYear } from '../utils'
 import { getAccountTotals } from './getAccountTotals'
 
 export default async function AccountTotals({

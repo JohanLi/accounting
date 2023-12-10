@@ -1,12 +1,12 @@
-import { filterNull } from '../src/utils'
-import { getDocumentSuggestions } from '../src/suggestions/documentSuggestions'
-import { getBankSavingsSuggestions } from '../src/suggestions/bankSavingsSuggestions'
-import { getTaxSuggestions } from '../src/suggestions/taxSuggestions'
-import { getInsuranceSuggestions } from '../src/suggestions/insuranceSuggestions'
-import { getAccountsReceivablePaidSuggestions } from '../src/suggestions/accountsReceivablePaidSuggestions'
-import { JournalEntryUpsert } from './upsertJournalEntry'
+import { filterNull } from '../utils'
+import { getDocumentSuggestions } from './documentSuggestions'
+import { getBankSavingsSuggestions } from './bankSavingsSuggestions'
+import { getTaxSuggestions } from './taxSuggestions'
+import { getInsuranceSuggestions } from './insuranceSuggestions'
+import { getAccountsReceivablePaidSuggestions } from './accountsReceivablePaidSuggestions'
+import { JournalEntryUpdate } from '../actions/updateJournalEntry'
 
-export type Suggestion = JournalEntryUpsert & {
+export type Suggestion = JournalEntryUpdate & {
   options?: {
     foreignCurrency?: string
     values: number[]

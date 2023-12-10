@@ -1,8 +1,8 @@
 import Decimal from 'decimal.js'
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 import { TextContent } from 'pdfjs-dist/types/web/text_layer_builder'
-import { Transaction } from '../app/journalEntries'
-import { JournalEntryUpsert } from '../app/upsertJournalEntry'
+import { Transaction } from './journalEntries'
+import { JournalEntryUpdate } from './actions/updateJournalEntry'
 import { krToOre } from './utils'
 
 // https://github.com/vercel/next.js/issues/58313#issuecomment-1807184812
@@ -114,7 +114,7 @@ const recognizedDocuments: RecognizedDocument[] = [
 export async function getRecognizedDocument(
   strings: any[],
 ): Promise<Pick<
-  JournalEntryUpsert,
+  JournalEntryUpdate,
   'date' | 'description' | 'transactions'
 > | null> {
   let source = recognizedDocuments.find((source) =>

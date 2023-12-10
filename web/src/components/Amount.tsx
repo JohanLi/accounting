@@ -1,4 +1,4 @@
-import { classNames } from '../utils'
+import { classNames } from '../../app/utils'
 
 /*
   I prefer sv-SE, because most documents involved with my accounting use space as the thousand separator.
