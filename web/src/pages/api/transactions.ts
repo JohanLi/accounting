@@ -1,8 +1,19 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import db from '../../db'
-import { transactionTypeEnum, Transactions } from '../../schema'
+import { transactionTypeEnum, Transactions, JournalEntries } from '../../schema'
 import { z } from 'zod'
-import { desc, InferModel } from 'drizzle-orm'
+import {
+  and,
+  desc,
+  eq,
+  gte,
+  InferInsertModel,
+  InferSelectModel,
+  isNull,
+  lt,
+  ne,
+  or,
+} from 'drizzle-orm'
 import { getHash, krToOre } from '../../utils'
 
 const outgoingSchema = z.object({
@@ -46,7 +57,7 @@ const taxTransactionSchema = z.array(
   }),
 )
 
-export type TransactionsResponse = InferModel<typeof Transactions>[]
+export type TransactionsResponse = InferSelectModel<typeof Transactions>[]
 
 function throwIfWrongSequence(
   transactions: { amount: number; balance: number }[],
@@ -75,6 +86,52 @@ export function getTransactions() {
     .orderBy(desc(Transactions.date), desc(Transactions.id))
 }
 
+/*
+  When transferring money, whether to the tax account or as part of paying invoices, it often
+  takes a day or two before the bank transaction is registered. This day range is temporarily
+  changed in the event of edge cases.
+
+  One thing it doesn't handle well is when invoices are paid much earlier than the due date.
+  Instead of complicating the business logic, I've simply changed my own process to pay
+  them close to the due date.
+ */
+const SEARCH_DAY_RANGE = 3
+
+export async function getTransactionsForLinkForm(journalEntryId: number) {
+  const result = await db
+    .select({ date: JournalEntries.date })
+    .from(JournalEntries)
+    .where(eq(JournalEntries.id, journalEntryId))
+
+  if (!result.length) {
+    return []
+  }
+
+  const startInclusive = new Date(result[0].date)
+  startInclusive.setDate(startInclusive.getDate() - SEARCH_DAY_RANGE)
+
+  const endExclusive = new Date(result[0].date)
+  endExclusive.setDate(endExclusive.getDate() + SEARCH_DAY_RANGE)
+
+  const nonLinkedInRange = and(
+    isNull(Transactions.journalEntryId),
+    gte(Transactions.date, startInclusive),
+    lt(Transactions.date, endExclusive),
+  )
+
+  return db
+    .select()
+    .from(Transactions)
+    .where(
+      or(eq(Transactions.journalEntryId, journalEntryId), nonLinkedInRange),
+    )
+    .orderBy(
+      ne(Transactions.journalEntryId, journalEntryId), // linked transactions first
+      desc(Transactions.date),
+      desc(Transactions.id),
+    )
+}
+
 async function getExternalId(...fields: string[]) {
   return getHash(fields.join('-'))
 }
@@ -84,7 +141,10 @@ const handler = async (
   res: NextApiResponse<TransactionsResponse>,
 ) => {
   if (req.method === 'GET') {
-    const transactions = await getTransactions()
+    const { journalEntryId } = req.query as { journalEntryId: string }
+    const transactions = await getTransactionsForLinkForm(
+      parseInt(journalEntryId),
+    )
 
     res.status(200).json(transactions)
     return
@@ -96,7 +156,7 @@ const handler = async (
         .array()
         .safeParse(req.body)
 
-      let transactions: InferModel<typeof Transactions, 'insert'>[] = []
+      let transactions: InferInsertModel<typeof Transactions>[] = []
 
       if (bankTransactions.success) {
         transactions = await Promise.all(

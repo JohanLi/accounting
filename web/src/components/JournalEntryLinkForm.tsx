@@ -1,56 +1,40 @@
 import { DateFormatted } from './DateFormatted'
 import { Amount } from './Amount'
 import { JournalEntry as JournalEntryType } from '../../app/journalEntries'
-import useTransactions from '../hooks/useTransactions'
 import { transactionTypes } from '../schema'
 import { transactionTypeToLabel } from '../../app/transactions/transactionTypeToLabel'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { classNames } from '../utils'
 import { Button } from './Button'
-import useLinksMutation from '../hooks/useLinksMutation'
+import { TransactionsResponse } from '../pages/api/transactions'
+import { useRouter } from 'next/navigation'
+import { Submit } from '../../app/components/Submit'
+import { updateLinks } from '../../app/actions/updateLinks'
 
 type Props = {
   journalEntry: JournalEntryType
   onClose: () => void
 }
 
-/*
-  Not entirely sure how to best handle this. Feels like currently linked
-  and the best suggestion should be at the top.
-
-  Is it worth presenting other suggestions that are close in time? Sort them
-  by "likelihood", or chronologically? Scroll? Ideal time span?
-
-  Similarly, the selection logic can be improved over time. Should all
-  suggestions behave like checkboxes, or are there groups of radio buttons?
- */
-
-const TIME_SPAN_IN_MS = 3600 * 24 * 3 * 1000
-
 export function JournalEntryLinkForm({ journalEntry, onClose }: Props) {
-  const transactions = useTransactions()
+  const router = useRouter()
 
-  const filteredTransactions = transactions.data?.filter((t) => {
-    const notLinked = t.journalEntryId === null
+  const [transactions, setTransactions] = useState<TransactionsResponse>()
 
-    const closeInTime =
-      Math.abs(
-        new Date(t.date).getTime() - new Date(journalEntry.date).getTime(),
-      ) <= TIME_SPAN_IN_MS
-
-    const currentlyLinked = t.journalEntryId === journalEntry.id
-
-    return (notLinked && closeInTime) || currentlyLinked
-  })
+  useEffect(() => {
+    fetch(`/api/transactions?journalEntryId=${journalEntry.id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setTransactions(data)
+      })
+  }, [])
 
   const [checkedTransactionIds, setCheckedTransactionIds] = useState<number[]>()
 
-  const mutation = useLinksMutation()
-
   // TIL, better late than never https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
-  if (!checkedTransactionIds && filteredTransactions) {
+  if (!checkedTransactionIds && transactions) {
     setCheckedTransactionIds(
-      filteredTransactions
+      transactions
         .filter((t) => t.journalEntryId === journalEntry.id)
         .map((t) => t.id),
     )
@@ -86,31 +70,29 @@ export function JournalEntryLinkForm({ journalEntry, onClose }: Props) {
               )}
             </td>
             <td>
-              <Button
-                type="primary"
-                onClick={async () => {
+              <form
+                action={async () => {
                   if (!checkedTransactionIds) {
                     return
                   }
 
-                  await mutation.mutateAsync({
-                    journalEntryId: journalEntry.id,
-                    transactionIds: checkedTransactionIds,
-                  })
+                  await updateLinks(journalEntry.id, checkedTransactionIds)
 
+                  router.refresh()
                   onClose()
                 }}
-                text="Submit"
-              />
+              >
+                <Submit disabled={!checkedTransactionIds} />
+              </form>
               <Button type="secondary" onClick={onClose} text="Cancel" />
             </td>
           </tr>
         </tbody>
       </table>
-      {filteredTransactions &&
+      {transactions &&
         checkedTransactionIds &&
         transactionTypes.map((transactionType) => {
-          const transactionsOfType = filteredTransactions.filter(
+          const transactionsOfType = transactions.filter(
             (t) => t.type === transactionType,
           )
 

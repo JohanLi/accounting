@@ -3,7 +3,6 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import Nav from './Nav'
 import { ReactNode } from 'react'
-import Providers from './providers'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -31,7 +30,7 @@ export default function RootLayout(props: { children: ReactNode }) {
           <main>
             <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
               <Nav />
-              <Providers>{props.children}</Providers>
+              {props.children}
             </div>
           </main>
         </div>
