@@ -23,7 +23,7 @@ const handler: PlasmoMessaging.MessageHandler<
   const { transactions } = req.body
 
   const response = await fetch('http://localhost:3000/api/transactions', {
-    method: 'POST',
+    method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
     },

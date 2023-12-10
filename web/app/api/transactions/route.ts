@@ -25,7 +25,7 @@ export async function GET(request: Request) {
   return Response.json(transactions)
 }
 
-export async function POST(request: Request) {
+export async function PUT(request: Request) {
   const body = await request.json()
 
   try {

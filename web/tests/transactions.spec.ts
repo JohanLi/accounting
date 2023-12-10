@@ -71,7 +71,7 @@ test.describe('transactions', () => {
       },
     ]
 
-    let response = await request.post(`/api/transactions`, {
+    let response = await request.put(`/api/transactions`, {
       data: [...bankRegular, ...transferToSavings].reverse(),
     })
     expect(response.status()).toEqual(200)
@@ -91,7 +91,7 @@ test.describe('transactions', () => {
       },
     ]
 
-    response = await request.post(`/api/transactions`, {
+    response = await request.put(`/api/transactions`, {
       data: tax,
     })
     expect(response.status()).toEqual(200)
