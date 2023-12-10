@@ -1,7 +1,7 @@
 'use client'
 
 import { DragEvent, useState } from 'react'
-import { DocumentUpload } from '../../src/pages/api/documents'
+import { DocumentUpload } from '../api/documents/route'
 import { DocumentArrowUpIcon } from '@heroicons/react/24/solid'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { getErrorMessage } from '../../src/utils'

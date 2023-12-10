@@ -1,20 +1,22 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
-import db from '../../db'
-import { transactionTypeEnum, Transactions, JournalEntries } from '../../schema'
+import { getHash } from '../../../src/utils'
 import { z } from 'zod'
 import {
   and,
   desc,
   eq,
   gte,
-  InferInsertModel,
   InferSelectModel,
   isNull,
   lt,
   ne,
   or,
 } from 'drizzle-orm'
-import { getHash, krToOre } from '../../utils'
+import {
+  JournalEntries,
+  Transactions,
+  transactionTypeEnum,
+} from '../../../src/schema'
+import db from '../../../src/db'
 
 const outgoingSchema = z.object({
   outgoingAmount: z.string(),
@@ -43,12 +45,12 @@ const commonSchema = z.object({
   type: z.enum(transactionTypeEnum.enumValues),
 })
 
-const outgoingOrIngoingSchema = z.union([
+export const outgoingOrIngoingSchema = z.union([
   outgoingSchema.merge(commonSchema),
   ingoingSchema.merge(commonSchema),
 ])
 
-const taxTransactionSchema = z.array(
+export const taxTransactionSchema = z.array(
   z.object({
     date: z.string(),
     description: z.string(),
@@ -59,7 +61,7 @@ const taxTransactionSchema = z.array(
 
 export type TransactionsResponse = InferSelectModel<typeof Transactions>[]
 
-function throwIfWrongSequence(
+export function throwIfWrongSequence(
   transactions: { amount: number; balance: number }[],
 ) {
   if (transactions.length === 0) {
@@ -132,97 +134,6 @@ export async function getTransactionsForLinkForm(journalEntryId: number) {
     )
 }
 
-async function getExternalId(...fields: string[]) {
+export async function getExternalId(...fields: string[]) {
   return getHash(fields.join('-'))
 }
-
-const handler = async (
-  req: NextApiRequest,
-  res: NextApiResponse<TransactionsResponse>,
-) => {
-  if (req.method === 'GET') {
-    const { journalEntryId } = req.query as { journalEntryId: string }
-    const transactions = await getTransactionsForLinkForm(
-      parseInt(journalEntryId),
-    )
-
-    res.status(200).json(transactions)
-    return
-  }
-
-  if (req.method === 'POST') {
-    try {
-      const bankTransactions = outgoingOrIngoingSchema
-        .array()
-        .safeParse(req.body)
-
-      let transactions: InferInsertModel<typeof Transactions>[] = []
-
-      if (bankTransactions.success) {
-        transactions = await Promise.all(
-          bankTransactions.data.map(async (transaction) => ({
-            type: transaction.type,
-            date: new Date(transaction.bookedDate),
-            description: transaction.text,
-            amount: krToOre(
-              'outgoingAmount' in transaction
-                ? transaction.outgoingAmount
-                : transaction.ingoingAmount,
-            ),
-            balance: krToOre(transaction.availableBalance),
-            raw: JSON.stringify(transaction),
-            externalId: await getExternalId(transaction.id),
-          })),
-        )
-
-        transactions.reverse()
-        throwIfWrongSequence(
-          transactions.filter(
-            (transaction) => transaction.type === 'bankRegular',
-          ),
-        )
-        throwIfWrongSequence(
-          transactions.filter(
-            (transaction) => transaction.type === 'bankSavings',
-          ),
-        )
-      } else {
-        transactions = await Promise.all(
-          taxTransactionSchema.parse(req.body).map(async (transaction) => ({
-            type: 'tax',
-            date: new Date(transaction.date),
-            description: transaction.description,
-            amount: krToOre(transaction.amount),
-            balance: krToOre(transaction.balance),
-            raw: {},
-            externalId: await getExternalId(
-              transaction.date,
-              transaction.amount,
-              transaction.balance,
-            ),
-          })),
-        )
-
-        throwIfWrongSequence(transactions)
-      }
-
-      const insertedTransactions = await db
-        .insert(Transactions)
-        .values(transactions)
-        .onConflictDoNothing()
-        .returning()
-
-      res.status(200).json(insertedTransactions)
-    } catch (e) {
-      console.error(e)
-      res.status(500).end()
-    }
-
-    return
-  }
-
-  res.status(405).end()
-  return
-}
-
-export default handler

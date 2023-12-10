@@ -1,9 +1,9 @@
-import { getTransactions } from '../../src/pages/api/transactions'
 import { classNames } from '../../src/utils'
 import { TransactionType, transactionTypes } from '../../src/schema'
 import { Transaction } from '../../src/components/Transaction'
 import Link from 'next/link'
 import { transactionTypeToLabel } from './transactionTypeToLabel'
+import { getTransactions } from '../api/transactions/transactions'
 
 const filters = ['All', 'Non-linked'] as const
 

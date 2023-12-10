@@ -5,6 +5,10 @@ import { Transaction } from '../app/journalEntries'
 import { JournalEntryUpsert } from '../app/upsertJournalEntry'
 import { krToOre } from './utils'
 
+// https://github.com/vercel/next.js/issues/58313#issuecomment-1807184812
+// @ts-expect-error
+await import('pdfjs-dist/build/pdf.worker.mjs')
+
 export async function getPDFStrings(buffer: Buffer) {
   const pdf = await getDocument({
     data: Uint8Array.from(buffer),

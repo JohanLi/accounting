@@ -6,10 +6,10 @@ import { transactionTypeToLabel } from '../../app/transactions/transactionTypeTo
 import { useEffect, useState } from 'react'
 import { classNames } from '../utils'
 import { Button } from './Button'
-import { TransactionsResponse } from '../pages/api/transactions'
 import { useRouter } from 'next/navigation'
 import { Submit } from '../../app/components/Submit'
 import { updateLinks } from '../../app/actions/updateLinks'
+import { TransactionsResponse } from '../../app/api/transactions/transactions'
 
 type Props = {
   journalEntry: JournalEntryType
