@@ -18,15 +18,15 @@ export default async function Salary({ searchParams }: NextPageProps) {
   const [selectedYear, Select] = useSelect({
     searchParams,
     name: 'year',
-    defaultValue: currentYear.toString(),
-    values: getAllIncomeYearsInReverse().map((y) => y.toString()),
+    defaultValue: currentYear,
+    values: getAllIncomeYearsInReverse(),
   })
 
   const journalEntries = await getJournalEntries()
 
   let yearFilteredJournalEntries = journalEntries.filter(
     (journalEntry) =>
-      new Date(journalEntry.date).getFullYear() === parseInt(selectedYear) &&
+      new Date(journalEntry.date).getFullYear() === selectedYear &&
       journalEntry.transactions.find((t) => t.accountId === SALARY_ACCOUNT_ID),
   )
 
@@ -54,7 +54,7 @@ export default async function Salary({ searchParams }: NextPageProps) {
           <Select />
         </label>
       </div>
-      {parseInt(selectedYear) === currentYear && (
+      {selectedYear === currentYear && (
         <SalaryForm incomeThisYear={incomeThisYear} />
       )}
       <h2 className="text-base font-semibold leading-6 text-gray-900">

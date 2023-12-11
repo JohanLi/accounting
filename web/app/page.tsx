@@ -19,11 +19,11 @@ export default async function Home({ searchParams }: NextPageProps) {
   const [selectedFiscalYear, Select] = useSelect({
     searchParams,
     name: 'fiscalYear',
-    defaultValue: currentFiscalYear.toString(),
-    values: getAllFiscalYearsInReverse().map((y) => y.toString()),
+    defaultValue: currentFiscalYear,
+    values: getAllFiscalYearsInReverse(),
   })
 
-  const journalEntries = await getJournalEntries(parseInt(selectedFiscalYear))
+  const journalEntries = await getJournalEntries(selectedFiscalYear)
   const nonLinkedJournalEntries = journalEntries.filter(
     (j) => !j.linkedToTransactionIds.length,
   )

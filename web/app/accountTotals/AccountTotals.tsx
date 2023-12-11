@@ -8,11 +8,11 @@ export default async function AccountTotals({ searchParams }: NextPageProps) {
   const [selectedFiscalYear, Select] = useSelect({
     searchParams,
     name: 'fiscalYear',
-    defaultValue: getCurrentFiscalYear().toString(),
-    values: getAllFiscalYearsInReverse().map((y) => y.toString()),
+    defaultValue: getCurrentFiscalYear(),
+    values: getAllFiscalYearsInReverse(),
   })
 
-  const accountTotals = await getAccountTotals(parseInt(selectedFiscalYear))
+  const accountTotals = await getAccountTotals(selectedFiscalYear)
 
   return (
     <>
