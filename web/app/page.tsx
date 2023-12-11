@@ -3,34 +3,33 @@ import {
   getAllFiscalYearsInReverse,
   getCurrentFiscalYear,
 } from './utils'
-import Select from './components/Select'
 import { JournalEntry } from '../src/components/JournalEntry'
 import { getJournalEntries } from './journalEntries'
 import JournalEntryCreate from '../src/components/JournalEntryCreate'
 import DocumentUpload from './upload/DocumentUpload'
 import JournalEntrySuggestions from '../src/components/JournalEntrySuggestions'
+import { NextPageProps } from './types'
+import { useSelect } from './components/select/useSelect'
 
 const filters = ['All', 'Non-linked'] as const
 
-export default async function Home({
-  searchParams,
-}: {
-  searchParams: { fiscalYear: string; filter: (typeof filters)[number] }
-}) {
+export default async function Home({ searchParams }: NextPageProps) {
   const currentFiscalYear = getCurrentFiscalYear()
-  const selectedFiscalYear =
-    parseInt(searchParams.fiscalYear) || currentFiscalYear
-  const items = getAllFiscalYearsInReverse().map((fiscalYear) => ({
-    href: fiscalYear === currentFiscalYear ? '/' : `/?fiscalYear=${fiscalYear}`,
-    value: fiscalYear,
-  }))
 
-  const journalEntries = await getJournalEntries(selectedFiscalYear)
+  const [selectedFiscalYear, Select] = useSelect({
+    searchParams,
+    name: 'fiscalYear',
+    defaultValue: currentFiscalYear.toString(),
+    values: getAllFiscalYearsInReverse().map((y) => y.toString()),
+  })
+
+  const journalEntries = await getJournalEntries(parseInt(selectedFiscalYear))
   const nonLinkedJournalEntries = journalEntries.filter(
     (j) => !j.linkedToTransactionIds.length,
   )
 
-  const activeFilter = searchParams.filter || 'All'
+  const activeFilter =
+    (searchParams.filter as (typeof filters)[number]) || 'All'
 
   return (
     <>
@@ -62,7 +61,7 @@ export default async function Home({
         <div className="flex justify-end">
           <label className="flex items-center space-x-4">
             <div className="text-gray-500">FY</div>
-            <Select selectedValue={selectedFiscalYear} items={items} />
+            <Select />
           </label>
         </div>
       </div>

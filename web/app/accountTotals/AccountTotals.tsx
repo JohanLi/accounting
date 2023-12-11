@@ -1,32 +1,25 @@
 import { Amount } from '../../src/components/Amount'
-import Select from '../components/Select'
 import { getAllFiscalYearsInReverse, getCurrentFiscalYear } from '../utils'
 import { getAccountTotals } from './getAccountTotals'
+import { useSelect } from '../components/select/useSelect'
+import { NextPageProps } from '../types'
 
-export default async function AccountTotals({
-  searchParams,
-}: {
-  searchParams: { fiscalYear: string }
-}) {
-  const currentFiscalYear = getCurrentFiscalYear()
-  const selectedFiscalYear =
-    parseInt(searchParams.fiscalYear) || currentFiscalYear
-  const items = getAllFiscalYearsInReverse().map((fiscalYear) => ({
-    href:
-      fiscalYear === currentFiscalYear
-        ? '/accountTotals'
-        : `/accountTotals?fiscalYear=${fiscalYear}`,
-    value: fiscalYear,
-  }))
+export default async function AccountTotals({ searchParams }: NextPageProps) {
+  const [selectedFiscalYear, Select] = useSelect({
+    searchParams,
+    name: 'fiscalYear',
+    defaultValue: getCurrentFiscalYear().toString(),
+    values: getAllFiscalYearsInReverse().map((y) => y.toString()),
+  })
 
-  const accountTotals = await getAccountTotals(selectedFiscalYear)
+  const accountTotals = await getAccountTotals(parseInt(selectedFiscalYear))
 
   return (
     <>
       <div className="flex justify-end">
         <label className="flex items-center space-x-4">
           <div className="text-gray-500">FY</div>
-          <Select selectedValue={selectedFiscalYear} items={items} />
+          <Select />
         </label>
       </div>
       <div>

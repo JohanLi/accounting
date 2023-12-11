@@ -2,32 +2,31 @@ import { JournalEntry } from '../components/JournalEntry'
 import { getJournalEntries } from './getJournalEntries'
 import { Amount } from '../../src/components/Amount'
 import { getAllIncomeYearsInReverse } from '../utils'
-import Select from '../components/Select'
 import { SALARY_ACCOUNT_ID } from '../tax'
 import SalaryForm from './SalaryForm'
 import { Metadata } from 'next'
+import { useSelect } from '../components/select/useSelect'
+import { NextPageProps } from '../types'
 
 export const metadata: Metadata = {
   title: 'Salary',
 }
 
-export default async function Salary({
-  searchParams,
-}: {
-  searchParams: { year: string }
-}) {
-  const journalEntries = await getJournalEntries()
-
+export default async function Salary({ searchParams }: NextPageProps) {
   const currentYear = new Date().getFullYear()
-  const selectedIncomeYear = parseInt(searchParams.year) || currentYear
-  const items = getAllIncomeYearsInReverse().map((year) => ({
-    href: year === currentYear ? '/salary' : `/salary?year=${year}`,
-    value: year,
-  }))
+
+  const [selectedYear, Select] = useSelect({
+    searchParams,
+    name: 'year',
+    defaultValue: currentYear.toString(),
+    values: getAllIncomeYearsInReverse().map((y) => y.toString()),
+  })
+
+  const journalEntries = await getJournalEntries()
 
   let yearFilteredJournalEntries = journalEntries.filter(
     (journalEntry) =>
-      new Date(journalEntry.date).getFullYear() === selectedIncomeYear &&
+      new Date(journalEntry.date).getFullYear() === parseInt(selectedYear) &&
       journalEntry.transactions.find((t) => t.accountId === SALARY_ACCOUNT_ID),
   )
 
@@ -52,10 +51,10 @@ export default async function Salary({
         </h2>
         <label className="ml-auto flex items-center space-x-4">
           <div className="text-gray-500">Year</div>
-          <Select selectedValue={selectedIncomeYear} items={items} />
+          <Select />
         </label>
       </div>
-      {selectedIncomeYear === currentYear && (
+      {parseInt(selectedYear) === currentYear && (
         <SalaryForm incomeThisYear={incomeThisYear} />
       )}
       <h2 className="text-base font-semibold leading-6 text-gray-900">
