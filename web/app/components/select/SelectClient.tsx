@@ -2,10 +2,10 @@
 
 import { Menu, Transition } from '@headlessui/react'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
-import { Fragment, useCallback } from 'react'
+import { Fragment } from 'react'
 import { classNames } from '../../utils'
-import { usePathname, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { useGetHref } from '../common/useGetHref'
 
 type Props = {
   name: string
@@ -15,27 +15,7 @@ type Props = {
 }
 
 export default function SelectClient(props: Props) {
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-
-  const getHref = useCallback(
-    (value: string) => {
-      const params = new URLSearchParams(searchParams)
-
-      if (value !== props.defaultValue) {
-        params.set(props.name, value.toString())
-      } else {
-        params.delete(props.name)
-      }
-
-      if (params.toString() === '') {
-        return pathname
-      }
-
-      return `${pathname}?${params.toString()}`
-    },
-    [searchParams],
-  )
+  const getHref = useGetHref(props.name, props.defaultValue)
 
   return (
     <Menu as="div" className="relative inline-block">

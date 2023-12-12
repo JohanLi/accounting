@@ -1,7 +1,5 @@
-import { classNames } from '../utils'
 import { transactionTypes } from '../schema'
 import { Transaction } from '../../src/components/Transaction'
-import Link from 'next/link'
 import { transactionTypeToLabel } from './transactionTypeToLabel'
 import { getTransactions } from '../api/transactions/transactions'
 import { useFilterPill } from '../components/filterPill/useFilterPill'
@@ -10,15 +8,24 @@ import { NextPageProps } from '../types'
 export default async function Transactions({ searchParams }: NextPageProps) {
   const transactions = await getTransactions()
 
-  const defaultType = 'bankRegular'
-  const activeType = searchParams.type || defaultType
+  const [selectedType, TypeFilterPill] = useFilterPill({
+    searchParams,
+    name: 'type',
+    defaultValue: 'bankRegular',
+    items: transactionTypes.map((type) => ({
+      label: transactionTypeToLabel[type],
+      value: type,
+    })),
+  })
 
-  const filteredTransactions = transactions.filter((t) => t.type === activeType)
+  const filteredTransactions = transactions.filter(
+    (t) => t.type === selectedType,
+  )
   const filteredNonLinkedTransactions = filteredTransactions.filter(
     (t) => !t.journalEntryId,
   )
 
-  const [linkedFilter, FilterPills] = useFilterPill({
+  const [linkedFilter, LinkedFilterPill] = useFilterPill({
     searchParams,
     name: 'linkedFilter',
     defaultValue: 'all',
@@ -37,29 +44,10 @@ export default async function Transactions({ searchParams }: NextPageProps) {
   return (
     <>
       <div className="flex space-x-6">
-        {transactionTypes.map((type) => {
-          return (
-            <Link
-              key={type}
-              href={
-                type === defaultType
-                  ? '/transactions'
-                  : `/transactions?type=${type}`
-              }
-              className={classNames(
-                type === activeType
-                  ? 'bg-indigo-200 text-indigo-700'
-                  : 'text-indigo-500 hover:text-indigo-700',
-                'rounded-md px-4 py-3 text-sm font-medium',
-              )}
-            >
-              {transactionTypeToLabel[type]}
-            </Link>
-          )
-        })}
+        <TypeFilterPill />
       </div>
       <div className="mb-4 flex justify-end space-x-4">
-        <FilterPills />
+        <LinkedFilterPill />
       </div>
       <div className="space-y-12">
         <div>

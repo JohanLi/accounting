@@ -1,9 +1,8 @@
 'use client'
 
-import { useCallback } from 'react'
 import { classNames } from '../../utils'
-import { usePathname, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { useGetHref } from '../common/useGetHref'
 
 type Props = {
   name: string
@@ -13,27 +12,21 @@ type Props = {
 }
 
 export default function FilterPillClient(props: Props) {
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
+  const getHref = useGetHref(props.name, props.defaultValue)
 
-  const getHref = useCallback(
-    (value: string) => {
-      const params = new URLSearchParams(searchParams)
+  let activeClass = 'bg-gray-200 text-gray-700'
+  let inactiveClass = 'text-gray-500 hover:text-gray-700'
+  let commonClass = 'rounded-md px-3 py-2 text-xs font-medium'
 
-      if (value !== props.defaultValue) {
-        params.set(props.name, value.toString())
-      } else {
-        params.delete(props.name)
-      }
-
-      if (params.toString() === '') {
-        return pathname
-      }
-
-      return `${pathname}?${params.toString()}`
-    },
-    [searchParams],
-  )
+  /*
+   This is an acceptable hack because this component only has two use cases
+   Ideally, it'd accept color and size props
+   */
+  if (props.name === 'type') {
+    activeClass = 'bg-indigo-200 text-indigo-700'
+    inactiveClass = 'text-indigo-500 hover:text-indigo-700'
+    commonClass = 'rounded-md px-4 py-3 text-sm font-medium'
+  }
 
   return (
     <>
@@ -42,10 +35,8 @@ export default function FilterPillClient(props: Props) {
           key={item.value}
           href={getHref(item.value)}
           className={classNames(
-            props.selectedValue === item.value
-              ? 'bg-gray-200 text-gray-700'
-              : 'text-gray-500 hover:text-gray-700',
-            'rounded-md px-3 py-2 text-xs font-medium',
+            props.selectedValue === item.value ? activeClass : inactiveClass,
+            commonClass,
           )}
         >
           {item.label}
