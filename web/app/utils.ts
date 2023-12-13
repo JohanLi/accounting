@@ -41,6 +41,18 @@ export function getFiscalYear(year: number) {
   }
 }
 
+export function getIncomeYear(year: number) {
+  const startInclusive = new Date(Date.UTC(year, 0, 1))
+  const endInclusive = new Date(Date.UTC(year, 11, 31))
+  const endExclusive = new Date(Date.UTC(year + 1, 0, 1))
+
+  return {
+    startInclusive,
+    endInclusive,
+    endExclusive,
+  }
+}
+
 export function getAllIncomeYearsInReverse() {
   const years: number[] = []
 

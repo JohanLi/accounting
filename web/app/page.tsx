@@ -1,6 +1,10 @@
-import { getAllFiscalYearsInReverse, getCurrentFiscalYear } from './utils'
+import {
+  getAllFiscalYearsInReverse,
+  getCurrentFiscalYear,
+  getFiscalYear,
+} from './utils'
 import { JournalEntry } from '../src/components/JournalEntry'
-import { getJournalEntries } from './journalEntries'
+import { getJournalEntries } from './getJournalEntries'
 import JournalEntryCreate from '../src/components/JournalEntryCreate'
 import DocumentUpload from './upload/DocumentUpload'
 import JournalEntrySuggestions from '../src/components/JournalEntrySuggestions'
@@ -18,7 +22,9 @@ export default async function Home({ searchParams }: NextPageProps) {
     values: getAllFiscalYearsInReverse(),
   })
 
-  const journalEntries = await getJournalEntries(selectedFiscalYear)
+  const journalEntries = await getJournalEntries(
+    getFiscalYear(selectedFiscalYear),
+  )
   const nonLinkedJournalEntries = journalEntries.filter(
     (j) => !j.linkedToTransactionIds.length,
   )

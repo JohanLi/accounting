@@ -1,12 +1,12 @@
 import { JournalEntry } from '../components/JournalEntry'
-import { getJournalEntries } from './getJournalEntries'
 import { Amount } from '../../src/components/Amount'
-import { getAllIncomeYearsInReverse } from '../utils'
+import { getAllIncomeYearsInReverse, getIncomeYear } from '../utils'
 import { SALARY_ACCOUNT_ID } from '../tax'
 import SalaryForm from './SalaryForm'
 import { Metadata } from 'next'
 import { useSelect } from '../components/select/useSelect'
 import { NextPageProps } from '../types'
+import { getJournalEntries } from '../getJournalEntries'
 
 export const metadata: Metadata = {
   title: 'Salary',
@@ -22,15 +22,13 @@ export default async function Salary({ searchParams }: NextPageProps) {
     values: getAllIncomeYearsInReverse(),
   })
 
-  const journalEntries = await getJournalEntries()
+  const journalEntries = await getJournalEntries(getIncomeYear(selectedYear))
 
-  let yearFilteredJournalEntries = journalEntries.filter(
-    (journalEntry) =>
-      new Date(journalEntry.date).getFullYear() === selectedYear &&
-      journalEntry.transactions.find((t) => t.accountId === SALARY_ACCOUNT_ID),
+  let salaryRelatedJournalEntries = journalEntries.filter((journalEntry) =>
+    journalEntry.transactions.find((t) => t.accountId === SALARY_ACCOUNT_ID),
   )
 
-  const incomeThisYear = yearFilteredJournalEntries.reduce(
+  const incomeThisYear = salaryRelatedJournalEntries.reduce(
     (acc, journalEntry) => {
       const income =
         journalEntry.transactions.find((t) => t.accountId === SALARY_ACCOUNT_ID)
@@ -92,7 +90,7 @@ export default async function Salary({ searchParams }: NextPageProps) {
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
-          {yearFilteredJournalEntries.map((journalEntry) => (
+          {salaryRelatedJournalEntries.map((journalEntry) => (
             <JournalEntry key={journalEntry.id} journalEntry={journalEntry} />
           ))}
         </tbody>

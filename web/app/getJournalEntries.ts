@@ -1,7 +1,6 @@
 import { and, desc, gte, InferSelectModel, lt } from 'drizzle-orm'
 import db from './db'
 import { JournalEntries } from './schema'
-import { getFiscalYear } from './utils'
 
 export type Transaction = {
   accountId: number
@@ -13,9 +12,13 @@ export type JournalEntry = InferSelectModel<typeof JournalEntries> & {
   linkedToTransactionIds: number[]
 }
 
-export async function getJournalEntries(fiscalYear: number) {
-  const { startInclusive, endExclusive } = getFiscalYear(fiscalYear)
-
+export async function getJournalEntries({
+  startInclusive,
+  endExclusive,
+}: {
+  startInclusive: Date
+  endExclusive: Date
+}) {
   const journalEntries = await db.query.JournalEntries.findMany({
     with: {
       journalEntryTransactions: {

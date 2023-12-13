@@ -1,6 +1,11 @@
 import { expect, test, vi } from 'vitest'
 
-import { getAllFiscalYearsInReverse, getCurrentFiscalYear } from './utils'
+import {
+  getAllFiscalYearsInReverse,
+  getCurrentFiscalYear,
+  getFiscalYear,
+  getIncomeYear,
+} from './utils'
 
 test('getCurrentFiscalYear', () => {
   vi.useFakeTimers()
@@ -30,4 +35,20 @@ test('getAllFiscalYearsInReverse', () => {
   expect(getAllFiscalYearsInReverse()).toEqual([2025, 2024, 2023, 2022, 2021])
 
   vi.useRealTimers()
+})
+
+test('getFiscalYear', () => {
+  expect(getFiscalYear(2023)).toEqual({
+    startInclusive: new Date('2022-07-01'),
+    endInclusive: new Date('2023-06-30'),
+    endExclusive: new Date('2023-07-01'),
+  })
+})
+
+test('getIncomeYear', () => {
+  expect(getIncomeYear(2023)).toEqual({
+    startInclusive: new Date('2023-01-01'),
+    endInclusive: new Date('2023-12-31'),
+    endExclusive: new Date('2024-01-01'),
+  })
 })

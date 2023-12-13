@@ -8,7 +8,7 @@ import {
   Transactions,
 } from '../schema'
 import { eq, InferInsertModel, sql } from 'drizzle-orm'
-import { Transaction } from '../journalEntries'
+import { Transaction } from '../getJournalEntries'
 
 export type JournalEntryUpdate = InferInsertModel<typeof JournalEntries> & {
   transactions: Transaction[]

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Amount } from './Amount'
 import { Button } from './Button'
-import { Transaction } from '../../app/journalEntries'
+import { Transaction } from '../../app/getJournalEntries'
 import { DateFormatted, formatDate } from './DateFormatted'
 import { AmountInput } from './AmountInput'
 import DocumentLink from './DocumentLink'

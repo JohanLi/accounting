@@ -1,7 +1,7 @@
 import Decimal from 'decimal.js'
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 import { TextContent } from 'pdfjs-dist/types/web/text_layer_builder'
-import { Transaction } from './journalEntries'
+import { Transaction } from './getJournalEntries'
 import { JournalEntryUpdate } from './actions/updateJournalEntry'
 import { krToOre } from './utils'
 

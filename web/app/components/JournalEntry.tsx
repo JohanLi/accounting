@@ -2,7 +2,7 @@
 
 // TODO the linked document and linked transactions should trigger a popover on hover
 
-import { JournalEntry as JournalEntryType } from '../journalEntries'
+import { JournalEntry as JournalEntryType } from '../getJournalEntries'
 import { useState } from 'react'
 import JournalEntryForm from '../../src/components/JournalEntryForm'
 import { JournalEntryLinkForm } from '../../src/components/JournalEntryLinkForm'
