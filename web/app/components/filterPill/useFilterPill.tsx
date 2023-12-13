@@ -13,7 +13,9 @@ export function useFilterPill<T extends string | number>(
   props: Props<T>,
 ): [T, () => ReactNode] {
   const selectedValue =
-    (props.searchParams[props.name] as T) || props.defaultValue
+    ((typeof props.defaultValue === 'number'
+      ? parseInt(props.searchParams[props.name])
+      : props.searchParams[props.name]) as T) || props.defaultValue
 
   return [
     selectedValue,
