@@ -44,6 +44,12 @@ export function AmountInput(props: Props) {
     props.onChange(numberOrMinus === '-' ? 0 : numberOrMinus)
   }, [numberOrMinus])
 
+  useEffect(() => {
+    if (props.value === 0) {
+      setNumberOrMinus(0)
+    }
+  }, [props.value])
+
   return (
     <input
       type="text"
