@@ -1,4 +1,4 @@
-import { classNames } from '../../app/utils'
+import { classNames } from '../utils'
 
 const typeClass = {
   primary:

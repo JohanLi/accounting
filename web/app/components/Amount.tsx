@@ -1,11 +1,11 @@
-import { classNames } from '../../app/utils'
+import { classNames } from '../utils'
 
 /*
   I prefer sv-SE, because most documents involved with my accounting use space as the thousand separator.
   However, Intl.NumberFormat() sv-SE uses non-breaking spaces as well as the actual minus symbol,
   both of which are a nuisance.
  */
-export function formatCentsAsDollars(amount: number) {
+export function formatAmount(amount: number) {
   return Intl.NumberFormat('en-US', { maximumFractionDigits: 0 })
     .format(amount / 100)
     .replace(/,/g, ' ')
@@ -21,7 +21,7 @@ export function Amount({ amount }: { amount: number }) {
 
   return (
     <span className={classNames(color, 'font-mono')}>
-      {formatCentsAsDollars(amount)}
+      {formatAmount(amount)}
     </span>
   )
 }

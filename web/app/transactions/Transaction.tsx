@@ -1,7 +1,7 @@
 import { InferSelectModel } from 'drizzle-orm'
-import { Transactions } from '../../app/schema'
-import { DateFormatted } from './DateFormatted'
-import { Amount } from './Amount'
+import { Transactions } from '../schema'
+import { DateFormatted } from '../components/DateFormatted'
+import { Amount } from '../components/Amount'
 import { LinkIcon } from '@heroicons/react/20/solid'
 
 type Props = {

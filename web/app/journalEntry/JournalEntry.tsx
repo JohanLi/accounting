@@ -4,13 +4,13 @@
 
 import { JournalEntry as JournalEntryType } from '../getJournalEntries'
 import { useState } from 'react'
-import JournalEntryForm from '../../src/components/JournalEntryForm'
-import { JournalEntryLinkForm } from '../../src/components/JournalEntryLinkForm'
-import { DateFormatted } from '../../src/components/DateFormatted'
-import { Amount } from '../../src/components/Amount'
-import DocumentLink from '../../src/components/DocumentLink'
+import JournalEntryForm from './JournalEntryForm'
+import { JournalEntryLinkForm } from './JournalEntryLinkForm'
+import { DateFormatted } from '../components/DateFormatted'
+import { Amount } from '../components/Amount'
+import DocumentLink from './DocumentLink'
 import { LinkIcon } from '@heroicons/react/20/solid'
-import { Button } from '../../src/components/Button'
+import { Button } from '../components/Button'
 
 type Props = {
   journalEntry: JournalEntryType

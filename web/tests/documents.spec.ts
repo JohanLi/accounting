@@ -17,7 +17,7 @@ test('for each uploaded document, a suggestion is created', async ({
       description: 'Recognized document – SEB månadsavgift',
       transactions: [
         ['6570', '130'],
-        ['1930', '−130'],
+        ['1930', '-130'],
       ],
     },
     0,
@@ -29,13 +29,9 @@ test('for each uploaded document, a suggestion is created', async ({
       date: '2023-01-14',
       description: 'Recognized document – Inkomst',
       transactions: [
-        /*
-        " " as well as "−" is likely a result of Intl.NumberFormat
-        TODO consider formatting using an own function instead
-       */
-        ['1930', '206 850'],
-        ['3011', '−165 480'],
-        ['2610', '−41 370'],
+        ['1930', '206 850'],
+        ['3011', '-165 480'],
+        ['2610', '-41 370'],
       ],
     },
     1,

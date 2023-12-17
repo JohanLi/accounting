@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import JournalEntryForm from './JournalEntryForm'
-import { Button } from './Button'
+import { Button } from '../components/Button'
 
 export default function JournalEntryCreate() {
   const [createBlank, setCreateBlank] = useState(false)

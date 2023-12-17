@@ -1,5 +1,5 @@
 import { transactionTypes } from '../schema'
-import { Transaction } from '../../src/components/Transaction'
+import { Transaction } from './Transaction'
 import { transactionTypeToLabel } from './transactionTypeToLabel'
 import { getTransactions } from '../api/transactions/transactions'
 import { useFilterPill } from '../components/filterPill/useFilterPill'

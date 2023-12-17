@@ -8,6 +8,7 @@ export default function DocumentLink(props: Props) {
     return null
   }
 
+  // TODO should be covered by an e2e test
   const url = `/api/documents?id=${props.id}`
 
   return (

@@ -3,11 +3,11 @@ import {
   getCurrentFiscalYear,
   getFiscalYear,
 } from './utils'
-import { JournalEntry } from '../src/components/JournalEntry'
+import { JournalEntry } from './journalEntry/JournalEntry'
 import { getJournalEntries } from './getJournalEntries'
-import JournalEntryCreate from '../src/components/JournalEntryCreate'
+import JournalEntryCreate from './journalEntry/JournalEntryCreate'
 import DocumentUpload from './upload/DocumentUpload'
-import JournalEntrySuggestions from '../src/components/JournalEntrySuggestions'
+import JournalEntrySuggestions from './journalEntry/JournalEntrySuggestions'
 import { NextPageProps } from './types'
 import { useSelect } from './components/select/useSelect'
 import { useFilterPill } from './components/filterPill/useFilterPill'

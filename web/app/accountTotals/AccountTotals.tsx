@@ -1,4 +1,4 @@
-import { Amount } from '../../src/components/Amount'
+import { Amount } from '../components/Amount'
 import { getAllFiscalYearsInReverse, getCurrentFiscalYear } from '../utils'
 import { getAccountTotals } from './getAccountTotals'
 import { useSelect } from '../components/select/useSelect'
