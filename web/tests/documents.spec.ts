@@ -51,3 +51,13 @@ test('after uploading a document that already exists, no suggestion should be cr
 
   await expect(page.getByText('Uploaded 0 new document(s)')).toBeVisible()
 })
+
+test('loading documents both as a PDF and as extracted strings', async ({
+  request,
+}) => {
+  let response = await request.get('/api/documents?id=1')
+  expect(response.headers()['content-type']).toEqual('application/pdf')
+
+  response = await request.get('/api/documents?id=1&viewStrings=true')
+  expect(response.headers()['content-type']).toEqual('text/plain;charset=UTF-8')
+})
