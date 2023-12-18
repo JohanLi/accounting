@@ -8,7 +8,7 @@ Instead, they are uploaded to Cloudflare R2 and downloaded during CI.
 Uploading is done by running:
 
 ```
-rclone copy tests/documents/files/ r2:accounting/ --include "*.pdf"
+rclone copy tests/documents/ r2:accounting/ --include "*.pdf"
 ```
 
 Make sure `~/.config/rclone/rclone.conf` is set up.

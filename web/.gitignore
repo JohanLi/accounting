@@ -21,7 +21,7 @@ npm-debug.log*
 next-env.d.ts
 
 # Custom
-/tests/documents/files
+/tests/documents
 *.sie
 *.xml
 *.sql

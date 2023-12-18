@@ -1,6 +1,9 @@
 import { expect, Page } from '@playwright/test'
 import { readFile } from 'fs/promises'
-import { documentDir } from './documents/documentDir'
+
+export function readTestDocument(filename: string) {
+  return readFile(`${__dirname}/documents/${filename}`)
+}
 
 /*
   adapted from https://github.com/microsoft/playwright/issues/13364#issuecomment-1156288428
@@ -12,7 +15,7 @@ import { documentDir } from './documents/documentDir'
 export async function dragAndDropDocuments(page: Page, filenames: string[]) {
   const base64List = await Promise.all(
     filenames.map(async (filename) =>
-      (await readFile(`${documentDir}/${filename}`)).toString('base64'),
+      (await readTestDocument(filename)).toString('base64'),
     ),
   )
 

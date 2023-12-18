@@ -2,10 +2,12 @@ import db from '../../db'
 import { eq } from 'drizzle-orm'
 import { Documents } from '../../schema'
 import { getPdfHash } from './getPdfHash'
+import { getPDFStrings } from '../../document'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const id = searchParams.get('id')
+  const viewStrings = searchParams.get('viewStrings')
 
   if (!id) {
     return new Response('id is required', { status: 400 })
@@ -17,6 +19,12 @@ export async function GET(request: Request) {
 
   if (!document) {
     throw Error(`Could not find document with id: ${id}`)
+  }
+
+  if (viewStrings) {
+    const strings = await getPDFStrings(document.data)
+
+    return new Response(JSON.stringify(strings, null, 2))
   }
 
   return new Response(document.data, {

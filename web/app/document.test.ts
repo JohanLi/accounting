@@ -5,12 +5,10 @@ import {
   getPDFStrings,
   getMonetaryValues,
 } from './document'
-import { readFile } from 'fs/promises'
-
-import { documentDir } from '../tests/documents/documentDir'
+import { readTestDocument } from '../tests/utils'
 
 async function getRecognizedDocumentFromFile(filename: string) {
-  const data = await readFile(`${documentDir}/${filename}`)
+  const data = await readTestDocument(filename)
   const strings = await getPDFStrings(data)
   return getRecognizedDocument(strings)
 }
