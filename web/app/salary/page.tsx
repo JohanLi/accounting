@@ -1,4 +1,4 @@
-import { JournalEntry } from '../journalEntry/JournalEntry'
+import { JournalEntry } from '../journalEntries/JournalEntry'
 import { Amount } from '../components/Amount'
 import { getAllIncomeYearsInReverse, getIncomeYear } from '../utils'
 import { SALARY_ACCOUNT_ID } from '../tax'

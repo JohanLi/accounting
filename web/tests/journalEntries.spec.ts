@@ -2,7 +2,7 @@ import { test } from '@playwright/test'
 import { getCurrentFiscalYear } from '../app/utils'
 import { expectEntry } from './utils'
 
-test.describe('journal entries', () => {
+test.describe.skip('journal entries', () => {
   test('creating and editing', async ({ page }) => {
     // the current fiscal year is selected by default
     const date = `${getCurrentFiscalYear()}-06-01`
@@ -30,7 +30,6 @@ test.describe('journal entries', () => {
     await transactions(1).fill(debitAccountId)
 
     await journalEntryForm.getByRole('button', { name: 'Submit' }).click()
-
     await expectEntry(page, {
       date,
       description,

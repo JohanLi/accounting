@@ -6,6 +6,10 @@ const tabs = [
     href: '/',
   },
   {
+    name: 'Journal entries',
+    href: '/journalEntries',
+  },
+  {
     name: 'Transactions',
     href: '/transactions',
   },

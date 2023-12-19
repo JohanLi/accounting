@@ -4,6 +4,11 @@ import { transactionTypeToLabel } from './transactionTypeToLabel'
 import { getTransactions } from '../api/transactions/transactions'
 import { useFilterPill } from '../components/filterPill/useFilterPill'
 import { NextPageProps } from '../types'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Transactions',
+}
 
 export default async function Transactions({ searchParams }: NextPageProps) {
   const transactions = await getTransactions()
