@@ -7,6 +7,7 @@ import { Metadata } from 'next'
 import { useSelect } from '../components/select/useSelect'
 import { NextPageProps } from '../types'
 import { getJournalEntries } from '../getJournalEntries'
+import { H1 } from '../components/common/heading'
 
 export const metadata: Metadata = {
   title: 'Salary',
@@ -40,6 +41,7 @@ export default async function Salary({ searchParams }: NextPageProps) {
 
   return (
     <>
+      <H1>Salary</H1>
       <div className="flex">
         <h2 className="flex w-64 justify-between">
           <span className="text-base font-semibold leading-6 text-gray-900">

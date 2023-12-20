@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import ActiveLink from './ActiveLink'
 
 const tabs = [
@@ -14,29 +15,47 @@ const tabs = [
     href: '/transactions',
   },
   {
-    name: 'Salary',
-    href: '/salary',
-  },
-  {
     name: 'Account totals',
     href: '/accountTotals',
   },
 ]
 
+const specializedToolsTabs = [
+  {
+    name: 'Salary',
+    href: '/salary',
+  },
+]
+
 export default function Nav() {
   return (
-    <div className="mb-8 mt-4">
-      <div className="hidden sm:block">
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8">
-            {tabs.map((tab) => (
-              <ActiveLink key={tab.name} href={tab.href}>
-                {tab.name}
-              </ActiveLink>
-            ))}
-          </nav>
-        </div>
-      </div>
+    <div className="flex grow flex-col gap-y-8 bg-gray-900 px-6 py-8">
+      <Image src="/icon.development.png" width={60} height={60} alt="logo" />
+      <nav className="flex flex-1">
+        <ul role="list" className="flex flex-1 flex-col gap-y-8">
+          <li>
+            <ul role="list" className="-mx-2 space-y-2">
+              {tabs.map((tab) => (
+                <li key={tab.name}>
+                  <ActiveLink href={tab.href}>{tab.name}</ActiveLink>
+                </li>
+              ))}
+            </ul>
+          </li>
+          <li>
+            <div className="mb-2 text-xs font-semibold leading-6 text-gray-400">
+              Specialized tools
+            </div>
+            <ul role="list" className="-mx-2 space-y-2">
+              {specializedToolsTabs.map((tab) => (
+                <li key={tab.name}>
+                  <ActiveLink href={tab.href}>{tab.name}</ActiveLink>
+                </li>
+              ))}
+            </ul>
+          </li>
+        </ul>
+      </nav>
     </div>
   )
 }

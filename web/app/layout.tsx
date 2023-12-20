@@ -19,19 +19,12 @@ export default function RootLayout(props: { children: ReactNode }) {
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <link rel="icon" type="image/png" href="/icon.development.png" />
       <body className={inter.className}>
-        <div className="py-10">
-          <header>
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              <h1 className="text-3xl font-bold leading-tight tracking-tight text-gray-900">
-                Accounting
-              </h1>
-            </div>
-          </header>
-          <main>
-            <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-              <Nav />
-              {props.children}
-            </div>
+        <div className="flex">
+          <div className="fixed inset-y-0 z-50 flex w-60">
+            <Nav />
+          </div>
+          <main className="pl-60">
+            <div className="p-8">{props.children}</div>
           </main>
         </div>
       </body>

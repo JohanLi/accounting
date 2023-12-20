@@ -5,6 +5,7 @@ import { getTransactions } from '../api/transactions/transactions'
 import { useFilterPill } from '../components/filterPill/useFilterPill'
 import { NextPageProps } from '../types'
 import { Metadata } from 'next'
+import { H1 } from '../components/common/heading'
 
 export const metadata: Metadata = {
   title: 'Transactions',
@@ -48,6 +49,7 @@ export default async function Transactions({ searchParams }: NextPageProps) {
 
   return (
     <>
+      <H1>Transactions</H1>
       <div className="flex space-x-6">
         <TypeFilterPill />
       </div>

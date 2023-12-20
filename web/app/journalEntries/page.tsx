@@ -9,6 +9,7 @@ import { NextPageProps } from '../types'
 import { useSelect } from '../components/select/useSelect'
 import { useFilterPill } from '../components/filterPill/useFilterPill'
 import { Metadata } from 'next'
+import { H1 } from '../components/common/heading'
 
 export const metadata: Metadata = {
   title: 'Journal entries',
@@ -49,6 +50,7 @@ export default async function JournalEntries({ searchParams }: NextPageProps) {
 
   return (
     <>
+      <H1>Journal entries</H1>
       <div className="flex items-center justify-end space-x-4">
         <FilterPills />
         <div className="flex justify-end">
