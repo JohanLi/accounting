@@ -7,7 +7,7 @@ export type Transaction = {
   amount: number
 }
 
-export type JournalEntry = InferSelectModel<typeof JournalEntries> & {
+export type JournalEntryType = InferSelectModel<typeof JournalEntries> & {
   transactions: Transaction[]
   linkedToTransactionIds: number[]
   linkNotApplicable: boolean
@@ -22,7 +22,7 @@ export async function getJournalEntries({
 }: {
   startInclusive: Date
   endExclusive: Date
-}): Promise<JournalEntry[]> {
+}): Promise<JournalEntryType[]> {
   const journalEntries = await db.query.JournalEntries.findMany({
     with: {
       journalEntryTransactions: {

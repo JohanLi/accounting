@@ -7,6 +7,13 @@ import { NextPageProps } from '../types'
 import { Metadata } from 'next'
 import { H1 } from '../components/common/heading'
 import { useFilterTab } from '../components/filterTab/useFilterTab'
+import {
+  AmountTh,
+  DateOrAccountCodeTh,
+  DescriptionTh,
+  LinkedTh,
+  Table,
+} from '../components/common/table'
 
 export const metadata: Metadata = {
   title: 'Transactions',
@@ -57,35 +64,14 @@ export default async function Transactions({ searchParams }: NextPageProps) {
       </div>
       <div className="space-y-12">
         <div>
-          <table className="min-w-full divide-y divide-gray-300">
+          <Table>
             <thead>
               <tr>
-                <th
-                  scope="col"
-                  className="w-32 py-3.5 pr-3 text-left text-sm font-semibold text-gray-900"
-                >
-                  Date
-                </th>
-                <th
-                  scope="col"
-                  className="py-3.5 pr-3 text-left text-sm font-semibold text-gray-900"
-                >
-                  Description
-                </th>
-                <th
-                  scope="col"
-                  className="w-32 py-3.5 text-right text-sm font-semibold text-gray-900"
-                >
-                  Amount
-                </th>
-                <th
-                  scope="col"
-                  className="w-32 py-3.5 text-right text-sm font-semibold text-gray-900"
-                >
-                  Balance
-                </th>
-                <th scope="col" className="w-16 py-3.5" />
-                <th scope="col" className="py-3.5" />
+                <DateOrAccountCodeTh>Date</DateOrAccountCodeTh>
+                <DescriptionTh>Description</DescriptionTh>
+                <AmountTh>Amount</AmountTh>
+                <AmountTh>Balance</AmountTh>
+                <LinkedTh />
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -96,7 +82,7 @@ export default async function Transactions({ searchParams }: NextPageProps) {
                 <Transaction key={transaction.id} transaction={transaction} />
               ))}
             </tbody>
-          </table>
+          </Table>
         </div>
       </div>
     </>

@@ -1,6 +1,6 @@
 import { DateFormatted } from '../components/DateFormatted'
 import { Amount } from '../components/Amount'
-import { JournalEntry as JournalEntryType } from '../getJournalEntries'
+import { JournalEntryType as JournalEntryType } from '../getJournalEntries'
 import { transactionTypes } from '../schema'
 import { transactionTypeToLabel } from '../transactions/transactionTypeToLabel'
 import { useEffect, useState } from 'react'

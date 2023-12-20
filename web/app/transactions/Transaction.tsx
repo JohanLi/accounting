@@ -2,7 +2,12 @@ import { InferSelectModel } from 'drizzle-orm'
 import { Transactions } from '../schema'
 import { DateFormatted } from '../components/DateFormatted'
 import { Amount } from '../components/Amount'
-import { LinkIcon } from '@heroicons/react/20/solid'
+import {
+  AmountTd,
+  DateOrAccountCodeTd,
+  DescriptionTd,
+  LinkedTd,
+} from '../components/common/table'
 
 type Props = {
   transaction: InferSelectModel<typeof Transactions>
@@ -11,21 +16,23 @@ type Props = {
 export function Transaction({ transaction }: Props) {
   return (
     <tr>
-      <td className="whitespace-nowrap py-4 pr-3 text-xs text-gray-500">
+      <DateOrAccountCodeTd>
         <DateFormatted date={transaction.date} />
-      </td>
-      <td className="whitespace-nowrap py-4 pr-3 text-sm font-medium text-gray-900">
-        {transaction.description}
-      </td>
-      <td className="whitespace-nowrap py-4 text-right text-sm">
+      </DateOrAccountCodeTd>
+      <DescriptionTd>{transaction.description}</DescriptionTd>
+      <AmountTd>
         <Amount amount={transaction.amount} />
-      </td>
-      <td className="whitespace-nowrap py-4 text-right text-sm">
+      </AmountTd>
+      <AmountTd>
         <Amount amount={transaction.balance} />
-      </td>
-      <td className="relative whitespace-nowrap py-4 text-right text-xs">
-        {transaction.journalEntryId && <LinkIcon className="h-4 w-4" />}
-      </td>
+      </AmountTd>
+      <LinkedTd>
+        {transaction.journalEntryId && (
+          <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-green-700 ring-1 ring-inset ring-green-600/20">
+            Linked
+          </span>
+        )}
+      </LinkedTd>
     </tr>
   )
 }

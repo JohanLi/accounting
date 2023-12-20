@@ -2,15 +2,19 @@
 
 // TODO the linked document and linked transactions should trigger a popover on hover
 
-import { JournalEntry as JournalEntryType } from '../getJournalEntries'
+import { JournalEntryType as JournalEntryType } from '../getJournalEntries'
 import { useState } from 'react'
 import JournalEntryForm from './JournalEntryForm'
 import { JournalEntryLinkForm } from './JournalEntryLinkForm'
 import { DateFormatted } from '../components/DateFormatted'
 import { Amount } from '../components/Amount'
 import DocumentLink from './DocumentLink'
-import { LinkIcon } from '@heroicons/react/20/solid'
 import { Button } from '../components/Button'
+import {
+  DateOrAccountCodeTd,
+  DescriptionTd,
+  LinkedTd,
+} from '../components/common/table'
 
 type Props = {
   journalEntry: JournalEntryType
@@ -49,12 +53,10 @@ export function JournalEntry({ journalEntry }: Props) {
   return (
     <>
       <tr key={journalEntry.id}>
-        <td className="whitespace-nowrap py-4 pr-3 text-xs text-gray-500">
+        <DateOrAccountCodeTd>
           <DateFormatted date={journalEntry.date} />
-        </td>
-        <td className="whitespace-nowrap py-4 pr-3 text-sm font-medium text-gray-900">
-          {journalEntry.description}
-        </td>
+        </DateOrAccountCodeTd>
+        <DescriptionTd>{journalEntry.description}</DescriptionTd>
         <td className="whitespace-nowrap py-4 pr-3 text-sm text-gray-500">
           {journalEntry.transactions.length && (
             <table className="min-w-full divide-y divide-gray-300">
@@ -76,7 +78,7 @@ export function JournalEntry({ journalEntry }: Props) {
         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
           <DocumentLink id={journalEntry.documentId} />
         </td>
-        <td className="relative whitespace-nowrap py-4 text-xs">
+        <LinkedTd>
           {journalEntry.linkedToTransactionIds.length > 0 && (
             <a
               href="#"
@@ -87,10 +89,12 @@ export function JournalEntry({ journalEntry }: Props) {
                 setEditLink(true)
               }}
             >
-              <LinkIcon className="h-4 w-4" />
+              <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-green-700 ring-1 ring-inset ring-green-600/20">
+                Linked
+              </span>
             </a>
           )}
-        </td>
+        </LinkedTd>
         <td className="space-x-2 text-right">
           <Button type="secondary" onClick={() => setEdit(true)} text="Edit" />
           {!journalEntry.linkedToTransactionIds.length && (

@@ -1,4 +1,3 @@
-import { JournalEntry } from '../journalEntries/JournalEntry'
 import { Amount } from '../components/Amount'
 import { getAllIncomeYearsInReverse, getIncomeYear } from '../utils'
 import { SALARY_ACCOUNT_ID } from '../tax'
@@ -8,6 +7,7 @@ import { useSelect } from '../components/select/useSelect'
 import { NextPageProps } from '../types'
 import { getJournalEntries } from '../getJournalEntries'
 import { H1 } from '../components/common/heading'
+import { JournalEntries } from '../journalEntries/JournalEntries'
 
 export const metadata: Metadata = {
   title: 'Salary',
@@ -60,43 +60,7 @@ export default async function Salary({ searchParams }: NextPageProps) {
       <h2 className="text-base font-semibold leading-6 text-gray-900">
         Journal entries
       </h2>
-      <table className="min-w-full divide-y divide-gray-300">
-        <thead>
-          <tr>
-            <th
-              scope="col"
-              className="w-32 py-3.5 pr-3 text-left text-sm font-semibold text-gray-900"
-            >
-              Date
-            </th>
-            <th
-              scope="col"
-              className="py-3.5 pr-3 text-left text-sm font-semibold text-gray-900"
-            >
-              Description
-            </th>
-            <th
-              scope="col"
-              className="w-48 py-3.5 pr-3 text-left text-sm font-semibold text-gray-900"
-            >
-              Transactions
-            </th>
-            <th
-              scope="col"
-              className="py-3.5 pr-3 text-left text-sm font-semibold text-gray-900"
-            >
-              Documents
-            </th>
-            <th scope="col" className="w-16 py-3.5" />
-            <th scope="col" className="py-3.5" />
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-200">
-          {salaryRelatedJournalEntries.map((journalEntry) => (
-            <JournalEntry key={journalEntry.id} journalEntry={journalEntry} />
-          ))}
-        </tbody>
-      </table>
+      <JournalEntries journalEntries={salaryRelatedJournalEntries} />
     </>
   )
 }

@@ -5,6 +5,15 @@ import { useSelect } from '../components/select/useSelect'
 import { NextPageProps } from '../types'
 import { Metadata } from 'next'
 import { H1 } from '../components/common/heading'
+import {
+  AmountTd,
+  AmountTh,
+  DateOrAccountCodeTd,
+  DateOrAccountCodeTh,
+  DescriptionTd,
+  DescriptionTh,
+  Table,
+} from '../components/common/table'
 
 export const metadata: Metadata = {
   title: 'Accounts',
@@ -30,63 +39,34 @@ export default async function AccountTotals({ searchParams }: NextPageProps) {
         </label>
       </div>
       <div>
-        <table className="min-w-full divide-y divide-gray-300">
+        <Table>
           <thead>
             <tr>
-              <th
-                scope="col"
-                className="w-32 py-3.5 pr-3 text-left text-sm font-semibold text-gray-900"
-              >
-                Code
-              </th>
-              <th
-                scope="col"
-                className="py-3.5 pr-3 text-left text-sm font-semibold text-gray-900"
-              >
-                Description
-              </th>
-              <th
-                scope="col"
-                className="py-3.5 text-right text-sm font-semibold text-gray-900"
-              >
-                Incoming
-              </th>
-              <th
-                scope="col"
-                className="py-3.5 text-right text-sm font-semibold text-gray-900"
-              >
-                Result
-              </th>
-              <th
-                scope="col"
-                className="py-3.5 text-right text-sm font-semibold text-gray-900"
-              >
-                Outgoing
-              </th>
+              <DateOrAccountCodeTh>Code</DateOrAccountCodeTh>
+              <DescriptionTh>Description</DescriptionTh>
+              <AmountTh>Incoming</AmountTh>
+              <AmountTh>Result</AmountTh>
+              <AmountTh>Outgoing</AmountTh>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {accountTotals.map((a) => (
               <tr key={a.id}>
-                <td className="whitespace-nowrap py-4 pr-3 text-xs text-gray-500">
-                  {a.id}
-                </td>
-                <td className="whitespace-nowrap py-4 pr-3 text-sm font-medium text-gray-900">
-                  {a.description}
-                </td>
-                <td className="whitespace-nowrap py-4 text-right text-sm">
+                <DateOrAccountCodeTd>{a.id}</DateOrAccountCodeTd>
+                <DescriptionTd>{a.description}</DescriptionTd>
+                <AmountTd>
                   <Amount amount={a.openingBalance} />
-                </td>
-                <td className="whitespace-nowrap py-4 text-right text-sm">
+                </AmountTd>
+                <AmountTd>
                   <Amount amount={a.result} />
-                </td>
-                <td className="whitespace-nowrap py-4 text-right text-sm">
+                </AmountTd>
+                <AmountTd>
                   <Amount amount={a.closingBalance} />
-                </td>
+                </AmountTd>
               </tr>
             ))}
           </tbody>
-        </table>
+        </Table>
       </div>
     </>
   )
