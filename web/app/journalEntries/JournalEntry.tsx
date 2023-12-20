@@ -11,8 +11,10 @@ import { Amount } from '../components/Amount'
 import DocumentLink from './DocumentLink'
 import { Button } from '../components/Button'
 import {
+  AddLink,
   DateOrAccountCodeTd,
   DescriptionTd,
+  Link,
   LinkedTd,
 } from '../components/common/table'
 
@@ -80,30 +82,22 @@ export function JournalEntry({ journalEntry }: Props) {
         </td>
         <LinkedTd>
           {journalEntry.linkedToTransactionIds.length > 0 && (
-            <a
-              href="#"
-              className="inline-flex items-center text-gray-500 hover:text-gray-800"
-              onClick={(e) => {
-                e.preventDefault()
-
+            <Link
+              onClick={() => {
                 setEditLink(true)
               }}
-            >
-              <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-green-700 ring-1 ring-inset ring-green-600/20">
-                Linked
-              </span>
-            </a>
+            />
+          )}
+          {!journalEntry.linkedToTransactionIds.length && (
+            <AddLink
+              onClick={() => {
+                setEditLink(true)
+              }}
+            />
           )}
         </LinkedTd>
         <td className="space-x-2 text-right">
           <Button type="secondary" onClick={() => setEdit(true)} text="Edit" />
-          {!journalEntry.linkedToTransactionIds.length && (
-            <Button
-              type="secondary"
-              onClick={() => setEditLink(true)}
-              text="Add link"
-            />
-          )}
         </td>
       </tr>
     </>

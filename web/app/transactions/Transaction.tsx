@@ -6,6 +6,7 @@ import {
   AmountTd,
   DateOrAccountCodeTd,
   DescriptionTd,
+  Link,
   LinkedTd,
 } from '../components/common/table'
 
@@ -26,13 +27,7 @@ export function Transaction({ transaction }: Props) {
       <AmountTd>
         <Amount amount={transaction.balance} />
       </AmountTd>
-      <LinkedTd>
-        {transaction.journalEntryId && (
-          <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-green-700 ring-1 ring-inset ring-green-600/20">
-            Linked
-          </span>
-        )}
-      </LinkedTd>
+      <LinkedTd>{transaction.journalEntryId && <Link />}</LinkedTd>
     </tr>
   )
 }
