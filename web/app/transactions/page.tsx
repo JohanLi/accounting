@@ -6,6 +6,7 @@ import { useFilterPill } from '../components/filterPill/useFilterPill'
 import { NextPageProps } from '../types'
 import { Metadata } from 'next'
 import { H1 } from '../components/common/heading'
+import { useFilterTab } from '../components/filterTab/useFilterTab'
 
 export const metadata: Metadata = {
   title: 'Transactions',
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
 export default async function Transactions({ searchParams }: NextPageProps) {
   const transactions = await getTransactions()
 
-  const [selectedType, TypeFilterPill] = useFilterPill({
+  const [selectedType, FilterTab] = useFilterTab({
     searchParams,
     name: 'type',
     defaultValue: 'bankRegular',
@@ -33,7 +34,7 @@ export default async function Transactions({ searchParams }: NextPageProps) {
 
   const [linkedFilter, LinkedFilterPill] = useFilterPill({
     searchParams,
-    name: 'linkedFilter',
+    name: 'filter',
     defaultValue: 'all',
     items: [
       {
@@ -50,10 +51,8 @@ export default async function Transactions({ searchParams }: NextPageProps) {
   return (
     <>
       <H1>Transactions</H1>
-      <div className="flex space-x-6">
-        <TypeFilterPill />
-      </div>
-      <div className="mb-4 flex justify-end space-x-4">
+      <FilterTab />
+      <div className="mb-4 mt-8 flex justify-end space-x-4">
         <LinkedFilterPill />
       </div>
       <div className="space-y-12">
