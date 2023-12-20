@@ -81,18 +81,7 @@ export const JournalEntries = pgTable('journal_entries', {
   updatedAt: timestamp('updated_at'),
 })
 
-/*
-  TODO
-    bankOld and bankPersonal are not intended to exist long-term – they're mainly
-    there for completing FY 2023.
- */
-export const transactionTypes = [
-  'bankRegular',
-  'bankSavings',
-  'bankOld',
-  'bankPersonal',
-  'tax',
-] as const
+export const transactionTypes = ['bankRegular', 'bankSavings', 'tax'] as const
 export type TransactionType = (typeof transactionTypes)[number]
 
 /*

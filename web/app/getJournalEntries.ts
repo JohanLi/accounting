@@ -10,7 +10,11 @@ export type Transaction = {
 export type JournalEntry = InferSelectModel<typeof JournalEntries> & {
   transactions: Transaction[]
   linkedToTransactionIds: number[]
+  linkNotApplicable: boolean
 }
+
+const OLD_BANK_ACCOUNT_ID = 1932
+const PERSONAL_PAYMENT_ACCOUNT_ID = 2890
 
 export async function getJournalEntries({
   startInclusive,
@@ -18,7 +22,7 @@ export async function getJournalEntries({
 }: {
   startInclusive: Date
   endExclusive: Date
-}) {
+}): Promise<JournalEntry[]> {
   const journalEntries = await db.query.JournalEntries.findMany({
     with: {
       journalEntryTransactions: {
@@ -45,10 +49,17 @@ export async function getJournalEntries({
 
     const linkedToTransactionIds = j.transactions.map((t) => t.id)
 
+    const linkNotApplicable = journalEntryTransactions.some(
+      (t) =>
+        t.accountId === OLD_BANK_ACCOUNT_ID ||
+        t.accountId === PERSONAL_PAYMENT_ACCOUNT_ID,
+    )
+
     return {
       ...journalEntry,
       transactions: journalEntryTransactions,
       linkedToTransactionIds,
+      linkNotApplicable,
     }
   })
 }

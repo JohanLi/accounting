@@ -29,7 +29,7 @@ export default async function JournalEntries({ searchParams }: NextPageProps) {
     getFiscalYear(selectedFiscalYear),
   )
   const nonLinkedJournalEntries = journalEntries.filter(
-    (j) => !j.linkedToTransactionIds.length,
+    (j) => !j.linkedToTransactionIds.length && !j.linkNotApplicable,
   )
 
   const [journalEntryFilter, FilterPills] = useFilterPill({
