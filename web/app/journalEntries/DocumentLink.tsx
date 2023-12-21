@@ -1,3 +1,6 @@
+import { DocumentMagnifyingGlassIcon } from '@heroicons/react/24/outline'
+import Link from 'next/link'
+
 type Props = {
   // TODO shouldn't need to have undefined here
   id?: number | null
@@ -12,8 +15,11 @@ export default function DocumentLink(props: Props) {
   const url = `/api/documents?id=${props.id}`
 
   return (
-    <a href={url} className="text-indigo-600 hover:text-indigo-900">
-      pdf
-    </a>
+    <Link
+      href={url}
+      className="inline-flex p-1 text-gray-400 hover:text-gray-500"
+    >
+      <DocumentMagnifyingGlassIcon className="h-5 w-5" />
+    </Link>
   )
 }

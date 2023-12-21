@@ -14,6 +14,7 @@ import {
   AddLink,
   DateOrAccountCodeTd,
   DescriptionTd,
+  DocumentTd,
   Link,
   LinkedTd,
 } from '../components/common/table'
@@ -77,9 +78,9 @@ export function JournalEntry({ journalEntry }: Props) {
             </table>
           )}
         </td>
-        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+        <DocumentTd>
           <DocumentLink id={journalEntry.documentId} />
-        </td>
+        </DocumentTd>
         <LinkedTd>
           {journalEntry.linkedToTransactionIds.length > 0 && (
             <Link

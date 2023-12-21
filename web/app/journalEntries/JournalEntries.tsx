@@ -3,6 +3,7 @@ import { JournalEntry } from './JournalEntry'
 import {
   DateOrAccountCodeTh,
   DescriptionTh,
+  DocumentTh,
   LinkedTh,
   Table,
 } from '../components/common/table'
@@ -24,12 +25,7 @@ export function JournalEntries({
           >
             Transactions
           </th>
-          <th
-            scope="col"
-            className="py-3.5 pr-3 text-left text-sm font-semibold text-gray-900"
-          >
-            Documents
-          </th>
+          <DocumentTh />
           <LinkedTh />
           <th scope="col" className="py-3.5" />
         </tr>

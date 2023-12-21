@@ -30,7 +30,7 @@ export function DescriptionTh({ children }: { children: ReactNode }) {
   return (
     <th
       scope="col"
-      className="py-3.5 pr-12 text-left text-sm font-semibold text-gray-900"
+      className="py-3.5 pr-6 text-left text-sm font-semibold text-gray-900"
     >
       {children}
     </th>
@@ -39,7 +39,7 @@ export function DescriptionTh({ children }: { children: ReactNode }) {
 
 export function DescriptionTd({ children }: { children: ReactNode }) {
   return (
-    <td className="whitespace-nowrap py-4 pr-12 text-sm font-medium text-gray-900">
+    <td className="whitespace-nowrap py-4 pr-6 text-sm font-medium text-gray-900">
       {children}
     </td>
   )
@@ -49,7 +49,7 @@ export function AmountTh({ children }: { children: ReactNode }) {
   return (
     <th
       scope="col"
-      className="w-32 py-3.5 text-right text-sm font-semibold text-gray-900"
+      className="w-32 py-3.5 pr-3 text-right text-sm font-semibold text-gray-900"
     >
       {children}
     </th>
@@ -58,24 +58,40 @@ export function AmountTh({ children }: { children: ReactNode }) {
 
 export function AmountTd({ children }: { children: ReactNode }) {
   return (
-    <td className="whitespace-nowrap py-4 text-right text-sm">{children}</td>
+    <td className="whitespace-nowrap py-4 pr-3 text-right text-sm">
+      {children}
+    </td>
+  )
+}
+
+export function DocumentTh() {
+  return <th scope="col" className="w-12" />
+}
+
+export function DocumentTd({ children }: { children: ReactNode }) {
+  return (
+    <td className="whitespace-nowrap py-4 text-sm text-gray-500">{children}</td>
   )
 }
 
 export function LinkedTh() {
-  return (
-    <th
-      scope="col"
-      className="w-32 py-3.5 pl-12 text-left text-sm font-semibold text-gray-900"
-    >
-      Linked
-    </th>
-  )
+  return <th scope="col" className="w-24" />
 }
 
-export function LinkedTd({ children }: { children: ReactNode }) {
+export function LinkedTd({
+  children,
+  right,
+}: {
+  children: ReactNode
+  right?: true
+}) {
   return (
-    <td className="relative whitespace-nowrap pl-12 text-xs font-medium">
+    <td
+      className={classNames(
+        'relative whitespace-nowrap pl-3 text-xs font-medium',
+        right ? 'text-right' : '',
+      )}
+    >
       {children}
     </td>
   )
@@ -85,7 +101,7 @@ const linkClass =
   'inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20'
 export function Link({ onClick }: { onClick?: () => void }) {
   if (!onClick) {
-    return <div className={linkClass}>Link</div>
+    return <div className={linkClass}>Linked</div>
   }
 
   return (

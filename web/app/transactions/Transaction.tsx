@@ -27,7 +27,7 @@ export function Transaction({ transaction }: Props) {
       <AmountTd>
         <Amount amount={transaction.balance} />
       </AmountTd>
-      <LinkedTd>{transaction.journalEntryId && <Link />}</LinkedTd>
+      <LinkedTd right>{transaction.journalEntryId && <Link />}</LinkedTd>
     </tr>
   )
 }
