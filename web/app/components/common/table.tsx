@@ -2,9 +2,7 @@ import { ReactNode } from 'react'
 import { classNames } from '../../utils'
 
 export function Table({ children }: { children: ReactNode }) {
-  return (
-    <table className="w-[60rem] divide-y divide-gray-300">{children}</table>
-  )
+  return <table className="w-full divide-y divide-gray-300">{children}</table>
 }
 
 export function DateOrAccountCodeTh({ children }: { children: ReactNode }) {

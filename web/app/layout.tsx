@@ -23,8 +23,8 @@ export default function RootLayout(props: { children: ReactNode }) {
           <div className="fixed inset-y-0 flex w-60">
             <Nav />
           </div>
-          <main className="pl-60">
-            <div className="p-8">{props.children}</div>
+          <main className="w-full pl-60">
+            <div className="max-w-[64rem] p-8">{props.children}</div>
           </main>
         </div>
       </body>

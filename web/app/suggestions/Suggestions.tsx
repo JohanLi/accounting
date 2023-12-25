@@ -1,7 +1,7 @@
-import JournalEntryForm from '../journalEntries/JournalEntryForm'
-import { getSuggestions } from './suggestions'
+import { getSuggestions } from './getSuggestions'
+import { SuggestionForm } from './SuggestionForm'
 
-export default async function JournalEntrySuggestions() {
+export default async function Suggestions() {
   const suggestions = await getSuggestions()
 
   return (
@@ -11,13 +11,13 @@ export default async function JournalEntrySuggestions() {
       </h1>
       <div className="mt-4">
         {suggestions.map((suggestion) => (
-          <JournalEntryForm
+          <SuggestionForm
             key={`documentId-${
               suggestion.documentId
             }-linkedToTransactionIds-${suggestion.linkedToTransactionIds.join(
               ',',
             )}`}
-            journalEntry={suggestion}
+            suggestion={suggestion}
           />
         ))}
         {suggestions.length === 0 && (

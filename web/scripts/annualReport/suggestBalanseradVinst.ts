@@ -1,5 +1,5 @@
 import { YEAR } from './constants'
-import { Suggestion } from '../../app/suggestions/suggestions'
+import { Suggestion } from '../../app/suggestions/getSuggestions'
 
 async function main() {
   if (YEAR !== 2023) {

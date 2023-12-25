@@ -1,5 +1,5 @@
 import DocumentUpload from './upload/DocumentUpload'
-import JournalEntrySuggestions from './suggestions/JournalEntrySuggestions'
+import Suggestions from './suggestions/Suggestions'
 import { H1 } from './components/common/heading'
 
 export default async function Home() {
@@ -7,7 +7,7 @@ export default async function Home() {
     <>
       <H1>Home</H1>
       <DocumentUpload />
-      <JournalEntrySuggestions />
+      <Suggestions />
     </>
   )
 }
