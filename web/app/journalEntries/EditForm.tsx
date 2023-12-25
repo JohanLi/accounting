@@ -14,8 +14,6 @@ type Props = {
   onClose: () => void
 }
 
-// TODO cancelling should reset the transactions' values
-
 export default function EditForm({ journalEntry, onClose }: Props) {
   const router = useRouter()
 
@@ -38,19 +36,28 @@ export default function EditForm({ journalEntry, onClose }: Props) {
         <TextInput value={description} onChange={setDescription} />
       </label>
       <div className="space-y-1">
-        {transactions.map((t, i) => (
+        {transactions.map((t) => (
           <div
-            key={i}
+            key={t.accountId}
             className="flex items-center space-x-1"
             data-testid="transaction"
           >
             <div className="w-16">
               <TextInput
-                value={t.accountId.toString() || ''}
+                value={t.accountId.toString()}
                 onChange={(value) => {
-                  const newTransactions = [...transactions]
-                  newTransactions[i].accountId = parseInt(value)
-                  setTransactions(newTransactions)
+                  setTransactions(
+                    transactions.map((transaction) => {
+                      if (transaction.accountId === t.accountId) {
+                        return {
+                          ...transaction,
+                          accountId: parseInt(value),
+                        }
+                      }
+
+                      return transaction
+                    }),
+                  )
                 }}
               />
             </div>
@@ -58,9 +65,18 @@ export default function EditForm({ journalEntry, onClose }: Props) {
               <AmountInput
                 value={t.amount}
                 onChange={(amount) => {
-                  const newTransactions = [...transactions]
-                  newTransactions[i].amount = amount
-                  setTransactions(newTransactions)
+                  setTransactions(
+                    transactions.map((transaction) => {
+                      if (transaction.accountId === t.accountId) {
+                        return {
+                          ...transaction,
+                          amount,
+                        }
+                      }
+
+                      return transaction
+                    }),
+                  )
                 }}
               />
             </div>
