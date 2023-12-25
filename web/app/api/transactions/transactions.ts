@@ -30,14 +30,6 @@ const commonSchema = z.object({
   valueDate: z.string(),
   text: z.string(),
   availableBalance: z.string(),
-  /*
-   TODO
-     accountId and type isn't really the best solution.
-     The main issue lies in mapping accountId to type, and that it requires
-     both "extension" and "web" to know about the same ENV variables.
-     "type" is also saved in raw although it's a derived value.
-   */
-  accountId: z.string(),
   type: z.enum(transactionTypeEnum.enumValues),
 })
 

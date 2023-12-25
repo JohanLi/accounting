@@ -63,18 +63,23 @@ async function getDownloads() {
     throw new Error('Failed to download bank transactions')
   }
 
-  return (await response.json())
-    .transactions.map((transaction) => {
-      if (transaction.accountId === regularAccountId) {
-        transaction.type = 'bankRegular'
-      }
+  return (await response.json()).transactions.map((transaction) => {
+    if (transaction.accountId === regularAccountId) {
+      transaction.type = 'bankRegular'
+    } else if (transaction.accountId === savingsAccountId) {
+      transaction.type = 'bankSavings'
+    } else {
+      throw new Error(
+        `One of the transactions has an unknown account id: ${JSON.stringify(
+          transaction,
+          null,
+          2,
+        )}`,
+      )
+    }
 
-      if (transaction.accountId === savingsAccountId) {
-        transaction.type = 'bankSavings'
-      }
-
-      return transaction
-    })
+    return transaction
+  })
 }
 
 export default function TransactionsBank() {
