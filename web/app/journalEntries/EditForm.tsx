@@ -1,15 +1,13 @@
-'use client'
-
 import { useState } from 'react'
 import { Button } from '../components/Button'
 import { JournalEntryType, Transaction } from '../getJournalEntries'
 import { formatDate } from '../components/DateFormatted'
 import { AmountInput } from '../components/AmountInput'
-import DocumentLink from './DocumentLink'
 import { DateInput } from './DateInput'
 import { Submit } from '../components/Submit'
 import { updateJournalEntry } from '../actions/updateJournalEntry'
 import { useRouter } from 'next/navigation'
+import { TextInput } from './TextInput'
 
 type Props = {
   journalEntry: JournalEntryType
@@ -18,7 +16,7 @@ type Props = {
 
 // TODO cancelling should reset the transactions' values
 
-export default function JournalEntryForm({ journalEntry, onClose }: Props) {
+export default function EditForm({ journalEntry, onClose }: Props) {
   const router = useRouter()
 
   const [date, setDate] = useState(formatDate(journalEntry.date))
@@ -29,55 +27,47 @@ export default function JournalEntryForm({ journalEntry, onClose }: Props) {
   )
 
   return (
-    <div className="grid grid-cols-12 gap-x-4" data-testid="journalEntryForm">
-      <label className="col-span-2">
-        <div>Date</div>
+    <div
+      className="-ml-4 flex items-center gap-x-3 py-4"
+      data-testid="journalEntryForm"
+    >
+      <label className="w-32">
         <DateInput value={date} onChange={setDate} />
       </label>
-      <label className="col-span-3">
-        <div>Description</div>
-        <input
-          type="text"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="w-full"
-        />
+      <label className="flex-1">
+        <TextInput value={description} onChange={setDescription} />
       </label>
-      <div className="col-span-3">
-        <div>Transactions</div>
+      <div className="space-y-1">
         {transactions.map((t, i) => (
           <div
             key={i}
-            className="flex items-center space-x-4"
+            className="flex items-center space-x-1"
             data-testid="transaction"
           >
-            <input
-              type="text"
-              value={t.accountId || ''}
-              onChange={(e) => {
-                const newTransactions = [...transactions]
-                newTransactions[i].accountId = parseInt(e.target.value)
-                setTransactions(newTransactions)
-              }}
-              className="w-24"
-            />
-            <AmountInput
-              value={t.amount}
-              onChange={(amount) => {
-                const newTransactions = [...transactions]
-                newTransactions[i].amount = amount
-                setTransactions(newTransactions)
-              }}
-            />
+            <div className="w-16">
+              <TextInput
+                value={t.accountId.toString() || ''}
+                onChange={(value) => {
+                  const newTransactions = [...transactions]
+                  newTransactions[i].accountId = parseInt(value)
+                  setTransactions(newTransactions)
+                }}
+              />
+            </div>
+            <div className="w-28">
+              <AmountInput
+                value={t.amount}
+                onChange={(amount) => {
+                  const newTransactions = [...transactions]
+                  newTransactions[i].amount = amount
+                  setTransactions(newTransactions)
+                }}
+              />
+            </div>
           </div>
         ))}
       </div>
-      {!!journalEntry.documentId && (
-        <div className="col-span-1">
-          <DocumentLink id={journalEntry.documentId} />
-        </div>
-      )}
-      <div className="col-span-2">
+      <div className="ml-auto w-52">
         <form
           action={async () => {
             const entry = {
@@ -94,9 +84,8 @@ export default function JournalEntryForm({ journalEntry, onClose }: Props) {
             router.refresh()
             onClose()
           }}
-          className="flex space-x-4"
+          className="flex justify-end space-x-2"
         >
-          <Submit disabled={false} />
           <Button
             type="secondary"
             onClick={() => {
@@ -104,6 +93,7 @@ export default function JournalEntryForm({ journalEntry, onClose }: Props) {
             }}
             text="Cancel"
           />
+          <Submit disabled={false} />
         </form>
       </div>
     </div>

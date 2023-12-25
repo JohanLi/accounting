@@ -2,7 +2,7 @@
 
 import { JournalEntryType as JournalEntryType } from '../getJournalEntries'
 import { useState } from 'react'
-import JournalEntryForm from './JournalEntryForm'
+import EditForm from './EditForm'
 import { DateFormatted } from '../components/DateFormatted'
 import { Amount } from '../components/Amount'
 import DocumentLink from './DocumentLink'
@@ -26,7 +26,7 @@ export function JournalEntry({ journalEntry }: Props) {
     return (
       <tr>
         <td colSpan={6}>
-          <JournalEntryForm
+          <EditForm
             journalEntry={journalEntry}
             onClose={() => setEdit(false)}
           />
