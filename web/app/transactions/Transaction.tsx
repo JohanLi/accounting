@@ -6,9 +6,9 @@ import {
   AmountTd,
   DateOrAccountCodeTd,
   DescriptionTd,
-  Link,
   LinkedTd,
 } from '../components/common/table'
+import { Linked } from '../journalEntries/link/LinkButton'
 
 type Props = {
   transaction: InferSelectModel<typeof Transactions>
@@ -27,7 +27,7 @@ export function Transaction({ transaction }: Props) {
       <AmountTd>
         <Amount amount={transaction.balance} />
       </AmountTd>
-      <LinkedTd right>{transaction.journalEntryId && <Link />}</LinkedTd>
+      <LinkedTd right>{transaction.journalEntryId && <Linked />}</LinkedTd>
     </tr>
   )
 }

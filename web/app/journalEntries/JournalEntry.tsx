@@ -1,23 +1,19 @@
 'use client'
 
-// TODO the linked document and linked transactions should trigger a popover on hover
-
 import { JournalEntryType as JournalEntryType } from '../getJournalEntries'
 import { useState } from 'react'
 import JournalEntryForm from './JournalEntryForm'
-import { JournalEntryLinkForm } from './JournalEntryLinkForm'
 import { DateFormatted } from '../components/DateFormatted'
 import { Amount } from '../components/Amount'
 import DocumentLink from './DocumentLink'
 import { Button } from '../components/Button'
 import {
-  AddLink,
   DateOrAccountCodeTd,
   DescriptionTd,
   DocumentTd,
-  Link,
   LinkedTd,
 } from '../components/common/table'
+import { LinkPopover } from './link/LinkPopover'
 
 type Props = {
   journalEntry: JournalEntryType
@@ -25,7 +21,6 @@ type Props = {
 
 export function JournalEntry({ journalEntry }: Props) {
   const [edit, setEdit] = useState(false)
-  const [editLink, setEditLink] = useState(false)
 
   if (edit) {
     return (
@@ -34,19 +29,6 @@ export function JournalEntry({ journalEntry }: Props) {
           <JournalEntryForm
             journalEntry={journalEntry}
             onClose={() => setEdit(false)}
-          />
-        </td>
-      </tr>
-    )
-  }
-
-  if (editLink) {
-    return (
-      <tr>
-        <td colSpan={6}>
-          <JournalEntryLinkForm
-            journalEntry={journalEntry}
-            onClose={() => setEditLink(false)}
           />
         </td>
       </tr>
@@ -82,20 +64,7 @@ export function JournalEntry({ journalEntry }: Props) {
           <DocumentLink id={journalEntry.documentId} />
         </DocumentTd>
         <LinkedTd>
-          {journalEntry.linkedToTransactionIds.length > 0 && (
-            <Link
-              onClick={() => {
-                setEditLink(true)
-              }}
-            />
-          )}
-          {!journalEntry.linkedToTransactionIds.length && (
-            <AddLink
-              onClick={() => {
-                setEditLink(true)
-              }}
-            />
-          )}
+          <LinkPopover journalEntry={journalEntry} />
         </LinkedTd>
         <td className="space-x-2 text-right">
           <Button type="secondary" onClick={() => setEdit(true)} text="Edit" />

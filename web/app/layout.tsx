@@ -20,7 +20,7 @@ export default function RootLayout(props: { children: ReactNode }) {
       <link rel="icon" type="image/png" href="/icon.development.png" />
       <body className={inter.className}>
         <div className="flex">
-          <div className="fixed inset-y-0 z-50 flex w-60">
+          <div className="fixed inset-y-0 flex w-60">
             <Nav />
           </div>
           <main className="pl-60">
