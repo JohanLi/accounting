@@ -40,13 +40,18 @@ export async function getGoogleWorkspaceDocument(strings: any[]) {
       ),
     )
 
+  if (transactions.length === 0) {
+    throw new Error(
+      'A matching transaction does not seem to exist for this Google Workspace document',
+    )
+  }
+
   if (transactions.length > 1) {
     throw new Error(
       'Two or more transactions look like they may be linked to this Google Workspace document',
     )
   }
 
-  // TODO handle case where transactions is []
   const total = transactions[0].amount
   const vat = Math.round(total - total / (1 + 0.25))
 
