@@ -21,6 +21,6 @@ export function useGetHref(name: string, defaultValue: string) {
 
       return `${pathname}?${params.toString()}`
     },
-    [searchParams],
+    [searchParams, pathname, name, defaultValue],
   )
 }

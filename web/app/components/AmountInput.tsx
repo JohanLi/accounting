@@ -1,5 +1,5 @@
 import { formatAmount } from './Amount'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 export type NumberOrMinus = number | '-'
 
@@ -40,15 +40,10 @@ type Props = {
 export function AmountInput(props: Props) {
   const [numberOrMinus, setNumberOrMinus] = useState<NumberOrMinus>(props.value)
 
-  useEffect(() => {
-    props.onChange(numberOrMinus === '-' ? 0 : numberOrMinus)
-  }, [numberOrMinus])
-
-  useEffect(() => {
-    if (props.value === 0) {
-      setNumberOrMinus(0)
-    }
-  }, [props.value])
+  // this lets setValue(0) from the outside to reset the input
+  if (props.value === 0 && numberOrMinus !== 0) {
+    setNumberOrMinus(0)
+  }
 
   return (
     <input
@@ -56,7 +51,9 @@ export function AmountInput(props: Props) {
       name="amount"
       value={displayAmountInput(numberOrMinus)}
       onChange={(e) => {
-        setNumberOrMinus(toNumberOrMinus(e.target.value))
+        const value = toNumberOrMinus(e.target.value)
+        setNumberOrMinus(value)
+        props.onChange(value === '-' ? 0 : value)
       }}
       placeholder={props.placeholder}
       autoComplete="off"

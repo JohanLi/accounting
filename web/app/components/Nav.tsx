@@ -30,7 +30,13 @@ const specializedToolsTabs = [
 export default function Nav() {
   return (
     <div className="flex grow flex-col gap-y-8 bg-gray-900 px-6 py-8">
-      <Image src="/icon.development.png" width={60} height={60} alt="logo" />
+      <Image
+        src="/icon.development.png"
+        width={60}
+        height={60}
+        alt="logo"
+        priority
+      />
       <nav className="flex flex-1">
         <ul role="list" className="flex flex-1 flex-col gap-y-8">
           <li>
