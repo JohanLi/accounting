@@ -22,36 +22,42 @@ export async function getDocumentSuggestions() {
     .where(isNull(JournalEntries.id))
     .orderBy(asc(Documents.id))
 
-  return Promise.all(
-    pendingDocuments.map(async (document) => {
-      const strings = await getPDFStrings(document.data)
+  const knownDocumentSuggestions = []
+  const unknownDocumentSuggestions = []
 
-      const recognizedDocument = await getRecognizedDocument(strings)
+  for (const document of pendingDocuments) {
+    const strings = await getPDFStrings(document.data)
 
-      if (recognizedDocument) {
-        return {
-          ...recognizedDocument,
-          linkedToTransactionIds: [],
-          documentId: document.id,
-        }
-      }
+    const recognizedDocument = await getRecognizedDocument(strings)
 
-      const googleWorkspaceDocument = await getGoogleWorkspaceDocument(strings)
-
-      if (googleWorkspaceDocument) {
-        return {
-          ...googleWorkspaceDocument,
-          documentId: document.id,
-        }
-      }
-
-      const unknownDocument = await getUnknownDocument(strings)
-
-      return {
-        ...unknownDocument,
+    if (recognizedDocument) {
+      knownDocumentSuggestions.push({
+        ...recognizedDocument,
         linkedToTransactionIds: [],
         documentId: document.id,
-      }
-    }),
-  )
+      })
+      continue
+    }
+
+    const googleWorkspaceDocument = await getGoogleWorkspaceDocument(strings)
+
+    if (googleWorkspaceDocument) {
+      knownDocumentSuggestions.push({
+        ...googleWorkspaceDocument,
+        documentId: document.id,
+      })
+      continue
+    }
+
+    const unknownDocument = await getUnknownDocument(strings)
+
+    if (unknownDocument) {
+      unknownDocumentSuggestions.push({
+        ...unknownDocument,
+        documentId: document.id,
+      })
+    }
+  }
+
+  return { knownDocumentSuggestions, unknownDocumentSuggestions }
 }

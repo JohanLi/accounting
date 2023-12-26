@@ -3,7 +3,7 @@ import { YEAR } from './constants'
 import db from '../../app/db'
 import { JournalEntries, JournalEntryTransactions } from '../../app/schema'
 import { and, eq, gte, inArray, lt, lte, sql } from 'drizzle-orm'
-import { Suggestion } from '../../app/suggestions/getSuggestions'
+import { SuggestionFromKnown } from '../../app/suggestions/getSuggestions'
 
 /*
   The third-party service I use to submit the annual report calculates
@@ -124,7 +124,7 @@ async function main() {
 
   const taxAmount = tax * 100
 
-  const suggestionCorporateTax: Suggestion = {
+  const suggestionCorporateTax: SuggestionFromKnown = {
     date: endInclusive,
     description: 'Skatt på årets resultat',
     transactions: [
@@ -144,7 +144,7 @@ async function main() {
 
   const resultAmount = profitAndLoss - taxAmount
 
-  const suggestionResult: Suggestion = {
+  const suggestionResult: SuggestionFromKnown = {
     date: endInclusive,
     description: 'Årets resultat',
     transactions: [

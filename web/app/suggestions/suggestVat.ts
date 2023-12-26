@@ -1,6 +1,6 @@
 import { YEAR } from '../../scripts/annualReport/constants'
 import { getAccountTotals } from '../accountTotals/getAccountTotals'
-import { Suggestion } from './getSuggestions'
+import { SuggestionFromKnown } from './getSuggestions'
 
 const VAT_ACCOUNT_IDS = [2610, 2620, 2630, 2640, 2614, 2645, 1650, 2650]
 
@@ -17,7 +17,7 @@ export async function suggestVat() {
       closingBalance: a.closingBalance,
     }))
 
-  const suggestion: Suggestion = {
+  const suggestion: SuggestionFromKnown = {
     date: new Date('2023-06-30'),
     // TODO – the VAT period that this covers should be given special meaning somehow
     description: 'Momsredovisning: juli 2022 - juni 2023',

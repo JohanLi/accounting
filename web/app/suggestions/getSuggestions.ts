@@ -4,29 +4,48 @@ import { getBankSavingsSuggestions } from './bankSavingsSuggestions'
 import { getTaxSuggestions } from './taxSuggestions'
 import { getInsuranceSuggestions } from './insuranceSuggestions'
 import { getAccountsReceivablePaidSuggestions } from './accountsReceivablePaidSuggestions'
-import { JournalEntryUpdate } from '../actions/updateJournalEntry'
+import { Transaction } from '../getJournalEntries'
+import { InferSelectModel } from 'drizzle-orm'
+import { Transactions } from '../schema'
 
-export type Suggestion = JournalEntryUpdate & {
-  options?: {
-    foreignCurrency?: string
-    values: number[]
-    dates: Date[]
-  }
+export type Suggestions = {
+  knownDocumentSuggestions: SuggestionFromKnown[]
+  unknownDocumentSuggestions: SuggestionFromUnknown[]
 }
 
-export async function getSuggestions(): Promise<Suggestion[]> {
+export type SuggestionFromKnown = {
+  date: Date
+  description: string
+  transactions: Transaction[]
+  linkedToTransactionIds: number[]
+  documentId?: number
+}
+
+export type SuggestionFromUnknown = {
+  bankTransactions: InferSelectModel<typeof Transactions>[]
+  description: string
+  documentId: number
+}
+
+export async function getSuggestions(): Promise<Suggestions> {
   const taxSuggestions = await getTaxSuggestions()
   const bankSavingsSuggestions = await getBankSavingsSuggestions()
-  const documentSuggestions = await getDocumentSuggestions()
+
   const insuranceSuggestions = await getInsuranceSuggestions()
   const accountsReceivablePaidSuggestions =
     await getAccountsReceivablePaidSuggestions()
 
-  return filterNull([
-    ...taxSuggestions,
-    ...bankSavingsSuggestions,
-    ...documentSuggestions,
-    ...insuranceSuggestions,
-    ...accountsReceivablePaidSuggestions,
-  ])
+  const { knownDocumentSuggestions, unknownDocumentSuggestions } =
+    await getDocumentSuggestions()
+
+  return {
+    knownDocumentSuggestions: filterNull([
+      ...taxSuggestions,
+      ...bankSavingsSuggestions,
+      ...insuranceSuggestions,
+      ...accountsReceivablePaidSuggestions,
+      ...knownDocumentSuggestions,
+    ]),
+    unknownDocumentSuggestions,
+  }
 }

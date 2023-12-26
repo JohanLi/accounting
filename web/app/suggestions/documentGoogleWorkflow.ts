@@ -5,7 +5,7 @@ import { and, eq, gte, isNull, lte } from 'drizzle-orm'
 
 const TIME_WINDOW_DAYS = 10
 
-export async function getGoogleWorkspaceDocument(strings: any[]) {
+export async function getGoogleWorkspaceDocument(strings: string[]) {
   if (!strings.includes('Google Workspace')) {
     return null
   }
@@ -41,9 +41,7 @@ export async function getGoogleWorkspaceDocument(strings: any[]) {
     )
 
   if (transactions.length === 0) {
-    throw new Error(
-      'A matching transaction does not seem to exist for this Google Workspace document',
-    )
+    return null
   }
 
   if (transactions.length > 1) {
