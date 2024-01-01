@@ -1,9 +1,12 @@
 import Decimal from 'decimal.js'
+import { krToOre } from './utils'
 
 /*
-  Brytpunkter 2023
-  - Statlig inkomstskatt: 613,900
-  - Högsta inkomsten som utgör underlag för allmän pension: 599,250
+  Brytpunkter 2024
+  - Statlig inkomstskatt: 615 300
+      https://www.skatteverket.se/privat/skatter/beloppochprocent/2024.4.7da1d2e118be03f8e4f4a88.html#h-Brytpunkt
+  - Högsta inkomsten som utgör underlag för allmän pension: 614 500
+      https://www.pensionsmyndigheten.se/forsta-din-pension/om-pensionssystemet/sa-beraknas-din-pension-basbelopp-och-varderegler
  */
 
 /*
@@ -12,9 +15,8 @@ import Decimal from 'decimal.js'
   - From the results, calculate a "personal tax rate". This is of interest because I don't pay myself a monthly salary – instead I do it in large clump.
  */
 export const PERSONAL_TAX = {
-  annualSalary: 61390000,
-  // the actual rate is slightly higher, because I initially assumed a lower brytpunkt
-  rate: new Decimal('0.23798'),
+  annualSalary: krToOre(615300),
+  rate: new Decimal('0.2412092'),
 }
 
 export const PAYROLL_TAX = new Decimal('0.3142')
@@ -37,7 +39,7 @@ export function getSalaryTaxes(amount?: number) {
 
 const currentYear = new Date().getFullYear()
 
-if (currentYear !== 2023) {
+if (currentYear !== 2024) {
   throw new Error('New year – tax rates need to be updated')
 }
 

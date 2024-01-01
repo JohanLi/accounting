@@ -1,6 +1,6 @@
 import { getSuggestions } from './getSuggestions'
 import { SuggestionKnownForm } from './SuggestionKnownForm'
-import { SuggestionUnknownForm } from './SuggestionUnknownForm'
+import SuggestionsUnknown from './SuggestionsUnknown'
 
 export default async function Suggestions() {
   const { knownDocumentSuggestions, unknownDocumentSuggestions } =
@@ -37,28 +37,7 @@ export default async function Suggestions() {
         </div>
       )}
       {unknownDocumentSuggestions.length > 0 && (
-        <div>
-          <div className="flex space-x-4">
-            <div className="w-64 text-sm font-semibold text-gray-900">
-              Bank transactions
-            </div>
-            <div className="w-64 text-sm font-semibold text-gray-900">
-              Description
-            </div>
-            <div className="w-32 text-sm font-semibold text-gray-900">Type</div>
-            <div className="w-44 text-sm font-semibold text-gray-900">
-              Transactions
-            </div>
-          </div>
-          <div>
-            {unknownDocumentSuggestions.map((suggestion) => (
-              <SuggestionUnknownForm
-                key={`documentId-${suggestion.documentId}`}
-                suggestion={suggestion}
-              />
-            ))}
-          </div>
-        </div>
+        <SuggestionsUnknown suggestions={unknownDocumentSuggestions} />
       )}
       {knownDocumentSuggestions.length === 0 &&
         unknownDocumentSuggestions.length === 0 && (

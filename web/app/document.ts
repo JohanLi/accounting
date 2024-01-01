@@ -346,6 +346,6 @@ export async function getUnknownDocument(strings: string[]) {
   return {
     bankTransactions,
     // TODO implement a way to tag journal entries
-    description: 'Unknown document – ',
+    description: '',
   }
 }
