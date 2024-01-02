@@ -264,12 +264,52 @@ export function getMonetaryValues(strings: string[]) {
     .sort((a, b) => b - a)
 }
 
+const foreignCurrencyMonetaryFormats = {
+  EUR: [/€(\d+.\d{2})/, /(\d+.\d{2}) EUR/],
+  USD: [/\$(\d+.\d{2})/],
+}
+export function getForeignCurrencyMonetaryValues(strings: string[]) {
+  for (const [foreignCurrency, monetaryFormats] of Object.entries(
+    foreignCurrencyMonetaryFormats,
+  )) {
+    const found = monetaryFormats.find((regex) =>
+      strings.find((string) => string.match(regex)),
+    )
+
+    if (!found) {
+      continue
+    }
+
+    return {
+      foreignCurrency,
+      values: unique(
+        strings
+          .map((string) => string.match(found))
+          .filter((found): found is RegExpMatchArray => found !== null)
+          .map((found) => found[1]),
+      )
+        .map((string) => krToOre(string))
+        .sort((a, b) => b - a),
+    }
+  }
+
+  return null
+}
+
 const dateFormats = [
   /[A-Z][a-z]{2} \d{1,2}, \d{4}/,
   /\d{4}-\d{2}-\d{2}/,
   /(\d{2})\/(\d{2})\/(\d{4})/,
+  /(\d{1,2})\.(\d{1,2})\.(\d{4})/, // JetBrains' invoices
 ]
-export function getDates(strings: string[]) {
+/*
+  There exists ambiguity between MM/DD/YYYY and DD/MM/YYYY. It appears that USA and Canada use MM/DD/YYYY.
+  If $ is detected as the currency in an unknown document, we'll assume MM/DD/YYYY.
+
+  An alternate solution is to return dates assuming both formats, as long as they're valid. It doesn't matter
+  for unknown documents, because the date is only used to find bank transactions.
+ */
+export function getDates(strings: string[], checkMMDDYYYY = false) {
   const found = dateFormats.findIndex((regex) =>
     strings.find((string) => string.match(regex)),
   )
@@ -284,12 +324,14 @@ export function getDates(strings: string[]) {
       .filter((foundDate): foundDate is RegExpMatchArray => foundDate !== null)
       .map((foundDate) => {
         if (found === 2) {
-          /*
-            TODO
-              ambiguity between MM/DD/YYYY and DD/MM/YYYY needs to be handled. From the look of things,
-              it's mostly USA and Canada that use MM/DD/YYYY (https://en.wikipedia.org/wiki/Date_format_by_country).
-              Perhaps check the presence of dollar values.
-           */
+          if (!checkMMDDYYYY) {
+            return new Date(`${foundDate[3]}-${foundDate[2]}-${foundDate[1]}`)
+          }
+
+          return new Date(`${foundDate[3]}-${foundDate[1]}-${foundDate[2]}`)
+        }
+
+        if (found === 3) {
           return new Date(`${foundDate[3]}-${foundDate[2]}-${foundDate[1]}`)
         }
 
@@ -306,9 +348,12 @@ export function getDates(strings: string[]) {
   For documents like these, I've found it easiest to only detect dates. Then, using those dates, check against
   non-linked bank transactions to suggest values. This solution also works well for documents with foreign currencies.
  */
-const SEARCH_DAY_RANGE = 3
+const SEARCH_DAY_RANGE = 10
 export async function getUnknownDocument(strings: string[]) {
-  const dates = getDates(strings)
+  const foreignValues = getForeignCurrencyMonetaryValues(strings)
+  const checkMMDDYYYY = foreignValues?.foreignCurrency === 'USD'
+
+  const dates = getDates(strings, checkMMDDYYYY)
 
   if (!dates.length) {
     return null
@@ -347,5 +392,7 @@ export async function getUnknownDocument(strings: string[]) {
     bankTransactions,
     // TODO implement a way to tag journal entries
     description: '',
+    values: foreignValues?.values ?? getMonetaryValues(strings),
+    foreignCurrency: foreignValues?.foreignCurrency,
   }
 }

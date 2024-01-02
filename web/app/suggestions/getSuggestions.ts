@@ -25,6 +25,8 @@ export type SuggestionFromUnknown = {
   bankTransactions: InferSelectModel<typeof Transactions>[]
   description: string
   documentId: number
+  values: number[]
+  foreignCurrency?: string
 }
 
 export async function getSuggestions(): Promise<Suggestions> {

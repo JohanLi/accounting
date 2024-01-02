@@ -120,8 +120,20 @@ export function SuggestionsUnknownForm({
           value={description}
           onChange={(value) => setDescription(value)}
         />
-        <div>
+        <div className="flex items-center space-x-4">
           <DocumentLink id={suggestion.documentId} />
+          {!!suggestion.values && (
+            <div className="space-y-1 text-sm text-gray-500">
+              {suggestion.values.map((value) => (
+                <div key={value} className="flex items-center">
+                  {suggestion.foreignCurrency && (
+                    <span className="mr-2">{suggestion.foreignCurrency}</span>
+                  )}
+                  <Amount amount={value} />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
       {!selectedCategory && (
