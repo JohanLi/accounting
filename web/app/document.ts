@@ -349,28 +349,59 @@ export function getDates(strings: string[], checkMMDDYYYY = false) {
   non-linked bank transactions to suggest values. This solution also works well for documents with foreign currencies.
  */
 const SEARCH_DAY_RANGE = 10
+const FOREIGN_CURRENCY = {
+  conversionRate: 10,
+  tolerance: 0.5,
+}
 export async function getUnknownDocument(strings: string[]) {
   const foreignValues = getForeignCurrencyMonetaryValues(strings)
-  const checkMMDDYYYY = foreignValues?.foreignCurrency === 'USD'
-
-  const dates = getDates(strings, checkMMDDYYYY)
+  const dates = getDates(strings, foreignValues?.foreignCurrency === 'USD')
 
   if (!dates.length) {
     return null
   }
 
-  const orList = dates.map((date) => {
-    const startInclusive = new Date(date)
-    startInclusive.setDate(startInclusive.getDate() - SEARCH_DAY_RANGE)
+  const datesSQL = or(
+    ...dates.map((date) => {
+      const startInclusive = new Date(date)
+      startInclusive.setDate(startInclusive.getDate() - SEARCH_DAY_RANGE)
 
-    const endExclusive = new Date(date)
-    endExclusive.setDate(endExclusive.getDate() + SEARCH_DAY_RANGE)
+      const endExclusive = new Date(date)
+      endExclusive.setDate(endExclusive.getDate() + SEARCH_DAY_RANGE)
 
-    return and(
-      gte(Transactions.date, startInclusive),
-      lt(Transactions.date, endExclusive),
+      return and(
+        gte(Transactions.date, startInclusive),
+        lt(Transactions.date, endExclusive),
+      )
+    }),
+  )
+
+  let values
+  let amountSQL
+  if (!foreignValues) {
+    values = getMonetaryValues(strings)
+    amountSQL = or(...values.map((value) => eq(Transactions.amount, -value)))
+  } else {
+    values = foreignValues.values
+    amountSQL = or(
+      ...values.map((value) =>
+        and(
+          gte(
+            Transactions.amount,
+            -value *
+              FOREIGN_CURRENCY.conversionRate *
+              (1 + FOREIGN_CURRENCY.tolerance),
+          ),
+          lt(
+            Transactions.amount,
+            -value *
+              FOREIGN_CURRENCY.conversionRate *
+              (1 - FOREIGN_CURRENCY.tolerance),
+          ),
+        ),
+      ),
     )
-  })
+  }
 
   const bankTransactions = await db
     .select()
@@ -379,7 +410,12 @@ export async function getUnknownDocument(strings: string[]) {
       and(
         eq(Transactions.type, 'bankRegular'),
         isNull(Transactions.journalEntryId),
-        or(...orList),
+        /*
+          I've encountered a PDF before that's just a scan of a printed document. In those rare cases, rather than
+          solving it through UI/code, I'll simply go here and comment out the following conditions.
+         */
+        datesSQL,
+        amountSQL,
       ),
     )
     .orderBy(asc(Transactions.id))
@@ -392,7 +428,7 @@ export async function getUnknownDocument(strings: string[]) {
     bankTransactions,
     // TODO implement a way to tag journal entries
     description: '',
-    values: foreignValues?.values ?? getMonetaryValues(strings),
+    values,
     foreignCurrency: foreignValues?.foreignCurrency,
   }
 }
