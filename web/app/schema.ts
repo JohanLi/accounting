@@ -108,6 +108,9 @@ export const Transactions = pgTable(
     externalId: char('external_id', { length: 64 }).notNull(),
     journalEntryId: integer('journal_entry_id').references(
       () => JournalEntries.id,
+      {
+        onDelete: 'set null',
+      },
     ),
     createdAt: timestamp('created_at').notNull().defaultNow(),
   },
