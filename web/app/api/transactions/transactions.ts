@@ -7,7 +7,7 @@ import {
   gte,
   InferSelectModel,
   isNull,
-  lt,
+  lte,
   ne,
   or,
 } from 'drizzle-orm'
@@ -100,13 +100,13 @@ export async function getTransactionsForLinkForm(journalEntryId: number) {
   const startInclusive = new Date(result[0].date)
   startInclusive.setDate(startInclusive.getDate() - SEARCH_DAY_RANGE)
 
-  const endExclusive = new Date(result[0].date)
-  endExclusive.setDate(endExclusive.getDate() + SEARCH_DAY_RANGE)
+  const endInclusive = new Date(result[0].date)
+  endInclusive.setDate(endInclusive.getDate() + SEARCH_DAY_RANGE)
 
   const nonLinkedInRange = and(
     isNull(Transactions.journalEntryId),
     gte(Transactions.date, startInclusive),
-    lt(Transactions.date, endExclusive),
+    lte(Transactions.date, endInclusive),
   )
 
   return db

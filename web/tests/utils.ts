@@ -62,8 +62,8 @@ export async function expectSuggestion(
       const t = journalEntryForm.getByTestId('transaction').nth(i)
 
       return Promise.all([
-        expect(t.locator('input').nth(0)).toHaveValue(transaction[0]),
-        expect(t.locator('input').nth(1)).toHaveValue(transaction[1]),
+        expect(t.locator('div').nth(0)).toHaveText(transaction[0]),
+        expect(t.locator('div').nth(1)).toHaveText(transaction[1]),
       ])
     }),
   )

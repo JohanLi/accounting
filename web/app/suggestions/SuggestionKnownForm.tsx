@@ -5,12 +5,11 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { formatDate } from '../components/DateFormatted'
 import { DateInput } from '../journalEntries/DateInput'
-import { AmountInput } from '../components/AmountInput'
 import DocumentLink from '../journalEntries/DocumentLink'
 import { updateJournalEntry } from '../actions/updateJournalEntry'
 import { Submit } from '../components/Submit'
-import { Transaction } from '../getJournalEntries'
 import { TextInput } from '../journalEntries/TextInput'
+import { Amount } from '../components/Amount'
 
 export function SuggestionKnownForm({
   suggestion,
@@ -22,16 +21,12 @@ export function SuggestionKnownForm({
   const [date, setDate] = useState(formatDate(suggestion.date))
   const [description, setDescription] = useState(suggestion.description)
 
-  const [transactions, setTransactions] = useState<Transaction[]>(
-    suggestion.transactions,
-  )
-
   return (
     <div
       className="flex items-center gap-x-4 py-4"
       data-testid="journalEntryForm"
     >
-      <label className="w-32">
+      <label className="w-36">
         <div className="sr-only">Date</div>
         <DateInput value={date} onChange={setDate} />
       </label>
@@ -43,49 +38,15 @@ export function SuggestionKnownForm({
         />
       </label>
       <div className="space-y-1">
-        {transactions.map((t) => (
+        {suggestion.transactions.map((t) => (
           <div
             key={t.accountId}
             className="flex items-center space-x-1"
             data-testid="transaction"
           >
-            <div className="w-16">
-              <TextInput
-                value={t.accountId.toString()}
-                onChange={(value) => {
-                  setTransactions(
-                    transactions.map((transaction) => {
-                      if (transaction.accountId === t.accountId) {
-                        return {
-                          ...transaction,
-                          accountId: parseInt(value),
-                        }
-                      }
-
-                      return transaction
-                    }),
-                  )
-                }}
-              />
-            </div>
-            <div className="w-28">
-              <AmountInput
-                value={t.amount}
-                onChange={(amount) => {
-                  setTransactions(
-                    transactions.map((transaction) => {
-                      if (transaction.accountId === t.accountId) {
-                        return {
-                          ...transaction,
-                          amount,
-                        }
-                      }
-
-                      return transaction
-                    }),
-                  )
-                }}
-              />
+            <div className="w-16 text-sm text-gray-500">{t.accountId}</div>
+            <div className="w-20 text-right text-sm">
+              <Amount amount={t.amount} />
             </div>
           </div>
         ))}
@@ -99,9 +60,9 @@ export function SuggestionKnownForm({
         <form
           action={async () => {
             const entry = {
-              date: new Date(date),
+              date: new Date(suggestion.date),
               description,
-              transactions,
+              transactions: suggestion.transactions,
               linkedToTransactionIds: suggestion.linkedToTransactionIds,
               documentId: suggestion.documentId,
             }

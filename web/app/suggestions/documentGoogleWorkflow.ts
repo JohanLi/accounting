@@ -51,7 +51,7 @@ export async function getGoogleWorkspaceDocument(strings: string[]) {
   }
 
   const total = transactions[0].amount
-  const vat = Math.round(total - total / (1 + 0.25))
+  const vat = Math.round(total * 0.25)
 
   return {
     date: latestDate,

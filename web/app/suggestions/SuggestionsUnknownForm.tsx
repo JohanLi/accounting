@@ -15,6 +15,7 @@ export type Category = {
   name: string
   debitAccountId: number
   vatRate: VatRate
+  reverseCharge?: true
 }
 
 export const categories: Category[] = [
@@ -32,6 +33,32 @@ export const categories: Category[] = [
     name: 'Kost och logi (12%)',
     debitAccountId: 6550,
     vatRate: '0.12',
+  },
+  {
+    name: 'Tjänster, utanför EU (25%)',
+    debitAccountId: 4531,
+    vatRate: '0.25',
+    reverseCharge: true,
+  },
+  {
+    name: 'Tjänster, annat EU-land (25%)',
+    debitAccountId: 4535,
+    vatRate: '0.25',
+    reverseCharge: true,
+  },
+  {
+    name: 'Förbrukningsinventarier (25%)',
+    debitAccountId: 5410,
+    vatRate: '0.25',
+  },
+  {
+    name: 'Presentkort, jul (0%)',
+    /*
+      https://www.fortnox.se/fortnox-foretagsguide/bokforingstips/presentkort-till-personal
+      There's some leeway in picking accountId – 7690 works just as well.
+     */
+    debitAccountId: 7699,
+    vatRate: '0',
   },
 ]
 
@@ -65,25 +92,52 @@ export function SuggestionsUnknownForm({
   if (selectedCategory) {
     // TODO consider creating a general function for transactions (that also applies Math.abs to amount)
     const amount = Math.abs(selectedBankTransaction.amount)
-    const amountBeforeVat = Math.round(
-      amount / (1 + parseFloat(selectedCategory.vatRate)),
-    )
-    const amountVat = amount - amountBeforeVat
 
-    transactions = [
-      {
-        accountId: 1930,
-        amount: -amount,
-      },
-      {
-        accountId: selectedCategory.debitAccountId,
-        amount: amountBeforeVat,
-      },
-      {
-        accountId: 2640,
-        amount: amountVat,
-      },
-    ]
+    if (!selectedCategory.reverseCharge) {
+      const amountBeforeVat = Math.round(
+        amount / (1 + parseFloat(selectedCategory.vatRate)),
+      )
+      const amountVat = amount - amountBeforeVat
+
+      transactions = [
+        {
+          accountId: 1930,
+          amount: -amount,
+        },
+        {
+          accountId: selectedCategory.debitAccountId,
+          amount: amountBeforeVat,
+        },
+        {
+          accountId: 2640,
+          amount: amountVat,
+        },
+      ]
+    } else {
+      // TODO documentGoogleWorkflow has similar logic; merge them
+      const amountVat = Math.round(
+        amount * parseFloat(selectedCategory.vatRate),
+      )
+
+      transactions = [
+        {
+          accountId: 1930,
+          amount: -amount,
+        },
+        {
+          accountId: selectedCategory.debitAccountId,
+          amount,
+        },
+        {
+          accountId: 2614,
+          amount: -amountVat,
+        },
+        {
+          accountId: 2645,
+          amount: amountVat,
+        },
+      ]
+    }
   }
 
   return (

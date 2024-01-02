@@ -6,7 +6,7 @@ import { JournalEntryUpdate } from './actions/updateJournalEntry'
 import { krToOre } from './utils'
 import db from './db'
 import { Transactions } from './schema'
-import { and, asc, eq, gte, isNull, lt, or } from 'drizzle-orm'
+import { and, asc, eq, gte, isNull, lt, lte, or } from 'drizzle-orm'
 
 // https://github.com/vercel/next.js/issues/58313#issuecomment-1807184812
 // @ts-expect-error
@@ -76,11 +76,7 @@ const characterizations: {
    */
   WELLNESS: {
     debit: 7699,
-    /*
-      2890 will no longer be true. It's used if I pay using my private
-      credit card, but it's a journal entry less if paid using company card.
-     */
-    credit: 2890,
+    credit: 1930,
     vatRate: '0.06',
   },
 }
@@ -234,6 +230,7 @@ function uniqueDate(array: Date[]) {
 }
 
 const monetaryFormats = [
+  /(\d{1,3}.\d{3}.\d{2}) SEK/, // MacBook purchase
   /(\d+,\d{2}) SEK/,
   /(\d+.\d{2}) SEK/,
   /(\d+.\d{3},\d{2})/,
@@ -366,12 +363,12 @@ export async function getUnknownDocument(strings: string[]) {
       const startInclusive = new Date(date)
       startInclusive.setDate(startInclusive.getDate() - SEARCH_DAY_RANGE)
 
-      const endExclusive = new Date(date)
-      endExclusive.setDate(endExclusive.getDate() + SEARCH_DAY_RANGE)
+      const endInclusive = new Date(date)
+      endInclusive.setDate(endInclusive.getDate() + SEARCH_DAY_RANGE)
 
       return and(
         gte(Transactions.date, startInclusive),
-        lt(Transactions.date, endExclusive),
+        lte(Transactions.date, endInclusive),
       )
     }),
   )
