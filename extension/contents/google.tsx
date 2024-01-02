@@ -9,7 +9,7 @@ import Download from '../download'
   changes URL.
 
   Instead, some manual steps will need to be taken every time:
-  - Click "View transactions and documents"
+  - Click "View invoices"
   - Go to the iframe URL (can be obtained through document.querySelector('[id^=embeddedBilling] iframe').src)
   - Change the date range filter to start from "11/30/2022" (didn't claim it as a business expense prior)
  */

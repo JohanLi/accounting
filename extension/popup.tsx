@@ -4,7 +4,7 @@ export default function IndexPopup() {
       <h2>Documents</h2>
       <ul>
         <li>
-          <a href="https://id.seb.se/ccs/mbid" target="_blank">Seb</a>
+          <a href="https://apps.seb.se/ccs/ibf/kgb/4000/4700/kgbc4702.aspx?arena=true&language=sv" target="_blank">Seb</a>
         </li>
         <li>
           <a href="https://www.tre.se/mitt3/fakturor" target="_blank">Tre</a>
