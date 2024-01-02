@@ -122,18 +122,25 @@ export function SuggestionsUnknownForm({
         />
         <div className="flex items-center space-x-4">
           <DocumentLink id={suggestion.documentId} />
-          {!!suggestion.values && (
-            <div className="space-y-1 text-sm text-gray-500">
-              {suggestion.values.map((value) => (
-                <div key={value} className="flex items-center">
-                  {suggestion.foreignCurrency && (
-                    <span className="mr-2">{suggestion.foreignCurrency}</span>
-                  )}
-                  <Amount amount={value} />
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="space-y-1 text-xs text-gray-500">
+            {suggestion.dates.map((date) => (
+              <div key={date.getTime()}>
+                <DateFormatted date={date} />
+              </div>
+            ))}
+          </div>
+          <div className="space-y-1 text-sm text-gray-500">
+            {suggestion.foreignCurrency && (
+              <div className="flex w-16 items-center justify-end">
+                {suggestion.foreignCurrency}
+              </div>
+            )}
+            {suggestion.values.map((value) => (
+              <div key={value} className="flex w-16 items-center justify-end">
+                <Amount amount={value} />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
       {!selectedCategory && (

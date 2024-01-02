@@ -430,5 +430,6 @@ export async function getUnknownDocument(strings: string[]) {
     description: '',
     values,
     foreignCurrency: foreignValues?.foreignCurrency,
+    dates,
   }
 }

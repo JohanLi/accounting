@@ -27,6 +27,7 @@ export type SuggestionFromUnknown = {
   documentId: number
   values: number[]
   foreignCurrency?: string
+  dates: Date[]
 }
 
 export async function getSuggestions(): Promise<Suggestions> {
