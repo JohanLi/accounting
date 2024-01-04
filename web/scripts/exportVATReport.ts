@@ -18,18 +18,15 @@
  */
 
 import fs from 'fs/promises'
-import { getCurrentFiscalYear, getFiscalYear } from '../app/utils'
+import { getCurrentFiscalYear, getFiscalYearQuarter } from '../app/utils'
 import db from '../app/db'
-import {
-  Accounts,
-  JournalEntries,
-  JournalEntryTransactions,
-} from '../app/schema'
-import { and, eq, gte, lt, ne, sql } from 'drizzle-orm'
+import { JournalEntries } from '../app/schema'
+import { eq, ne } from 'drizzle-orm'
 import {
   JournalEntryUpdate,
   updateJournalEntry,
 } from '../app/actions/updateJournalEntry'
+import { getTotals } from '../app/accountTotals/getAccountTotals'
 
 /*
   This isn't an exhaustive list – for outgoing VAT, I've only included
@@ -102,38 +99,16 @@ async function main() {
 
   console.log(`Generating a journal entry for "${journalEntryDescription}"`)
 
-  const { startInclusive } = getFiscalYear(getCurrentFiscalYear())
+  const { startInclusive, endInclusive, endExclusive } = getFiscalYearQuarter(
+    getCurrentFiscalYear(),
+    quarter,
+  )
 
-  const startInclusiveQuarter = new Date(startInclusive)
-  startInclusiveQuarter.setMonth(startInclusive.getMonth() + (quarter - 1) * 3)
-
-  const endExclusiveQuarter = new Date(startInclusiveQuarter)
-  endExclusiveQuarter.setMonth(startInclusiveQuarter.getMonth() + 3)
-
-  // TODO merge with getTotals()
-  const accounts = await db
-    .select({
-      id: Accounts.id,
-      // `::int` explanation: https://github.com/drizzle-team/drizzle-orm/issues/999
-      amount: sql<number>`sum(amount)::int`,
-    })
-    .from(Accounts)
-    .innerJoin(
-      JournalEntryTransactions,
-      eq(Accounts.id, JournalEntryTransactions.accountId),
-    )
-    .innerJoin(
-      JournalEntries,
-      eq(JournalEntryTransactions.journalEntryId, JournalEntries.id),
-    )
-    .where(
-      and(
-        gte(JournalEntries.date, startInclusiveQuarter),
-        lt(JournalEntries.date, endExclusiveQuarter),
-        ne(JournalEntries.description, journalEntryDescription),
-      ),
-    )
-    .groupBy(Accounts.id)
+  const accounts = await getTotals({
+    startInclusive,
+    endExclusive,
+    condition: ne(JournalEntries.description, journalEntryDescription),
+  })
 
   const vatAccounts = accounts.filter((a) => VAT_ACCOUNT_IDS.includes(a.id))
 
@@ -189,11 +164,8 @@ async function main() {
     })
   }
 
-  const endInclusiveQuarter = new Date(endExclusiveQuarter)
-  endInclusiveQuarter.setDate(endInclusiveQuarter.getDate() - 1)
-
   const vatReportJournalEntry: JournalEntryUpdate = {
-    date: endInclusiveQuarter,
+    date: endInclusive,
     description: `Momsredovisning ${getCurrentFiscalYear()} Q${quarter}`,
     transactions,
     linkedToTransactionIds: [],
@@ -216,9 +188,7 @@ async function main() {
   await updateJournalEntry(vatReportJournalEntry)
 
   // there's close to no documentation about this; it was mostly figured out through feeding different values
-  const period = `${endInclusiveQuarter.getFullYear()}${(
-    endInclusiveQuarter.getMonth() + 1
-  )
+  const period = `${endInclusive.getFullYear()}${(endInclusive.getMonth() + 1)
     .toString()
     .padStart(2, '0')}`
 

@@ -4,6 +4,7 @@ import {
   getAllFiscalYearsInReverse,
   getCurrentFiscalYear,
   getFiscalYear,
+  getFiscalYearQuarter,
   getIncomeYear,
 } from './utils'
 
@@ -42,6 +43,20 @@ test('getFiscalYear', () => {
     startInclusive: new Date('2022-07-01'),
     endInclusive: new Date('2023-06-30'),
     endExclusive: new Date('2023-07-01'),
+  })
+})
+
+test('getFiscalYearQuarter', () => {
+  expect(getFiscalYearQuarter(2023, 1)).toEqual({
+    startInclusive: new Date('2022-07-01'),
+    endInclusive: new Date('2022-09-30'),
+    endExclusive: new Date('2022-10-01'),
+  })
+
+  expect(getFiscalYearQuarter(2024, 4)).toEqual({
+    startInclusive: new Date('2024-04-01'),
+    endInclusive: new Date('2024-06-30'),
+    endExclusive: new Date('2024-07-01'),
   })
 })
 

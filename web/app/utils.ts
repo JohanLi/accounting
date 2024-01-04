@@ -41,6 +41,25 @@ export function getFiscalYear(year: number) {
   }
 }
 
+export function getFiscalYearQuarter(year: number, quarter: number) {
+  const fiscalYear = getFiscalYear(year)
+
+  const startInclusive = new Date(fiscalYear.startInclusive)
+  startInclusive.setMonth(startInclusive.getMonth() + (quarter - 1) * 3)
+
+  const endExclusive = new Date(startInclusive)
+  endExclusive.setMonth(startInclusive.getMonth() + 3)
+
+  const endInclusive = new Date(endExclusive)
+  endInclusive.setDate(endInclusive.getDate() - 1)
+
+  return {
+    startInclusive,
+    endInclusive,
+    endExclusive,
+  }
+}
+
 export function getIncomeYear(year: number) {
   const startInclusive = new Date(Date.UTC(year, 0, 1))
   const endInclusive = new Date(Date.UTC(year, 11, 31))

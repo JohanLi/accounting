@@ -1,4 +1,4 @@
-import { and, asc, eq, gte, lt, sql } from 'drizzle-orm'
+import { and, asc, eq, gte, lt, sql, SQLWrapper } from 'drizzle-orm'
 import db from '../db'
 import { Accounts, JournalEntryTransactions, JournalEntries } from '../schema'
 import { getFiscalYear } from '../utils'
@@ -35,9 +35,15 @@ async function getOpeningBalance(fiscalYear: number) {
     .groupBy(Accounts.id)
 }
 
-async function getTotals(fiscalYear: number) {
-  const { startInclusive, endExclusive } = getFiscalYear(fiscalYear)
-
+export async function getTotals({
+  startInclusive,
+  endExclusive,
+  condition,
+}: {
+  startInclusive: Date
+  endExclusive: Date
+  condition?: SQLWrapper
+}) {
   return db
     .select({
       id: Accounts.id,
@@ -57,6 +63,7 @@ async function getTotals(fiscalYear: number) {
       and(
         gte(JournalEntries.date, startInclusive),
         lt(JournalEntries.date, endExclusive),
+        condition,
       ),
     )
     .groupBy(Accounts.id)
@@ -72,7 +79,7 @@ type AccountTotal = {
 export async function getAccountTotals(fiscalYear: number) {
   const accounts = await getAccounts()
   const openingBalance = await getOpeningBalance(fiscalYear)
-  const totals = await getTotals(fiscalYear)
+  const totals = await getTotals(getFiscalYear(fiscalYear))
 
   const accountTotals: { [id: number]: AccountTotal } = {}
 
