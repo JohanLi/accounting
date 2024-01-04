@@ -18,14 +18,24 @@
  */
 
 import fs from 'fs/promises'
-import { getCurrentFiscalYear, getFiscalYear } from '../../app/utils'
-import db from '../../app/db'
+import { getCurrentFiscalYear, getFiscalYear } from '../app/utils'
+import db from '../app/db'
 import {
   Accounts,
   JournalEntries,
   JournalEntryTransactions,
-} from '../../app/schema'
-import { and, eq, gte, lt, sql } from 'drizzle-orm'
+} from '../app/schema'
+import { and, eq, gte, lt, ne, sql } from 'drizzle-orm'
+import {
+  JournalEntryUpdate,
+  updateJournalEntry,
+} from '../app/actions/updateJournalEntry'
+
+/*
+  This isn't an exhaustive list – for outgoing VAT, I've only included
+  the 25% rate.
+ */
+const VAT_ACCOUNT_IDS = [2610, 2614, 2640, 2645]
 
 /*
   The inputs are actually mapped to more accounts than I've added, but many
@@ -75,15 +85,23 @@ const VAT_MAP: {
 }
 
 /*
-  TODO
-    One issue is that this script doesn't work properly if the end-of-period
-    VAT journal entry has already been created.
+  An impracticality (for myself) is that the "aggregated"/total VAT account is conventionally split into two accounts:
+  1650 (asset) and 2650 (liability).
 
-    I'll take a closer look at it when adding support for quarterly
-    VAT reports.
+  Because it doesn't affect the calculation of how much VAT I need to pay, I won't be performing explicit checks to
+  see if 1650 has a negative balance. I'll exclusively use 2650, and only do a manual check at the end of Q4 to
+  make sure 1650 is non-negative.
+
+  Another annoyance is the way decimals are supposed to be truncated, as Skatteverket does not deal with decimals.
+  My understanding is that the truncation isn't done on an account-basis, but per input/"square".
  */
 async function main() {
   const quarter = 1
+
+  const journalEntryDescription = `Momsredovisning ${getCurrentFiscalYear()} Q${quarter}`
+
+  console.log(`Generating a journal entry for "${journalEntryDescription}"`)
+
   const { startInclusive } = getFiscalYear(getCurrentFiscalYear())
 
   const startInclusiveQuarter = new Date(startInclusive)
@@ -92,6 +110,7 @@ async function main() {
   const endExclusiveQuarter = new Date(startInclusiveQuarter)
   endExclusiveQuarter.setMonth(startInclusiveQuarter.getMonth() + 3)
 
+  // TODO merge with getTotals()
   const accounts = await db
     .select({
       id: Accounts.id,
@@ -111,9 +130,17 @@ async function main() {
       and(
         gte(JournalEntries.date, startInclusiveQuarter),
         lt(JournalEntries.date, endExclusiveQuarter),
+        ne(JournalEntries.description, journalEntryDescription),
       ),
     )
     .groupBy(Accounts.id)
+
+  const vatAccounts = accounts.filter((a) => VAT_ACCOUNT_IDS.includes(a.id))
+
+  const transactions = vatAccounts.map((a) => ({
+    accountId: a.id,
+    amount: -a.amount,
+  }))
 
   const elements: string[] = []
 
@@ -145,19 +172,72 @@ async function main() {
 
   elements.push(`<MomsBetala>${totalKr}</MomsBetala>`)
 
-  const string = `
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<!DOCTYPE eSKDUpload PUBLIC "-//Skatteverket, Sweden//DTD Skatteverket eSKDUpload-DTD Version 6.0//SV" "https://www1.skatteverket.se/demoeskd/eSKDUpload_6p0.dtd">
-<eSKDUpload Version="6.0">
-  <OrgNr>559278-4465</OrgNr>
-  <Moms>
-    <Period>202309</Period>
-    ${elements.join('\n    ')}
-  </Moms>
-</eSKDUpload>
-  `.trim()
+  const vatTruncatedTotal = -totalKr * 100
 
-  await fs.writeFile('./moms.xml', string)
+  transactions.push({
+    accountId: 2650,
+    amount: vatTruncatedTotal,
+  })
+
+  const cents =
+    vatTruncatedTotal - vatAccounts.reduce((acc, a) => acc + a.amount, 0)
+
+  if (Math.abs(cents) > 0) {
+    transactions.push({
+      accountId: 3740,
+      amount: -cents,
+    })
+  }
+
+  const endInclusiveQuarter = new Date(endExclusiveQuarter)
+  endInclusiveQuarter.setDate(endInclusiveQuarter.getDate() - 1)
+
+  const vatReportJournalEntry: JournalEntryUpdate = {
+    date: endInclusiveQuarter,
+    description: `Momsredovisning ${getCurrentFiscalYear()} Q${quarter}`,
+    transactions,
+    linkedToTransactionIds: [],
+  }
+
+  console.log(vatReportJournalEntry)
+
+  const currentJournalEntry = await db
+    .select({
+      id: JournalEntries.id,
+    })
+    .from(JournalEntries)
+    .where(eq(JournalEntries.description, journalEntryDescription))
+
+  if (currentJournalEntry.length) {
+    console.log('Found an existing journal entry that will be overwritten')
+    vatReportJournalEntry.id = currentJournalEntry[0].id
+  }
+
+  await updateJournalEntry(vatReportJournalEntry)
+
+  // there's close to no documentation about this; it was mostly figured out through feeding different values
+  const period = `${endInclusiveQuarter.getFullYear()}${(
+    endInclusiveQuarter.getMonth() + 1
+  )
+    .toString()
+    .padStart(2, '0')}`
+
+  const string = `
+  <?xml version="1.0" encoding="ISO-8859-1"?>
+  <!DOCTYPE eSKDUpload PUBLIC "-//Skatteverket, Sweden//DTD Skatteverket eSKDUpload-DTD Version 6.0//SV" "https://www1.skatteverket.se/demoeskd/eSKDUpload_6p0.dtd">
+  <eSKDUpload Version="6.0">
+    <OrgNr>559278-4465</OrgNr>
+    <Moms>
+      <Period>${period}</Period>
+      ${elements.join('\n    ')}
+    </Moms>
+  </eSKDUpload>
+    `.trim()
+
+  const path = './moms.xml'
+
+  console.log(`Writing the VAT report to "${path}"`)
+  await fs.writeFile(path, string)
 
   process.exit(0)
 }
