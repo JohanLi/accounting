@@ -18,6 +18,7 @@
  */
 
 import fs from 'fs/promises'
+import { dirname } from 'path'
 import { getFiscalYearQuarter } from '../../app/utils'
 import db from '../../app/db'
 import { JournalEntries } from '../../app/schema'
@@ -50,7 +51,7 @@ async function main() {
 
   const journalEntryDescription = `Momsredovisning ${FISCAL_YEAR} Q${QUARTER}`
 
-  console.log(`Generating a journal entry for "${journalEntryDescription}"`)
+  console.log(journalEntryDescription)
 
   const accounts = await getTotals({
     startInclusive,
@@ -95,11 +96,11 @@ async function main() {
 
   await updateJournalEntry(vatReportJournalEntry)
 
-  const path = `./output/moms-${FISCAL_YEAR}-q${QUARTER}.xml`
-  console.log(`Writing the VAT report to "${path}"`)
-
-  await fs.mkdir('./output', { recursive: true })
+  const path = `${__dirname}/output/${FISCAL_YEAR}-q${QUARTER}.xml`
+  await fs.mkdir(dirname(path), { recursive: true })
   await fs.writeFile(path, xml)
+
+  console.log(`Saved to "${path}"`)
 
   process.exit(0)
 }

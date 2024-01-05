@@ -15,6 +15,7 @@ import {
 } from '../../app/accountTotals/getAccountTotals'
 import iconv from 'iconv-lite'
 import { ACCOUNT_ID_BALANCE_END_EXCLUSIVE, YEAR } from './constants'
+import { dirname } from 'path'
 
 function formatDate(date: Date) {
   const year = date.getFullYear()
@@ -102,7 +103,11 @@ ${UB.join('\n')}
 ${RES.join('\n')}
   `.trim()
 
-  await fs.writeFile(`./${YEAR}.sie`, iconv.encode(string, 'CP437'))
+  const path = `${__dirname}/output/${YEAR}.sie`
+  await fs.mkdir(dirname(path), { recursive: true })
+  await fs.writeFile(path, iconv.encode(string, 'CP437'))
+
+  console.log(`Saved to "${path}"`)
 
   process.exit(0)
 }
