@@ -1,6 +1,8 @@
 import db from '../db'
 import { Transactions } from '../schema'
-import { and, asc, eq, gte, isNull } from 'drizzle-orm'
+import { and, asc, eq, isNull } from 'drizzle-orm'
+
+const INTEREST_DESCRIPTION = 'RÄNTA'
 
 export async function getBankSavingsSuggestions() {
   const bankSavingsTransactions = await db
@@ -10,14 +12,14 @@ export async function getBankSavingsSuggestions() {
       and(
         eq(Transactions.type, 'bankSavings'),
         isNull(Transactions.journalEntryId),
-        gte(Transactions.date, new Date('2022-07-01')),
       ),
     )
     .orderBy(asc(Transactions.id))
 
   // doesn't need to be performant, as these suggestions are few and far between
-  return Promise.all(
-    bankSavingsTransactions.map(async (transaction) => {
+  const transfers = bankSavingsTransactions
+    .filter((transaction) => transaction.description !== INTEREST_DESCRIPTION)
+    .map(async (transaction) => {
       const bankRegularTransactionMatch = await db
         .select()
         .from(Transactions)
@@ -51,6 +53,19 @@ export async function getBankSavingsSuggestions() {
         transactions,
         linkedToTransactionIds,
       }
-    }),
-  )
+    })
+
+  const interests = bankSavingsTransactions
+    .filter((transaction) => transaction.description === INTEREST_DESCRIPTION)
+    .map((transaction) => ({
+      date: transaction.date,
+      description: `Bank – ränta sparkonto`,
+      transactions: [
+        { accountId: 1931, amount: transaction.amount },
+        { accountId: 8310, amount: -transaction.amount },
+      ],
+      linkedToTransactionIds: [transaction.id],
+    }))
+
+  return Promise.all([...transfers, ...interests])
 }

@@ -180,6 +180,10 @@ async function main() {
         description: 'Övriga personalkostnader',
       },
       {
+        id: 8310,
+        description: 'Ränteintäkter från omsättningstillgångar',
+      },
+      {
         id: 8314,
         description: 'Skattefria ränteintäkter',
       },
