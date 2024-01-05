@@ -132,6 +132,14 @@ function taxAccountMap(description: string): {
     }
   }
 
+  if (description === 'Slutlig skatt') {
+    return {
+      debit: 1630,
+      credit: 2510,
+      description: 'Slutlig skatt',
+    }
+  }
+
   return null
 }
 
