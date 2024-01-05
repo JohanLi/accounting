@@ -25,6 +25,10 @@ const specializedToolsTabs = [
     name: 'Salary',
     href: '/salary',
   },
+  {
+    name: 'Corporate tax',
+    href: '/corporate-tax',
+  },
 ]
 
 export default function Nav() {

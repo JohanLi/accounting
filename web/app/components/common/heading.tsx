@@ -7,3 +7,11 @@ export function H1(props: { children: ReactNode }) {
     </h1>
   )
 }
+
+export function H2(props: { children: ReactNode }) {
+  return (
+    <h2 className="text-base font-semibold leading-6 text-gray-900">
+      {props.children}
+    </h2>
+  )
+}

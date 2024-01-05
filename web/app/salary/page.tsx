@@ -6,7 +6,7 @@ import { Metadata } from 'next'
 import { useSelect } from '../components/select/useSelect'
 import { NextPageProps } from '../types'
 import { getJournalEntries } from '../getJournalEntries'
-import { H1 } from '../components/common/heading'
+import { H1, H2 } from '../components/common/heading'
 import { JournalEntries } from '../journalEntries/JournalEntries'
 
 export const metadata: Metadata = {
@@ -57,9 +57,7 @@ export default async function Salary({ searchParams }: NextPageProps) {
       {selectedYear === currentYear && (
         <SalaryForm incomeThisYear={incomeThisYear} />
       )}
-      <h2 className="text-base font-semibold leading-6 text-gray-900">
-        Journal entries
-      </h2>
+      <H2>Related journal entries</H2>
       <JournalEntries journalEntries={salaryRelatedJournalEntries} />
     </>
   )

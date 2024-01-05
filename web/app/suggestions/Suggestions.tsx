@@ -1,6 +1,7 @@
 import { getSuggestions } from './getSuggestions'
 import { SuggestionKnownForm } from './SuggestionKnownForm'
 import SuggestionsUnknown from './SuggestionsUnknown'
+import { H2 } from '../components/common/heading'
 
 export default async function Suggestions() {
   const { knownDocumentSuggestions, unknownDocumentSuggestions } =
@@ -8,9 +9,7 @@ export default async function Suggestions() {
 
   return (
     <div className="mt-8 space-y-8">
-      <h2 className="text-base font-semibold leading-6 text-gray-900">
-        Suggestions
-      </h2>
+      <H2>Suggestions</H2>
       {knownDocumentSuggestions.length > 0 && (
         <div>
           <div className="flex space-x-4">
