@@ -101,19 +101,14 @@ function taxAccountMap(description: string): {
   }
 
   /*
-    TODO
-      More investigation needs to be done to understand how this works from an accounting perspective.
-      What's unclear to me is whether 2650 or 1650 should be used.
-      Potential sources:
-      - https://www.fortnox.se/fortnox-foretagsguide/bokforingstips/moms-pa-skattekonto
-      - https://forum.bjornlunden.se/org/blinfo/d/ater-om-momsfordran-och-konto-1650/
-      - https://foretagande.se/forum/bokforing-skatter-och-foretagsformer/72760-konto-1650-momsfordran
+    To make things simpler, 2650 will be used for VAT. In the unlikely event that 2650 (liability) is positive
+    when the fiscal year ends, it'll be moved to 1650 (asset).
    */
-  if (description.startsWith('Beslut ')) {
+  if (/^Beslut \d{6} moms /.test(description)) {
     return {
       debit: 1630,
-      credit: 1650,
-      description: 'Beslut',
+      credit: 2650, // Redovisningskonto för moms
+      description: 'Beslut moms',
     }
   }
 
@@ -125,7 +120,11 @@ function taxAccountMap(description: string): {
     }
   }
 
-  if (description.startsWith('Avdragen skatt ')) {
+  /*
+    Around November 2023, I resubmitted an arbetsgivardeklaration. This caused the description to be prefixed
+    with "Beslut \d{6}".
+   */
+  if (/^(Beslut \d{6})? avdragen skatt/.test(description)) {
     return {
       debit: 1630,
       credit: 2710, // Personalskatt
