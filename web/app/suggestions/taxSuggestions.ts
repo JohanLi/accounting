@@ -3,19 +3,15 @@ import { Transactions } from '../schema'
 import { and, asc, eq, gte, InferInsertModel, isNull } from 'drizzle-orm'
 
 /*
-  Some of the existing accounting entries for FY 2023 need to be revised.
-  My previous accounting software, due to having no integration with Skatteverket,
-  instructs you to, in essence, aggregate entries.
-
-  While it works from an accounting perspective, it doesn't allow you to
-  match tax account transactions with entries one-to-one:
-  when Personalskatt and Arbetsgivaravgift are withdrawn from the tax account,
-  they actually show up as separate transactions.
-
   TODO
-    Debit and credit appears reversed – this is because the amounts
-    are negative. For less confusion, all transactions across the codebase
-    should be created based on non-negative values.
+    Some of the existing accounting entries for FY 2023 need to be revised.
+    My previous accounting software, due to having no integration with Skatteverket,
+    instructs you to, in essence, aggregate entries.
+
+    While it works from an accounting perspective, it doesn't allow you to
+    match tax account transactions with entries one-to-one:
+    when Personalskatt and Arbetsgivaravgift are withdrawn from the tax account,
+    they actually show up as separate transactions.
  */
 
 function taxAccountMap(description: string): {
@@ -49,20 +45,20 @@ function taxAccountMap(description: string): {
     description === 'Korrigerad kostnadsränta'
   ) {
     return {
-      debit: 1630,
-      credit: 8423, // Kostnadsränta för skatter och avgifter (Ej avdragsgilla kostnader)
+      credit: 1630,
+      debit: 8423, // Kostnadsränta för skatter och avgifter (Ej avdragsgilla kostnader)
       description: 'Kostnadsränta',
     }
   }
 
   if (description === 'Debiterad preliminärskatt') {
     return {
-      debit: 1630,
+      credit: 1630,
       /*
         https://www.fortnox.se/fortnox-foretagsguide/bokforingstips/preliminarskatt-i-aktiebolag
         https://www.arsredovisning-online.se/bokfora_slutlig_skatt
        */
-      credit: 2510, // Skatteskulder
+      debit: 2510, // Skatteskulder
       description: 'Debiterad preliminärskatt',
     }
   }
@@ -86,16 +82,16 @@ function taxAccountMap(description: string): {
    */
   if (description === 'Utbetalning') {
     return {
-      debit: 1630,
-      credit: 1930,
+      credit: 1630,
+      debit: 1930,
       description: 'Utbetalning',
     }
   }
 
   if (description.startsWith('Moms ')) {
     return {
-      debit: 1630,
-      credit: 2650, // Redovisningskonto för moms
+      credit: 1630,
+      debit: 2650, // Redovisningskonto för moms
       description: 'Dragning av moms',
     }
   }
@@ -106,16 +102,16 @@ function taxAccountMap(description: string): {
    */
   if (/^Beslut \d{6} moms /.test(description)) {
     return {
-      debit: 1630,
-      credit: 2650, // Redovisningskonto för moms
+      credit: 1630,
+      debit: 2650, // Redovisningskonto för moms
       description: 'Beslut moms',
     }
   }
 
   if (description.startsWith('Arbetsgivaravgift ')) {
     return {
-      debit: 1630,
-      credit: 2731, // Avräkning lagstadgade sociala avgifter
+      credit: 1630,
+      debit: 2731, // Avräkning lagstadgade sociala avgifter
       description: 'Arbetsgivaravgift',
     }
   }
@@ -126,16 +122,16 @@ function taxAccountMap(description: string): {
    */
   if (/^(Beslut \d{6})? avdragen skatt/.test(description)) {
     return {
-      debit: 1630,
-      credit: 2710, // Personalskatt
+      credit: 1630,
+      debit: 2710, // Personalskatt
       description: 'Personalskatt',
     }
   }
 
   if (description === 'Slutlig skatt') {
     return {
-      debit: 1630,
-      credit: 2510,
+      credit: 1630,
+      debit: 2510,
       description: 'Slutlig skatt',
     }
   }
@@ -221,9 +217,12 @@ export async function getTaxSuggestions() {
         return null
       }
 
+      const amount =
+        match.debit === 1630 ? transaction.amount : -transaction.amount
+
       const transactions = [
-        { accountId: match.debit, amount: transaction.amount },
-        { accountId: match.credit, amount: -transaction.amount },
+        { accountId: match.debit, amount },
+        { accountId: match.credit, amount: -amount },
       ]
 
       const linkedToTransactionIds = [transaction.id]
