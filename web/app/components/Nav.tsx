@@ -29,6 +29,10 @@ const specializedToolsTabs = [
     name: 'Corporate tax',
     href: '/corporate-tax',
   },
+  {
+    name: 'Annual-related',
+    href: '/annual-related',
+  },
 ]
 
 export default function Nav() {

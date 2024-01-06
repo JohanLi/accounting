@@ -35,6 +35,9 @@ test('getAllFiscalYearsInReverse', () => {
   vi.setSystemTime(new Date('2025-06-30'))
   expect(getAllFiscalYearsInReverse()).toEqual([2025, 2024, 2023, 2022, 2021])
 
+  vi.setSystemTime(new Date('2023-03-11'))
+  expect(getAllFiscalYearsInReverse(true)).toEqual([2022, 2021])
+
   vi.useRealTimers()
 })
 

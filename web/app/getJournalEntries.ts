@@ -7,6 +7,7 @@ import {
   InferSelectModel,
   lt,
   sql,
+  SQLWrapper,
 } from 'drizzle-orm'
 import db from './db'
 import {
@@ -32,9 +33,11 @@ const PERSONAL_PAYMENT_ACCOUNT_ID = 2890
 export async function getJournalEntries({
   startInclusive,
   endExclusive,
+  condition,
 }: {
   startInclusive: Date
   endExclusive: Date
+  condition?: SQLWrapper
 }): Promise<JournalEntryType[]> {
   const journalEntries = await db
     .select({
@@ -57,6 +60,7 @@ export async function getJournalEntries({
       and(
         gte(JournalEntries.date, startInclusive),
         lt(JournalEntries.date, endExclusive),
+        condition,
       ),
     )
     .orderBy(desc(JournalEntries.date), desc(JournalEntries.id))

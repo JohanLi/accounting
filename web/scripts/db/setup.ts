@@ -92,6 +92,10 @@ async function main() {
         description: 'Övriga kortfristiga skulder',
       },
       {
+        id: 2898,
+        description: 'Outtagen vinstutdelning',
+      },
+      {
         id: 2990,
         description: 'Övriga upplupna kostnader och förutbetalda intäkter',
       },
