@@ -1,6 +1,19 @@
-import { and, desc, gte, InferSelectModel, lt } from 'drizzle-orm'
+import {
+  and,
+  desc,
+  eq,
+  getTableColumns,
+  gte,
+  InferSelectModel,
+  lt,
+  sql,
+} from 'drizzle-orm'
 import db from './db'
-import { JournalEntries } from './schema'
+import {
+  JournalEntries,
+  JournalEntryTransactions,
+  Transactions,
+} from './schema'
 
 export type Transaction = {
   accountId: number
@@ -23,42 +36,41 @@ export async function getJournalEntries({
   startInclusive: Date
   endExclusive: Date
 }): Promise<JournalEntryType[]> {
-  const journalEntries = await db.query.JournalEntries.findMany({
-    with: {
-      journalEntryTransactions: {
-        columns: {
-          accountId: true,
-          amount: true,
-        },
-      },
-      transactions: {
-        columns: {
-          id: true,
-        },
-      },
-    },
-    where: and(
-      gte(JournalEntries.date, startInclusive),
-      lt(JournalEntries.date, endExclusive),
-    ),
-    orderBy: [desc(JournalEntries.date), desc(JournalEntries.id)],
-  })
+  const journalEntries = await db
+    .select({
+      ...getTableColumns(JournalEntries),
+      transactions: sql<Transaction[]>`array_agg(json_build_object(
+        'accountId', ${JournalEntryTransactions.accountId},
+        'amount', ${JournalEntryTransactions.amount}
+      ))`,
+      linkedToTransactionIds: sql<
+        number[]
+      >`array_remove(array_agg(distinct ${Transactions.id}), NULL)`,
+    })
+    .from(JournalEntries)
+    .leftJoin(
+      JournalEntryTransactions,
+      eq(JournalEntries.id, JournalEntryTransactions.journalEntryId),
+    )
+    .leftJoin(Transactions, eq(JournalEntries.id, Transactions.journalEntryId))
+    .where(
+      and(
+        gte(JournalEntries.date, startInclusive),
+        lt(JournalEntries.date, endExclusive),
+      ),
+    )
+    .orderBy(desc(JournalEntries.date), desc(JournalEntries.id))
+    .groupBy(JournalEntries.id)
 
   return journalEntries.map((j) => {
-    const { journalEntryTransactions, transactions: _, ...journalEntry } = j
-
-    const linkedToTransactionIds = j.transactions.map((t) => t.id)
-
-    const linkNotApplicable = journalEntryTransactions.some(
+    const linkNotApplicable = j.transactions.some(
       (t) =>
         t.accountId === OLD_BANK_ACCOUNT_ID ||
         t.accountId === PERSONAL_PAYMENT_ACCOUNT_ID,
     )
 
     return {
-      ...journalEntry,
-      transactions: journalEntryTransactions,
-      linkedToTransactionIds,
+      ...j,
       linkNotApplicable,
     }
   })

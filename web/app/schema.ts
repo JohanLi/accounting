@@ -12,7 +12,6 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core'
-import { relations } from 'drizzle-orm'
 
 // https://github.com/drizzle-team/drizzle-orm/issues/298
 const bytea = customType<{ data: Buffer }>({
@@ -121,33 +120,3 @@ export const Transactions = pgTable(
     ),
   }),
 )
-
-/*
-  https://orm.drizzle.team/docs/rqb
-  references() affects the database itself, while relations() is an application level abstraction
- */
-
-export const JournalEntriesRelations = relations(
-  JournalEntries,
-  ({ many }) => ({
-    journalEntryTransactions: many(JournalEntryTransactions),
-    transactions: many(Transactions),
-  }),
-)
-
-export const JournalEntryTransactionsRelations = relations(
-  JournalEntryTransactions,
-  ({ one }) => ({
-    journalEntry: one(JournalEntries, {
-      fields: [JournalEntryTransactions.journalEntryId],
-      references: [JournalEntries.id],
-    }),
-  }),
-)
-
-export const TransactionsRelations = relations(Transactions, ({ one }) => ({
-  journalEntry: one(JournalEntries, {
-    fields: [Transactions.journalEntryId],
-    references: [JournalEntries.id],
-  }),
-}))
