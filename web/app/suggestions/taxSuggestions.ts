@@ -2,18 +2,6 @@ import db from '../db'
 import { Transactions } from '../schema'
 import { and, asc, eq, gte, InferInsertModel, isNull } from 'drizzle-orm'
 
-/*
-  TODO
-    Some of the existing accounting entries for FY 2023 need to be revised.
-    My previous accounting software, due to having no integration with Skatteverket,
-    instructs you to, in essence, aggregate entries.
-
-    While it works from an accounting perspective, it doesn't allow you to
-    match tax account transactions with entries one-to-one:
-    when Personalskatt and Arbetsgivaravgift are withdrawn from the tax account,
-    they actually show up as separate transactions.
- */
-
 function taxAccountMap(description: string): {
   debit: number
   credit: number
@@ -36,7 +24,7 @@ function taxAccountMap(description: string): {
     return {
       debit: 1630,
       credit: 8314, // Skattefria ränteintäkter (Ej skattepliktiga intäkter)
-      description: 'Intäktsränta',
+      description,
     }
   }
 
@@ -47,7 +35,7 @@ function taxAccountMap(description: string): {
     return {
       credit: 1630,
       debit: 8423, // Kostnadsränta för skatter och avgifter (Ej avdragsgilla kostnader)
-      description: 'Kostnadsränta',
+      description,
     }
   }
 
@@ -196,16 +184,7 @@ export async function getTaxSuggestions() {
     .select()
     .from(Transactions)
     .where(
-      and(
-        eq(Transactions.type, 'tax'),
-        isNull(Transactions.journalEntryId),
-        /*
-         TODO
-           The software should not suggest transactions for closed fiscal years.
-           Hard coding for now.
-         */
-        gte(Transactions.date, new Date('2022-07-01')),
-      ),
+      and(eq(Transactions.type, 'tax'), isNull(Transactions.journalEntryId)),
     )
     .orderBy(asc(Transactions.id))
 
