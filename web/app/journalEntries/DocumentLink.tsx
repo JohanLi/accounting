@@ -2,8 +2,7 @@ import { DocumentMagnifyingGlassIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 
 type Props = {
-  // TODO shouldn't need to have undefined here
-  id?: number | null
+  id: number | null
 }
 
 export default function DocumentLink(props: Props) {
