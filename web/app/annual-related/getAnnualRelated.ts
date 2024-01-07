@@ -1,24 +1,37 @@
 import { getJournalEntries } from '../getJournalEntries'
-import { and, inArray } from 'drizzle-orm'
+import { and, eq, gte, inArray, lt, or } from 'drizzle-orm'
 import { JournalEntries } from '../schema'
 import { getFiscalYear } from '../utils'
 
-const descriptions = [
-  'Skatt på årets resultat',
-  'Årets resultat',
-  'Vinst eller förlust från föregående år',
-  'Resultatdisposition',
-  'Utbetalning av utdelning',
-]
-
 export async function getAnnualRelated(fiscalYear: number) {
-  const { endInclusive: startInclusive } = getFiscalYear(fiscalYear)
-  const { endInclusive: endExclusive } = getFiscalYear(fiscalYear + 1)
+  const lastDayOfCurrent = getFiscalYear(fiscalYear).endInclusive
+  const nextFiscalYear = getFiscalYear(fiscalYear + 1)
 
   const journalEntries = await getJournalEntries({
-    startInclusive,
-    endExclusive,
-    condition: and(inArray(JournalEntries.description, descriptions)),
+    where: or(
+      and(
+        inArray(JournalEntries.description, [
+          'Skatt på årets resultat',
+          'Årets resultat',
+        ]),
+        eq(JournalEntries.date, lastDayOfCurrent),
+      ),
+      and(
+        eq(
+          JournalEntries.description,
+          'Vinst eller förlust från föregående år',
+        ),
+        eq(JournalEntries.date, nextFiscalYear.startInclusive),
+      ),
+      and(
+        inArray(JournalEntries.description, [
+          'Resultatdisposition',
+          'Utbetalning av utdelning',
+        ]),
+        gte(JournalEntries.date, nextFiscalYear.startInclusive),
+        lt(JournalEntries.date, nextFiscalYear.endExclusive),
+      ),
+    ),
   })
 
   const profitLoss = journalEntries
@@ -33,9 +46,15 @@ export async function getAnnualRelated(fiscalYear: number) {
     (j) => j.description === 'Resultatdisposition',
   )
   if (appropriatedProfit) {
-    dividendAmount =
-      appropriatedProfit.transactions.find((t) => t.accountId === 2898)
-        ?.amount || 0
+    const setAsideForDividend = appropriatedProfit.transactions.find(
+      (t) => t.accountId === 2898,
+    )?.amount
+
+    if (setAsideForDividend) {
+      dividendAmount = -setAsideForDividend
+    } else {
+      dividendAmount = 0
+    }
   }
 
   return {

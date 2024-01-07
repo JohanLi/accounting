@@ -38,11 +38,11 @@ async function getOpeningBalance(fiscalYear: number) {
 export async function getTotals({
   startInclusive,
   endExclusive,
-  condition,
+  where,
 }: {
   startInclusive: Date
   endExclusive: Date
-  condition?: SQLWrapper
+  where?: SQLWrapper
 }) {
   return db
     .select({
@@ -63,7 +63,7 @@ export async function getTotals({
       and(
         gte(JournalEntries.date, startInclusive),
         lt(JournalEntries.date, endExclusive),
-        condition,
+        where,
       ),
     )
     .groupBy(Accounts.id)

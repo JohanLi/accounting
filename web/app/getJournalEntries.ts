@@ -33,11 +33,11 @@ const PERSONAL_PAYMENT_ACCOUNT_ID = 2890
 export async function getJournalEntries({
   startInclusive,
   endExclusive,
-  condition,
+  where,
 }: {
-  startInclusive: Date
-  endExclusive: Date
-  condition?: SQLWrapper
+  startInclusive?: Date
+  endExclusive?: Date
+  where?: SQLWrapper
 }): Promise<JournalEntryType[]> {
   const journalEntries = await db
     .select({
@@ -58,9 +58,9 @@ export async function getJournalEntries({
     .leftJoin(Transactions, eq(JournalEntries.id, Transactions.journalEntryId))
     .where(
       and(
-        gte(JournalEntries.date, startInclusive),
-        lt(JournalEntries.date, endExclusive),
-        condition,
+        startInclusive && gte(JournalEntries.date, startInclusive),
+        endExclusive && lt(JournalEntries.date, endExclusive),
+        where,
       ),
     )
     .orderBy(desc(JournalEntries.date), desc(JournalEntries.id))

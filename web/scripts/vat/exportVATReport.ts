@@ -56,7 +56,7 @@ async function main() {
   const accounts = await getTotals({
     startInclusive,
     endExclusive,
-    condition: ne(JournalEntries.description, journalEntryDescription),
+    where: ne(JournalEntries.description, journalEntryDescription),
   })
 
   /*

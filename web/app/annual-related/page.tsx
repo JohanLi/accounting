@@ -39,12 +39,10 @@ export default async function AnnualRelated({ searchParams }: NextPageProps) {
       <div className="space-y-8">
         <div>
           <div>
-            Profit/loss:{' '}
-            {profitLoss !== undefined ? <Amount amount={profitLoss} /> : ''}
+            Profit/loss: <Amount amount={profitLoss || 0} />
           </div>
           <div>
-            Corporate tax:{' '}
-            {corporateTax !== undefined ? <Amount amount={corporateTax} /> : ''}
+            Corporate tax: <Amount amount={corporateTax || 0} />
           </div>
           {dividendAmount !== undefined && (
             <div>

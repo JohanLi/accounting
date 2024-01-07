@@ -24,7 +24,7 @@ export async function getCorporateTax() {
     const totals = await getTotals({
       startInclusive,
       endExclusive,
-      condition: and(
+      where: and(
         eq(JournalEntries.description, 'Skatt – Debiterad preliminärskatt'),
         eq(Accounts.id, 2510),
       ),
