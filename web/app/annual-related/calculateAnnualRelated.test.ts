@@ -2,6 +2,11 @@ import { describe, expect, test } from 'vitest'
 import { calculateCorporateTax } from './calculateAnnualRelated'
 
 describe('corporate tax', () => {
+  test('is 0 if no taxable profit', () => {
+    expect(calculateCorporateTax(0)).toEqual(0)
+    expect(calculateCorporateTax(-100000)).toEqual(0)
+  })
+
   test('is 20.6% of the taxable profit', () => {
     expect(calculateCorporateTax(0)).toEqual(0)
     expect(calculateCorporateTax(100000)).toEqual(20600)

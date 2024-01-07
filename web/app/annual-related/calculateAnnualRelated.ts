@@ -2,8 +2,7 @@ import { and, eq, gte, inArray, lt, lte, sql } from 'drizzle-orm'
 import { getFiscalYear, krToOre } from '../utils'
 import db from '../db'
 import { JournalEntries, JournalEntryTransactions } from '../schema'
-
-// TODO this doesn't handle fiscal years that result in a loss
+import { getJournalEntries } from '../getJournalEntries'
 
 /*
   The third-party service I use to submit the annual report calculates
@@ -23,6 +22,10 @@ const CORPORATE_TAX_RATE = 0.206
   from a time when rates were whole numbers.
  */
 export function calculateCorporateTax(profitTaxable: number) {
+  if (profitTaxable <= 0) {
+    return 0
+  }
+
   const roundedDownKrona = Math.floor(profitTaxable / 1000) * 10
   return krToOre(Math.floor(roundedDownKrona * CORPORATE_TAX_RATE))
 }
@@ -116,8 +119,32 @@ export async function calculateAnnualRelated(fiscalYear: number) {
 
   const nonDeductibleRevenue = -result[0].total
 
+  /*
+    Note: current implementation doesn't handle multiple years with losses. Will likely happen in the event that
+    I take a long break from doing consulting work.
+   */
+  let lossFromPrevious = 0
+
+  const profitFromPrevious = await getJournalEntries({
+    where: and(
+      eq(JournalEntries.description, 'Vinst eller förlust från föregående år'),
+      eq(JournalEntries.date, startInclusive),
+    ),
+  })
+
+  if (profitFromPrevious.length > 0) {
+    const amount =
+      profitFromPrevious[0].transactions.find((t) => t.accountId === 2099)
+        ?.amount || 0
+
+    lossFromPrevious = amount < 0 ? -amount : 0
+  }
+
   const profitTaxable =
-    profitBeforeTax + nonDeductibleExpenses - nonDeductibleRevenue
+    profitBeforeTax +
+    nonDeductibleExpenses -
+    nonDeductibleRevenue -
+    lossFromPrevious
 
   const tax = calculateCorporateTax(profitTaxable)
 
