@@ -34,7 +34,7 @@ export async function getAnnualRelated(fiscalYear: number) {
     ),
   })
 
-  const profitLoss = journalEntries
+  const profitAfterTax = journalEntries
     .find((j) => j.description === 'Årets resultat')
     ?.transactions.find((t) => t.accountId === 8999)?.amount
   const corporateTax = journalEntries
@@ -59,7 +59,7 @@ export async function getAnnualRelated(fiscalYear: number) {
 
   return {
     journalEntries,
-    profitLoss,
+    profitAfterTax,
     corporateTax,
     dividendAmount,
   }

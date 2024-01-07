@@ -7,6 +7,7 @@ import { useSelect } from '../components/select/useSelect'
 import { NextPageProps } from '../types'
 import { Amount } from '../components/Amount'
 import AppropriateProfitForm from './AppropriateProfitForm'
+import { calculateAnnualRelated } from './calculateAnnualRelated'
 
 export const metadata: Metadata = {
   title: 'Annual-related',
@@ -22,8 +23,15 @@ export default async function AnnualRelated({ searchParams }: NextPageProps) {
     values: getAllFiscalYearsInReverse(true),
   })
 
-  const { journalEntries, profitLoss, corporateTax, dividendAmount } =
+  const { journalEntries, profitAfterTax, corporateTax, dividendAmount } =
     await getAnnualRelated(selectedFiscalYear)
+
+  const {
+    profitBeforeTax,
+    profitTaxable,
+    tax,
+    profitAfterTax: calculatedProfitAfterTax,
+  } = await calculateAnnualRelated(selectedFiscalYear)
 
   return (
     <>
@@ -37,23 +45,41 @@ export default async function AnnualRelated({ searchParams }: NextPageProps) {
         </div>
       </div>
       <div className="space-y-8">
-        <div>
+        <div className="flex justify-between">
           <div>
-            Profit/loss: <Amount amount={profitLoss || 0} />
-          </div>
-          <div>
-            Corporate tax: <Amount amount={corporateTax || 0} />
-          </div>
-          {dividendAmount !== undefined && (
+            <H2>Recorded</H2>
             <div>
-              Dividend amount: <Amount amount={dividendAmount} />
+              Profit (after tax): <Amount amount={profitAfterTax || 0} />
             </div>
-          )}
+            <div>
+              Corporate tax: <Amount amount={corporateTax || 0} />
+            </div>
+            {dividendAmount !== undefined && (
+              <div>
+                Dividend amount: <Amount amount={dividendAmount} />
+              </div>
+            )}
+          </div>
+          <div>
+            <H2>Calculated</H2>
+            <div>
+              Profit (after tax): <Amount amount={calculatedProfitAfterTax} />
+            </div>
+            <div>
+              Corporate tax: <Amount amount={tax} />
+            </div>
+            <div>
+              Profit (before tax): <Amount amount={profitBeforeTax} />
+            </div>
+            <div>
+              Profit (taxable): <Amount amount={profitTaxable} />
+            </div>
+          </div>
         </div>
-        {dividendAmount === undefined && profitLoss !== undefined && (
+        {dividendAmount === undefined && profitAfterTax !== undefined && (
           <div>
             <H2>Appropriate profit</H2>
-            <AppropriateProfitForm profitThisYear={profitLoss} />
+            <AppropriateProfitForm profitThisYear={profitAfterTax} />
           </div>
         )}
         <div>
