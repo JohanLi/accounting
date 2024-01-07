@@ -9,11 +9,14 @@ import { Amount } from '../components/Amount'
 import AppropriateProfitForm from './AppropriateProfitForm'
 import { calculateAnnualRelated } from './calculateAnnualRelated'
 import ProfitAndTaxForm from './ProfitAndTaxForm'
+import { getPaidPreliminaryTax } from './getPaidPreliminaryTax'
 
 /*
   TODO
-    the recorded vs. calculated values should be less prominent in the UI. What's important is whether or not
+    The recorded vs. calculated values should be less prominent in the UI. What's important is whether or not
     there's a discrepancy. It might also be nice to explicitly highlight which "sets" of journal entries are missing.
+
+    It might be worth adding "Tillgodoförd debiterad preliminärskatt" and "Slutlig skatt" as related journal entries.
  */
 
 export const metadata: Metadata = {
@@ -39,6 +42,8 @@ export default async function AnnualRelated({ searchParams }: NextPageProps) {
     tax,
     profitAfterTax: calculatedProfitAfterTax,
   } = await calculateAnnualRelated(selectedFiscalYear)
+
+  const paidPreliminaryTax = await getPaidPreliminaryTax(selectedFiscalYear)
 
   return (
     <>
@@ -66,6 +71,9 @@ export default async function AnnualRelated({ searchParams }: NextPageProps) {
                 Dividend amount: <Amount amount={dividendAmount} />
               </div>
             )}
+            <div>
+              Paid preliminary tax: <Amount amount={paidPreliminaryTax} />
+            </div>
           </div>
           <div>
             <H2>Calculated</H2>

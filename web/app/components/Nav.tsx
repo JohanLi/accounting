@@ -26,10 +26,6 @@ const specializedToolsTabs = [
     href: '/salary',
   },
   {
-    name: 'Corporate tax',
-    href: '/corporate-tax',
-  },
-  {
     name: 'Annual-related',
     href: '/annual-related',
   },
