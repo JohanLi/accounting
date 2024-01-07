@@ -69,6 +69,34 @@ export async function getTotals({
     .groupBy(Accounts.id)
 }
 
+export async function getTotal({
+  startInclusive,
+  endExclusive,
+  where,
+}: {
+  startInclusive: Date
+  endExclusive: Date
+  where?: SQLWrapper
+}) {
+  return db
+    .select({
+      // `::int` explanation: https://github.com/drizzle-team/drizzle-orm/issues/999
+      amount: sql<number>`sum(amount)::int`,
+    })
+    .from(JournalEntryTransactions)
+    .leftJoin(
+      JournalEntries,
+      eq(JournalEntryTransactions.journalEntryId, JournalEntries.id),
+    )
+    .where(
+      and(
+        gte(JournalEntries.date, startInclusive),
+        lt(JournalEntries.date, endExclusive),
+        where,
+      ),
+    )
+}
+
 type AccountTotal = {
   description: string
   openingBalance: number

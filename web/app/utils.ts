@@ -19,14 +19,10 @@ export function getCurrentFiscalYear() {
 
 const FIRST_FISCAL_YEAR = 2021
 
-export function getAllFiscalYearsInReverse(omitCurrent = false) {
+export function getAllFiscalYearsInReverse() {
   const years: number[] = []
 
-  for (
-    let year = getCurrentFiscalYear() - (omitCurrent ? 1 : 0);
-    year >= FIRST_FISCAL_YEAR;
-    year--
-  ) {
+  for (let year = getCurrentFiscalYear(); year >= FIRST_FISCAL_YEAR; year--) {
     years.push(year)
   }
 

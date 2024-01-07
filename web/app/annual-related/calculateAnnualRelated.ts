@@ -1,8 +1,8 @@
-import { and, eq, gte, inArray, lt, lte, sql } from 'drizzle-orm'
+import { and, eq, gte, inArray, lte } from 'drizzle-orm'
 import { getFiscalYear, krToOre } from '../utils'
-import db from '../db'
 import { JournalEntries, JournalEntryTransactions } from '../schema'
 import { getJournalEntries } from '../getJournalEntries'
+import { getTotal } from '../accountTotals/getAccountTotals'
 
 /*
   The third-party service I use to submit the annual report calculates
@@ -39,85 +39,51 @@ export async function calculateAnnualRelated(fiscalYear: number) {
     "Använder man BAS-kontoplanen är det summan av alla resultatkonton 3000-8799"
     https://www.arsredovisning-online.se/berakna_skatt_pa_arets_resultat
    */
-  let result = await db
-    .select({
-      // `::int` explanation: https://github.com/drizzle-team/drizzle-orm/issues/999
-      total: sql<number>`sum(amount)::int`,
-    })
-    .from(JournalEntryTransactions)
-    .leftJoin(
-      JournalEntries,
-      eq(JournalEntryTransactions.journalEntryId, JournalEntries.id),
-    )
-    .where(
-      and(
-        gte(JournalEntries.date, startInclusive),
-        lt(JournalEntries.date, endExclusive),
-        gte(JournalEntryTransactions.accountId, 3000),
-        lte(JournalEntryTransactions.accountId, 8799),
-      ),
-    )
+  let result = await getTotal({
+    startInclusive,
+    endExclusive,
+    where: and(
+      gte(JournalEntryTransactions.accountId, 3000),
+      lte(JournalEntryTransactions.accountId, 8799),
+    ),
+  })
 
-  const profitBeforeTax = -result[0].total
+  const profitBeforeTax = -result[0].amount
 
   // Ej avdragsgilla kostnader
-  result = await db
-    .select({
-      // `::int` explanation: https://github.com/drizzle-team/drizzle-orm/issues/999
-      total: sql<number>`sum(amount)::int`,
-    })
-    .from(JournalEntryTransactions)
-    .leftJoin(
-      JournalEntries,
-      eq(JournalEntryTransactions.journalEntryId, JournalEntries.id),
-    )
-    .where(
-      and(
-        gte(JournalEntries.date, startInclusive),
-        lt(JournalEntries.date, endExclusive),
-        inArray(JournalEntryTransactions.accountId, [
-          5099,
-          5199,
-          6072,
-          6342,
-          6982,
-          6992,
-          6993,
-          7421,
-          7572,
-          7622,
-          7623,
-          7632,
-          8423, // Räntekostnader för skatter och avgifter
-        ]),
-      ),
-    )
+  result = await getTotal({
+    startInclusive,
+    endExclusive,
+    where: inArray(JournalEntryTransactions.accountId, [
+      5099,
+      5199,
+      6072,
+      6342,
+      6982,
+      6992,
+      6993,
+      7421,
+      7572,
+      7622,
+      7623,
+      7632,
+      8423, // Räntekostnader för skatter och avgifter
+    ]),
+  })
 
-  const nonDeductibleExpenses = result[0].total
+  const nonDeductibleExpenses = result[0].amount
 
   // Ej skattepliktiga intäkter
-  result = await db
-    .select({
-      // `::int` explanation: https://github.com/drizzle-team/drizzle-orm/issues/999
-      total: sql<number>`sum(amount)::int`,
-    })
-    .from(JournalEntryTransactions)
-    .leftJoin(
-      JournalEntries,
-      eq(JournalEntryTransactions.journalEntryId, JournalEntries.id),
-    )
-    .where(
-      and(
-        gte(JournalEntries.date, startInclusive),
-        lt(JournalEntries.date, endExclusive),
-        inArray(JournalEntryTransactions.accountId, [
-          8254,
-          8314, // Skattefria ränteintäkter
-        ]),
-      ),
-    )
+  result = await getTotal({
+    startInclusive,
+    endExclusive,
+    where: inArray(JournalEntryTransactions.accountId, [
+      8254,
+      8314, // Skattefria ränteintäkter
+    ]),
+  })
 
-  const nonDeductibleRevenue = -result[0].total
+  const nonDeductibleRevenue = -result[0].amount
 
   /*
     Note: current implementation doesn't handle multiple years with losses. Will likely happen in the event that

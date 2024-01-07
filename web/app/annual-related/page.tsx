@@ -21,13 +21,13 @@ export const metadata: Metadata = {
 }
 
 export default async function AnnualRelated({ searchParams }: NextPageProps) {
-  const lastFiscalYear = getCurrentFiscalYear() - 1
+  const currentFiscalYear = getCurrentFiscalYear()
 
   const [selectedFiscalYear, Select] = useSelect({
     searchParams,
     name: 'fiscalYear',
-    defaultValue: lastFiscalYear,
-    values: getAllFiscalYearsInReverse(true),
+    defaultValue: currentFiscalYear,
+    values: getAllFiscalYearsInReverse(),
   })
 
   const { journalEntries, profitAfterTax, corporateTax, dividendAmount } =
