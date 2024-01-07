@@ -1,3 +1,5 @@
+'use server'
+
 import { updateJournalEntry } from '../../actions/updateJournalEntry'
 
 export async function appropriateProfit(

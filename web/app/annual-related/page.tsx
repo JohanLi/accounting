@@ -8,6 +8,13 @@ import { NextPageProps } from '../types'
 import { Amount } from '../components/Amount'
 import AppropriateProfitForm from './AppropriateProfitForm'
 import { calculateAnnualRelated } from './calculateAnnualRelated'
+import ProfitAndTaxForm from './ProfitAndTaxForm'
+
+/*
+  TODO
+    the recorded vs. calculated values should be less prominent in the UI. What's important is whether or not
+    there's a discrepancy. It might also be nice to explicitly highlight which "sets" of journal entries are missing.
+ */
 
 export const metadata: Metadata = {
   title: 'Annual-related',
@@ -74,6 +81,11 @@ export default async function AnnualRelated({ searchParams }: NextPageProps) {
             <div>
               Profit (taxable): <Amount amount={profitTaxable} />
             </div>
+            <ProfitAndTaxForm
+              corporateTax={tax}
+              profitAfterTax={calculatedProfitAfterTax}
+              fiscalYear={selectedFiscalYear}
+            />
           </div>
         </div>
         {dividendAmount === undefined && profitAfterTax !== undefined && (
