@@ -4,24 +4,24 @@ import { JournalEntries } from '../schema'
 import { getFiscalYear } from '../utils'
 
 export async function getAnnualRelated(fiscalYear: number) {
-  const lastDayOfCurrent = getFiscalYear(fiscalYear).endInclusive
+  const currentFiscalYear = getFiscalYear(fiscalYear)
   const nextFiscalYear = getFiscalYear(fiscalYear + 1)
 
   const journalEntries = await getJournalEntries({
     where: or(
       and(
-        inArray(JournalEntries.description, [
-          'Skatt på årets resultat',
-          'Årets resultat',
-        ]),
-        eq(JournalEntries.date, lastDayOfCurrent),
-      ),
-      and(
         eq(
           JournalEntries.description,
           'Vinst eller förlust från föregående år',
         ),
-        eq(JournalEntries.date, nextFiscalYear.startInclusive),
+        eq(JournalEntries.date, currentFiscalYear.startInclusive),
+      ),
+      and(
+        inArray(JournalEntries.description, [
+          'Skatt på årets resultat',
+          'Årets resultat',
+        ]),
+        eq(JournalEntries.date, currentFiscalYear.endInclusive),
       ),
       and(
         inArray(JournalEntries.description, [

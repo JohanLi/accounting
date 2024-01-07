@@ -8,6 +8,7 @@ import { getFiscalYear } from '../../utils'
 
 const descriptionTax = 'Skatt på årets resultat'
 const descriptionProfit = 'Årets resultat'
+const descriptionProfitFromPrevious = 'Vinst eller förlust från föregående år'
 
 export type SubmitProfitAndTax = {
   corporateTax: number
@@ -21,6 +22,7 @@ export async function submitProfitAndTax({
   fiscalYear,
 }: SubmitProfitAndTax) {
   const lastDayOfCurrent = getFiscalYear(fiscalYear).endInclusive
+  const firstDayOfNext = getFiscalYear(fiscalYear + 1).startInclusive
 
   const existingTax = await getJournalEntries({
     where: and(
@@ -30,7 +32,7 @@ export async function submitProfitAndTax({
   })
 
   const tax = {
-    id: existingTax[0].id,
+    id: existingTax[0]?.id,
     date: lastDayOfCurrent,
     description: descriptionTax,
     transactions: [
@@ -54,7 +56,7 @@ export async function submitProfitAndTax({
   })
 
   const profit = {
-    id: existingProfit[0].id,
+    id: existingProfit[0]?.id,
     date: lastDayOfCurrent,
     description: descriptionProfit,
     transactions: [
@@ -70,6 +72,31 @@ export async function submitProfitAndTax({
     linkedToTransactionIds: [],
   }
 
+  const existingProfitFromPrevious = await getJournalEntries({
+    where: and(
+      eq(JournalEntries.description, descriptionProfitFromPrevious),
+      eq(JournalEntries.date, firstDayOfNext),
+    ),
+  })
+
+  const profitFromPrevious = {
+    id: existingProfitFromPrevious[0]?.id,
+    date: firstDayOfNext,
+    description: descriptionProfitFromPrevious,
+    transactions: [
+      {
+        accountId: 2098,
+        amount: -profitAfterTax,
+      },
+      {
+        accountId: 2099,
+        amount: profitAfterTax,
+      },
+    ],
+    linkedToTransactionIds: [],
+  }
+
   await updateJournalEntry(tax)
   await updateJournalEntry(profit)
+  await updateJournalEntry(profitFromPrevious)
 }
