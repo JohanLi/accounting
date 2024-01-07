@@ -65,3 +65,19 @@ handle decimals elsewhere (such as with invoices).
 It seems similar to the case with physical receipts, where people digitize
 them as soon as possible, but still need to store the physical receipt in
 a folder due to antiquated laws.
+
+## Victim of cargo culting
+
+My close friend who recommended I get into software consulting uses a "brutet räkenskapsår".
+They surmised that accounting firms will be less busy when handling their annual reports. I chose to copy them.
+
+Having the fiscal year start in July complicates the business logic somewhat, and adds mental overhead.
+
+It is possible to switch so the fiscal year overlaps with the calendar year, but I have yet to figure out
+the implications.
+
+## Arbitrary business logic
+
+In a Kevlin Henney talk (probably about unit testing), he mentioned how business logic can feel highly arbitrary.
+
+I got a taste of this when realizing how corporate tax is calculated, particularly the way it's supposed to be rounded.
