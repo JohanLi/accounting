@@ -1,14 +1,13 @@
 {
   "name": "accounting",
-  "packageManager": "pnpm@7.15.0",
   "private": true,
   "scripts": {
     "setup": "pnpm --filter web run setup",
     "dev": "pnpm run -r dev",
-    "prepare": "husky install",
+    "prepare": "husky",
     "pre-commit": "pnpm run -r pre-commit"
   },
   "devDependencies": {
-    "husky": "^8.0.3"
+    "husky": "^9.0.11"
   }
 }
