@@ -25,5 +25,5 @@ export async function getPaidPreliminaryTax(fiscalYear: number) {
     ),
   })
 
-  return totals[0].amount
+  return totals[0]?.amount || 0
 }

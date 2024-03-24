@@ -29,3 +29,11 @@ The latest versions of the excluded packages cause issues.
 p-limit: I'm using it in content scripts (browser). Possible explanation of
 why 5.0.0 isn't working out of the box: https://github.com/vercel/next.js/issues/58052#issuecomment-1807047402
 Not a critical dependency.
+
+#### Issues
+
+```
+Warning: Cannot polyfill `Path2D`, rendering may be broken.
+```
+
+Being fixed: https://github.com/mozilla/pdf.js/pull/17830
