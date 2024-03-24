@@ -1,6 +1,7 @@
 import db from '../db'
 import { Transactions } from '../schema'
-import { and, asc, eq, gte, InferInsertModel, isNull } from 'drizzle-orm'
+import { and, eq, InferInsertModel } from 'drizzle-orm'
+import { getTaxTransactions } from './getTaxTransactions'
 
 function taxAccountMap(description: string): {
   debit: number
@@ -104,11 +105,7 @@ function taxAccountMap(description: string): {
     }
   }
 
-  /*
-    Around November 2023, I resubmitted an arbetsgivardeklaration. This caused the description to be prefixed
-    with "Beslut \d{6}".
-   */
-  if (/^(Beslut \d{6})? avdragen skatt/.test(description)) {
+  if (/^(Avdragen skatt|Beslut \d{6} avdragen skatt)/.test(description)) {
     return {
       credit: 1630,
       debit: 2710, // Personalskatt
@@ -180,13 +177,7 @@ async function searchForBankTransaction(
 }
 
 export async function getTaxSuggestions() {
-  const taxTransactions = await db
-    .select()
-    .from(Transactions)
-    .where(
-      and(eq(Transactions.type, 'tax'), isNull(Transactions.journalEntryId)),
-    )
-    .orderBy(asc(Transactions.id))
+  const taxTransactions = await getTaxTransactions()
 
   return Promise.all(
     taxTransactions.map(async (transaction) => {
