@@ -26,6 +26,10 @@ const specializedToolsTabs = [
     href: '/salary',
   },
   {
+    name: 'K10 form',
+    href: '/k10-form',
+  },
+  {
     name: 'Annual-related',
     href: '/annual-related',
   },
