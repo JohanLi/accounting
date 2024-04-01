@@ -33,6 +33,3 @@ next-env.d.ts
 
 # VAT
 *.xml
-
-# Annual report
-*.sie

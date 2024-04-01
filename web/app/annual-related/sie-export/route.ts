@@ -13,8 +13,7 @@ import {
 } from '../../accountTotals/getAccountTotals'
 import { getFiscalYear, oreToKrona } from '../../utils'
 import iconv from 'iconv-lite'
-
-export const ACCOUNT_ID_BALANCE_END_EXCLUSIVE = 3000
+import { ACCOUNT_ID_BALANCE_END_EXCLUSIVE } from '../accountIds'
 
 function formatDate(date: Date) {
   const year = date.getFullYear()

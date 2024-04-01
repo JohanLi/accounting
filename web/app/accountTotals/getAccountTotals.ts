@@ -3,7 +3,7 @@ import db from '../db'
 import { Accounts, JournalEntryTransactions, JournalEntries } from '../schema'
 import { getFiscalYear } from '../utils'
 
-import { ACCOUNT_ID_BALANCE_END_EXCLUSIVE } from '../annual-related/sie-export/route'
+import { ACCOUNT_ID_BALANCE_END_EXCLUSIVE } from '../annual-related/accountIds'
 
 export async function getAccounts() {
   return db.select().from(Accounts).orderBy(asc(Accounts.id))

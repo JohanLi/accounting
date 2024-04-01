@@ -5,10 +5,11 @@ import { getJournalEntries } from '../../getJournalEntries'
 import { and, eq } from 'drizzle-orm'
 import { JournalEntries } from '../../schema'
 import { getFiscalYear } from '../../utils'
-
-const descriptionTax = 'Skatt på årets resultat'
-const descriptionProfit = 'Årets resultat'
-const descriptionProfitFromPrevious = 'Vinst eller förlust från föregående år'
+import {
+  DESCRIPTION_PROFIT,
+  DESCRIPTION_PROFIT_FROM_PREVIOUS,
+  DESCRIPTION_TAX,
+} from '../descriptions'
 
 export type SubmitProfitAndTax = {
   corporateTax: number
@@ -26,7 +27,7 @@ export async function submitProfitAndTax({
 
   const existingTax = await getJournalEntries({
     where: and(
-      eq(JournalEntries.description, descriptionTax),
+      eq(JournalEntries.description, DESCRIPTION_TAX),
       eq(JournalEntries.date, lastDayOfCurrent),
     ),
   })
@@ -34,7 +35,7 @@ export async function submitProfitAndTax({
   const tax = {
     id: existingTax[0]?.id,
     date: lastDayOfCurrent,
-    description: descriptionTax,
+    description: DESCRIPTION_TAX,
     transactions: [
       {
         accountId: 2510,
@@ -50,7 +51,7 @@ export async function submitProfitAndTax({
 
   const existingProfit = await getJournalEntries({
     where: and(
-      eq(JournalEntries.description, descriptionProfit),
+      eq(JournalEntries.description, DESCRIPTION_PROFIT),
       eq(JournalEntries.date, lastDayOfCurrent),
     ),
   })
@@ -58,7 +59,7 @@ export async function submitProfitAndTax({
   const profit = {
     id: existingProfit[0]?.id,
     date: lastDayOfCurrent,
-    description: descriptionProfit,
+    description: DESCRIPTION_PROFIT,
     transactions: [
       {
         accountId: 2099,
@@ -74,7 +75,7 @@ export async function submitProfitAndTax({
 
   const existingProfitFromPrevious = await getJournalEntries({
     where: and(
-      eq(JournalEntries.description, descriptionProfitFromPrevious),
+      eq(JournalEntries.description, DESCRIPTION_PROFIT_FROM_PREVIOUS),
       eq(JournalEntries.date, firstDayOfNext),
     ),
   })
@@ -82,7 +83,7 @@ export async function submitProfitAndTax({
   const profitFromPrevious = {
     id: existingProfitFromPrevious[0]?.id,
     date: firstDayOfNext,
-    description: descriptionProfitFromPrevious,
+    description: DESCRIPTION_PROFIT_FROM_PREVIOUS,
     transactions: [
       {
         accountId: 2098,
