@@ -10,6 +10,7 @@ import AppropriateProfitForm from './AppropriateProfitForm'
 import { calculateAnnualRelated } from './calculateAnnualRelated'
 import ProfitAndTaxForm from './ProfitAndTaxForm'
 import { getPaidPreliminaryTax } from './getPaidPreliminaryTax'
+import SieExport from './sie-export/SieExport'
 
 /*
   TODO
@@ -106,6 +107,7 @@ export default async function AnnualRelated({ searchParams }: NextPageProps) {
           <H2>Related journal entries</H2>
           <JournalEntries journalEntries={journalEntries} />
         </div>
+        <SieExport selectedFiscalYear={selectedFiscalYear} />
       </div>
     </>
   )

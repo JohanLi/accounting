@@ -12,7 +12,7 @@ type Type = keyof typeof typeClass
 type Props = {
   type: Type
   text: string
-  onClick: () => void
+  onClick?: () => void
   disabled?: boolean
 }
 

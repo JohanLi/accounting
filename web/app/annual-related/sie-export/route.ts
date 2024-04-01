@@ -7,15 +7,14 @@
   sanity check.
  */
 
-import fs from 'fs/promises'
-import { getFiscalYear, oreToKrona } from '../../app/utils'
 import {
   getAccounts,
   getAccountTotals,
-} from '../../app/accountTotals/getAccountTotals'
+} from '../../accountTotals/getAccountTotals'
+import { getFiscalYear, oreToKrona } from '../../utils'
 import iconv from 'iconv-lite'
-import { ACCOUNT_ID_BALANCE_END_EXCLUSIVE, YEAR } from './constants'
-import { dirname } from 'path'
+
+export const ACCOUNT_ID_BALANCE_END_EXCLUSIVE = 3000
 
 function formatDate(date: Date) {
   const year = date.getFullYear()
@@ -27,7 +26,14 @@ function formatDate(date: Date) {
     .padStart(2, '0')}`
 }
 
-async function main() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  let fiscalYear = parseInt(searchParams.get('fiscalYear') || '')
+
+  if (!fiscalYear) {
+    return new Response('fiscalYear is required', { status: 400 })
+  }
+
   const KONTO = (await getAccounts())
     .map((a) => `#KONTO ${a.id} "${a.description}"`)
     .join('\n')
@@ -38,7 +44,7 @@ async function main() {
   const RES = []
 
   for (const fiscalYearOffset of [0, -1]) {
-    const year = YEAR + fiscalYearOffset
+    const year = fiscalYear + fiscalYearOffset
 
     let { startInclusive, endInclusive } = getFiscalYear(year)
 
@@ -103,16 +109,16 @@ ${UB.join('\n')}
 ${RES.join('\n')}
   `.trim()
 
-  const path = `${__dirname}/output/${YEAR}.sie`
-  await fs.mkdir(dirname(path), { recursive: true })
-  await fs.writeFile(path, iconv.encode(string, 'CP437'))
+  return new Response(iconv.encode(string, 'CP437'), {
+    headers: {
+      /*
+        actual charset is probably IBM437 or CP437 (https://en.wikipedia.org/wiki/Code_page_437),
+        but it's likely no browsers are wild enough to support it.
 
-  console.log(`Saved to "${path}"`)
-
-  process.exit(0)
+        A bug was reported to Mozilla back in 2017: https://bugzilla.mozilla.org/show_bug.cgi?id=1387382
+        Quote: "this is the only bug report in the nearly 20 year history of this project to ask for cp437 support"
+       */
+      'Content-Type': 'text/plain; charset=utf-8',
+    },
+  })
 }
-
-main().catch((e) => {
-  console.error(e)
-  process.exit(1)
-})
