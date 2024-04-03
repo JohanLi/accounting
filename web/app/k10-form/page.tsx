@@ -1,13 +1,12 @@
 import { H1, H2 } from '../components/common/heading'
-import { getJournalEntries } from '../getJournalEntries'
-import { eq } from 'drizzle-orm'
-import { JournalEntries } from '../schema'
-import { getAllIncomeYearsInReverse, getIncomeYear } from '../utils'
+import { getAllIncomeYearsInReverse } from '../utils'
 import { Amount } from '../components/Amount'
-import { K10_INTEREST_RATE_PERCENT, SALARY_ACCOUNT_ID } from '../tax'
+import { K10_INTEREST_RATE_PERCENT } from '../tax'
 import { Metadata } from 'next'
 import { NextPageProps } from '../types'
 import { useSelect } from '../components/select/useSelect'
+import { getDividend } from './getDividend'
+import { getSalaries } from '../salary/getSalaries'
 
 export const metadata: Metadata = {
   title: 'K10 form',
@@ -29,29 +28,10 @@ export default async function K10Form({ searchParams }: NextPageProps) {
   })
 
   const lastYear = selectedYear - 1
-
-  const dividendJournalEntry = await getJournalEntries({
-    ...getIncomeYear(lastYear),
-    where: eq(JournalEntries.description, 'Utbetalning av utdelning'),
-  })
-
-  const dividend =
-    dividendJournalEntry[0]?.transactions.find((t) => t.accountId === 2898)
-      ?.amount || 0
+  const dividend = await getDividend(lastYear)
 
   const twoYearsAgo = selectedYear - 2
-
-  const salaryJournalEntries = await getJournalEntries({
-    ...getIncomeYear(twoYearsAgo),
-    where: eq(JournalEntries.description, 'Lön'),
-  })
-
-  const salary = salaryJournalEntries.reduce((acc, journalEntry) => {
-    const income =
-      journalEntry.transactions.find((t) => t.accountId === SALARY_ACCOUNT_ID)
-        ?.amount || 0
-    return acc + income
-  }, 0)
+  const { total: salary } = await getSalaries(twoYearsAgo)
 
   return (
     <>

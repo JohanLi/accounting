@@ -44,6 +44,7 @@ if (currentYear !== 2024) {
 }
 
 export const SALARY_ACCOUNT_ID = 7210
+export const DIVIDEND_ACCOUNT_ID = 2898
 
 // used for Omkostnadsbelopp vid årets ingång
 export const K10_INTEREST_RATE_PERCENT = 10.94

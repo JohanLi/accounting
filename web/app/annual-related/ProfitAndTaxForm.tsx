@@ -6,11 +6,7 @@ import {
   submitProfitAndTax,
   SubmitProfitAndTax,
 } from './actions/submitProfitAndTax'
-import {
-  DESCRIPTION_PROFIT,
-  DESCRIPTION_PROFIT_FROM_PREVIOUS,
-  DESCRIPTION_TAX,
-} from './descriptions'
+import { DESCRIPTIONS } from '../descriptions'
 
 /*
   TODO in the rare event that the corporate tax is 0, submitting this form will crash
@@ -33,9 +29,9 @@ export default function ProfitAndTaxForm(props: SubmitProfitAndTax) {
       </form>
       <div className="text-xs text-gray-500">
         <ul className="list-inside list-disc">
-          <li>{DESCRIPTION_TAX}</li>
-          <li>{DESCRIPTION_PROFIT}</li>
-          <li>{DESCRIPTION_PROFIT_FROM_PREVIOUS}</li>
+          <li>{DESCRIPTIONS.TAX}</li>
+          <li>{DESCRIPTIONS.PROFIT}</li>
+          <li>{DESCRIPTIONS.PROFIT_FROM_PREVIOUS}</li>
         </ul>
       </div>
     </div>

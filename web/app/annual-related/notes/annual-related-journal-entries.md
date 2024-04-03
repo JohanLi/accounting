@@ -1,4 +1,4 @@
-# Year-end and dividends journal entries
+# Year-end and dividend journal entries
 
 On the last day of a given fiscal year, two journal entries need to be created:
 
@@ -12,7 +12,7 @@ On the first day of the next fiscal year:
 
 After the "annual meeting":
 
-- **Resultatdisposition** Move 2091 to 2098. If dividends are to be paid, move that amount from 2091 to
+- **Resultatdisposition** Move 2091 to 2098. If dividend is to be paid, move that amount from 2091 to
   2898 (Outtagen vinstutdelning) instead.
 - **Utbetalning av utdelning** Move 1930 to 2898.
 

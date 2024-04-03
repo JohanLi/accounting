@@ -5,11 +5,7 @@ import { getJournalEntries } from '../../getJournalEntries'
 import { and, eq } from 'drizzle-orm'
 import { JournalEntries } from '../../schema'
 import { getFiscalYear } from '../../utils'
-import {
-  DESCRIPTION_PROFIT,
-  DESCRIPTION_PROFIT_FROM_PREVIOUS,
-  DESCRIPTION_TAX,
-} from '../descriptions'
+import { DESCRIPTIONS } from '../../descriptions'
 
 export type SubmitProfitAndTax = {
   corporateTax: number
@@ -27,7 +23,7 @@ export async function submitProfitAndTax({
 
   const existingTax = await getJournalEntries({
     where: and(
-      eq(JournalEntries.description, DESCRIPTION_TAX),
+      eq(JournalEntries.description, DESCRIPTIONS.TAX),
       eq(JournalEntries.date, lastDayOfCurrent),
     ),
   })
@@ -35,7 +31,7 @@ export async function submitProfitAndTax({
   const tax = {
     id: existingTax[0]?.id,
     date: lastDayOfCurrent,
-    description: DESCRIPTION_TAX,
+    description: DESCRIPTIONS.TAX,
     transactions: [
       {
         accountId: 2510,
@@ -51,7 +47,7 @@ export async function submitProfitAndTax({
 
   const existingProfit = await getJournalEntries({
     where: and(
-      eq(JournalEntries.description, DESCRIPTION_PROFIT),
+      eq(JournalEntries.description, DESCRIPTIONS.PROFIT),
       eq(JournalEntries.date, lastDayOfCurrent),
     ),
   })
@@ -59,7 +55,7 @@ export async function submitProfitAndTax({
   const profit = {
     id: existingProfit[0]?.id,
     date: lastDayOfCurrent,
-    description: DESCRIPTION_PROFIT,
+    description: DESCRIPTIONS.PROFIT,
     transactions: [
       {
         accountId: 2099,
@@ -75,7 +71,7 @@ export async function submitProfitAndTax({
 
   const existingProfitFromPrevious = await getJournalEntries({
     where: and(
-      eq(JournalEntries.description, DESCRIPTION_PROFIT_FROM_PREVIOUS),
+      eq(JournalEntries.description, DESCRIPTIONS.PROFIT_FROM_PREVIOUS),
       eq(JournalEntries.date, firstDayOfNext),
     ),
   })
@@ -83,7 +79,7 @@ export async function submitProfitAndTax({
   const profitFromPrevious = {
     id: existingProfitFromPrevious[0]?.id,
     date: firstDayOfNext,
-    description: DESCRIPTION_PROFIT_FROM_PREVIOUS,
+    description: DESCRIPTIONS.PROFIT_FROM_PREVIOUS,
     transactions: [
       {
         accountId: 2098,
