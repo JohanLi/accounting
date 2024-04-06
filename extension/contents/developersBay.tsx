@@ -3,20 +3,6 @@ import pLimit from 'p-limit'
 import type { PlasmoCSConfig } from 'plasmo'
 import Download from '../download'
 
-/*
-  In the beginning of 2024, they updated their platform and also made changes to invoices. They are now no longer
-  directly behind an API and generated server-side. Instead, their data is returned from a GraphQL endpoint, and
-  it is your client that generates the PDF using @react-pdf/renderer.
-
-  A major issue is that a lot of text inside those PDFs appear OK, but when you copy and paste names, dates and values,
-  they appear strange. This seems to be a bug in the library they use when custom fonts are used
-  (https://github.com/diegomura/react-pdf/pull/2408).
-
-  I've notified Developers Bay about this. If this isn't fixed, a solution is to have this
-  extension redirect all the *.ttf requests so a different font is loaded. This can be done using
-  declarative_net_request and "action" : { "type": "redirect", "redirect": { "" } }
- */
-
 export const config: PlasmoCSConfig = {
   matches: ['https://box.developersbay.se/*'],
 }
