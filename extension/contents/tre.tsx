@@ -35,26 +35,32 @@ if (!accountNumber) {
   throw new Error('Missing PLASMO_PUBLIC_TRE_ACCOUNT_NUMBER')
 }
 
+const COUNT = 4
+
 const selector = 'a[href^="/mitt3/fakturor/"]'
 
 async function getDownloads() {
   await waitFor(selector)
 
-  return [...document.querySelectorAll(selector)].map((element) => {
-    const match = element.getAttribute('href').match(/\/mitt3\/fakturor\/(\d+)/)
+  return Array.from(document.querySelectorAll(selector))
+    .slice(0, COUNT)
+    .map((element) => {
+      const match = element
+        .getAttribute('href')
+        .match(/\/mitt3\/fakturor\/(\d+)/)
 
-    if (match) {
-      const invoiceNumber = match[1]
+      if (match) {
+        const invoiceNumber = match[1]
 
-      return {
-        url: `https://www.tre.se/t/api/invoices/my3/api/v1/accounts/${accountNumber}/invoices/${invoiceNumber}/document?errorCallback=/mitt3/fakturor`,
-        filename: `bookkeeping/tre/tre-${invoiceNumber}.pdf`,
+        return {
+          url: `https://www.tre.se/t/api/invoices/my3/api/v1/accounts/${accountNumber}/invoices/${invoiceNumber}/document?errorCallback=/mitt3/fakturor`,
+          filename: `bookkeeping/tre/tre-${invoiceNumber}.pdf`,
+        }
       }
-    }
 
-    console.log(element)
-    throw new Error('One of the invoice links does not seem to have an ID')
-  })
+      console.log(element)
+      throw new Error('One of the invoice links does not seem to have an ID')
+    })
 }
 
 export default function Tre() {

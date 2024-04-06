@@ -17,7 +17,7 @@ export const getStyle = () => {
  After 2024, they changed the format of the invoices. This applies retroactively as well – downloading older invoices
  will generate new files as a consequence.
  */
-const COUNT = 5
+const COUNT = 4
 
 const selectorGeneratePDF = '[data-testid="FileDownloadIcon"]'
 const selectorDownloadBlobs = 'a[download][href]'

@@ -27,23 +27,21 @@ export const getStyle = () => {
 async function getDownloads() {
   const filenames = []
 
-  document.querySelectorAll(".b3id-document-zippy-line-item").forEach((element) => {
-    filenames.push(element.textContent.trim())
-    element.dispatchEvent(new MouseEvent('mousedown'));
-  })
+  document
+    .querySelectorAll('.b3id-document-zippy-line-item')
+    .forEach((element) => {
+      filenames.push(element.textContent.trim())
+      element.dispatchEvent(new MouseEvent('mousedown'))
+    })
 
-  return [...document.querySelectorAll('.goog-menuitem-content [data-download-url]')].map((element: HTMLElement, i) => (
-    {
-      url: `https://payments.google.com${element.dataset.downloadUrl}`,
-      filename: filenames[i],
-    }
-  ))
+  return Array.from(
+    document.querySelectorAll('.goog-menuitem-content [data-download-url]'),
+  ).map((element: HTMLElement, i) => ({
+    url: `https://payments.google.com${element.dataset.downloadUrl}`,
+    filename: filenames[i],
+  }))
 }
 
 export default function Google() {
-  return (
-    <Download
-      getDownloads={getDownloads}
-    />
-  )
+  return <Download getDownloads={getDownloads} />
 }
