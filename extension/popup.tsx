@@ -10,7 +10,7 @@ export default function IndexPopup() {
           <a href="https://www.tre.se/mitt3/fakturor" target="_blank">Tre</a>
         </li>
         <li>
-          <a href="https://box.developersbay.se/" target="_blank">Developers Bay</a>
+          <a href="https://box.developersbay.se/profile/invoices" target="_blank">Developers Bay</a>
         </li>
         <li>
           <a href="https://admin.google.com/ac/billing/accounts" target="_blank">Google Workspace</a>

@@ -17,17 +17,16 @@ export function getTomorrow() {
   return `${year}-${month}-${day}`
 }
 
-// copied from https://stackoverflow.com/a/61511955
-export function waitFor(selector: string) {
-  return new Promise(resolve => {
-    if (document.querySelector(selector)) {
-      return resolve(document.querySelector(selector));
+export function waitFor(selector: string, count: number = 1) {
+  return new Promise<void>(resolve => {
+    if (document.querySelectorAll(selector).length >= count) {
+      return resolve();
     }
 
     const observer = new MutationObserver(() => {
-      if (document.querySelector(selector)) {
+      if (document.querySelectorAll(selector).length >= count) {
         observer.disconnect();
-        resolve(document.querySelector(selector));
+        resolve();
       }
     });
 
