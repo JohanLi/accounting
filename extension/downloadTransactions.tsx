@@ -111,7 +111,7 @@ export default function DownloadTransactions({ getDownloads }: Props) {
   const goBack = (
     <button
       type="button"
-      className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 mt-4"
+      className="mt-4 rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
       onClick={() => dispatch({ type: 'reset' })}
     >
       Go back
@@ -119,7 +119,7 @@ export default function DownloadTransactions({ getDownloads }: Props) {
   )
 
   return (
-    <div className="fixed bottom-4 right-4 w-64 h-32 font-sans rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 p-4">
+    <div className="fixed bottom-4 right-4 h-32 w-64 rounded-lg bg-white p-4 font-sans shadow-lg ring-1 ring-black ring-opacity-5">
       {state.error && (
         <>
           <div>{state.error}</div>
@@ -135,7 +135,7 @@ export default function DownloadTransactions({ getDownloads }: Props) {
               className={classNames(
                 'inline-flex rounded bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600',
                 state.state === 'downloading'
-                  ? 'opacity-50 cursor-not-allowed'
+                  ? 'cursor-not-allowed opacity-50'
                   : '',
               )}
               onClick={onClick}
