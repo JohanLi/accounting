@@ -1,5 +1,6 @@
 import cssText from 'data-text:./style.css'
 import type { PlasmoCSConfig } from 'plasmo'
+
 import Download from '../download'
 import { waitFor } from '../utils'
 

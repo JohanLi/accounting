@@ -18,21 +18,21 @@ export function getTomorrow() {
 }
 
 export function waitFor(selector: string, count: number = 1) {
-  return new Promise<void>(resolve => {
+  return new Promise<void>((resolve) => {
     if (document.querySelectorAll(selector).length >= count) {
-      return resolve();
+      return resolve()
     }
 
     const observer = new MutationObserver(() => {
       if (document.querySelectorAll(selector).length >= count) {
-        observer.disconnect();
-        resolve();
+        observer.disconnect()
+        resolve()
       }
-    });
+    })
 
     observer.observe(document.body, {
       childList: true,
-      subtree: true
-    });
-  });
+      subtree: true,
+    })
+  })
 }

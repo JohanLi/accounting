@@ -3,10 +3,10 @@
  */
 
 import cssText from 'data-text:./style.css'
+import iconv from 'iconv-lite'
 import type { PlasmoCSConfig } from 'plasmo'
 
 import DownloadTransactions from '../downloadTransactions'
-import iconv from 'iconv-lite'
 
 export const config: PlasmoCSConfig = {
   matches: ['https://sso.skatteverket.se/sk/ska/*'],
@@ -18,21 +18,20 @@ export const getStyle = () => {
   return style
 }
 
-const API_BASE_URL =
-  'https://sso.skatteverket.se/sk/ska/hamtaBokfTrans.do'
+const API_BASE_URL = 'https://sso.skatteverket.se/sk/ska/hamtaBokfTrans.do'
 
 const COMPANY_START_DATE = '201001'
 
 function getYesterday() {
-  const currentDate = new Date();
+  const currentDate = new Date()
 
-  currentDate.setDate(currentDate.getDate() - 1);
+  currentDate.setDate(currentDate.getDate() - 1)
 
-  const year = currentDate.getFullYear() % 100;
-  const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-  const day = String(currentDate.getDate()).padStart(2, '0');
+  const year = currentDate.getFullYear() % 100
+  const month = String(currentDate.getMonth() + 1).padStart(2, '0')
+  const day = String(currentDate.getDate()).padStart(2, '0')
 
-  return `${year}${month}${day}`;
+  return `${year}${month}${day}`
 }
 
 async function getDownloads() {
@@ -63,18 +62,18 @@ async function getDownloads() {
     throw new Error('Unexpected content-type')
   }
 
-  const parser = new DOMParser();
+  const parser = new DOMParser()
 
   const utf8 = iconv.decode(
     Buffer.from(await response.arrayBuffer()),
     'iso-8859-1',
   )
 
-  const document = parser.parseFromString(utf8, 'text/html');
-  const table = document.getElementById('bokf_trans_sort');
-  const rows = table.getElementsByTagName('tr');
+  const document = parser.parseFromString(utf8, 'text/html')
+  const table = document.getElementById('bokf_trans_sort')
+  const rows = table.getElementsByTagName('tr')
 
-  const transactions = [];
+  const transactions = []
 
   /*
     the following rows are skipped because they don't follow the same format as the rest and their values are redundant:
@@ -83,21 +82,24 @@ async function getDownloads() {
     last: utgående saldo
    */
   for (let i = 2; i < rows.length - 1; i++) {
-    const row = rows[i];
+    const row = rows[i]
 
     transactions.push({
       date: row.cells[0].querySelector('.hidden-xs').textContent.trim(),
       description: row.cells[1].textContent.trim(),
       amount: row.cells[2].textContent.trim().replace(/\s/g, ''),
       balance: row.cells[4].textContent.trim().replace(/\s/g, ''),
-    });
+    })
   }
 
-  const { date, description } = transactions[0];
-  const firstTransaction = date === '2021-07-12' && description === 'Debiterad preliminärskatt';
+  const { date, description } = transactions[0]
+  const firstTransaction =
+    date === '2021-07-12' && description === 'Debiterad preliminärskatt'
 
   if (!firstTransaction) {
-    throw new Error(`Either you've forgotten to switch to the company account, or the transactions have been paginated`);
+    throw new Error(
+      `Either you've forgotten to switch to the company account, or the transactions have been paginated`,
+    )
   }
 
   return transactions

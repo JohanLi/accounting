@@ -13,8 +13,8 @@
 
 import cssText from 'data-text:./style.css'
 import type { PlasmoCSConfig } from 'plasmo'
-import Download from '../download'
 
+import Download from '../download'
 import { COMPANY_START_DATE, getTomorrow } from '../utils'
 
 export const config: PlasmoCSConfig = {

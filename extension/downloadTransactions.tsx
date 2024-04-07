@@ -7,8 +7,8 @@ import type {
   ResponseBody,
   Transactions,
 } from './background/messages/transactions'
-import { classNames } from './utils'
 import LoadingSpinner from './loadingSpinner'
+import { classNames } from './utils'
 
 type Props = {
   getDownloads: () => Promise<Transactions>
@@ -134,7 +134,9 @@ export default function DownloadTransactions({ getDownloads }: Props) {
               type="button"
               className={classNames(
                 'inline-flex rounded bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600',
-                state.state === 'downloading' ? 'opacity-50 cursor-not-allowed' : '',
+                state.state === 'downloading'
+                  ? 'opacity-50 cursor-not-allowed'
+                  : '',
               )}
               onClick={onClick}
               disabled={state.state === 'downloading'}

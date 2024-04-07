@@ -2,7 +2,6 @@ import cssText from 'data-text:./style.css'
 import type { PlasmoCSConfig } from 'plasmo'
 
 import DownloadTransactions from '../downloadTransactions'
-
 import { COMPANY_START_DATE, getTomorrow } from '../utils'
 
 export const config: PlasmoCSConfig = {
