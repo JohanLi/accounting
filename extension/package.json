@@ -32,18 +32,6 @@
     "host_permissions": [
       "https://*/*",
       "http://*/*"
-    ],
-    "permissions": [
-      "declarativeNetRequest"
-    ],
-    "declarative_net_request": {
-      "rule_resources": [
-        {
-          "id": "Replace custom fonts used by Developers Bay",
-          "enabled": true,
-          "path": "~contents/developersBay.json"
-        }
-      ]
-    }
+    ]
   }
 }
