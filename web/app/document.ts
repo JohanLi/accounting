@@ -8,6 +8,21 @@ import db from './db'
 import { Transactions } from './schema'
 import { and, asc, eq, gte, isNull, lt, lte, or } from 'drizzle-orm'
 
+if (typeof window == 'undefined') {
+  /*
+    When this code is run in Node, pdfjs-dist will attempt to load 'canvas' and 'path2d' even though they're
+    not needed for the things we're using pdfjs-dist for.
+
+    This hack prevents warning messages (https://github.com/mozilla/pdf.js/blob/bb73d2a92240a5177268a652f400a98805f83682/src/display/node_utils.js#L71)
+    from showing up in the console.
+   */
+
+  // @ts-expect-error
+  globalThis.DOMMatrix = {}
+  // @ts-expect-error
+  globalThis.Path2D = {}
+}
+
 // https://github.com/vercel/next.js/issues/58313#issuecomment-1807184812
 // @ts-expect-error
 await import('pdfjs-dist/build/pdf.worker.mjs')

@@ -31,11 +31,3 @@ why 5.0.0 isn't working out of the box: https://github.com/vercel/next.js/issues
 Not a critical dependency.
 
 eslint: no version 9 support yet https://github.com/vercel/next.js/issues/64409
-
-#### Issues
-
-```
-Warning: Cannot polyfill `Path2D`, rendering may be broken.
-```
-
-Being fixed: https://github.com/mozilla/pdf.js/pull/17830

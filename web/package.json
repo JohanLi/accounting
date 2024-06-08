@@ -5,7 +5,7 @@
     "setup": "sh ./scripts/setup.sh",
     "swc": "node -r @swc-node/register",
     "reset": "sh ./scripts/reset.sh",
-    "dev": "next dev",
+    "dev": "next dev --turbo",
     "test": "vitest",
     "test-e2e": "sh ./tests/test-e2e.sh",
     "pre-commit": "pnpm exec lint-staged && CI=true pnpm test && tsc --noEmit",
