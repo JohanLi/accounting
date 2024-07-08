@@ -21,13 +21,7 @@ before running `pnpm install`.
 #### Updating dependencies
 
 ```
-pnpm update "\!p-limit" "\!eslint" --latest
+pnpm update "\!eslint" --latest
 ```
-
-The latest versions of the excluded packages cause issues.
-
-p-limit: I'm using it in content scripts (browser). Possible explanation of
-why 5.0.0 isn't working out of the box: https://github.com/vercel/next.js/issues/58052#issuecomment-1807047402
-Not a critical dependency.
 
 eslint: no version 9 support yet https://github.com/vercel/next.js/issues/64409
