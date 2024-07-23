@@ -18,6 +18,17 @@ export default function Popup() {
           <Link href="https://admin.google.com/ac/billing/accounts">
             Google Workspace
           </Link>
+          {/*
+            Order receipts from Namecheap are a frustrating experience. While they get sent to both your Namecheap
+            inbox and your email, neither of these places show you your added company details. Instead, it's this
+            third place where you can download receipts with custom info.
+
+            Since it's a yearly thing, it's not worth the effort to automate this. I'm using Namecheap because
+            Google and Cloudflare don't support the .li TLD.
+          */}
+          <Link href="https://ap.www.namecheap.com/profile/billing/orders">
+            Namecheap (manual)
+          </Link>
         </ul>
       </div>
       <div className="space-y-2">

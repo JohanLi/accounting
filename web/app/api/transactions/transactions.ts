@@ -81,6 +81,9 @@ export function getTransactions() {
   takes a day or two before the bank transaction is registered. This day range is temporarily
   changed in the event of edge cases.
 
+  Over the course of two years, I've on two occasions encountered a late payment. This impacts
+  the search range as well.
+
   One thing it doesn't handle well is when invoices are paid much earlier than the due date.
   Instead of complicating the business logic, I've simply changed my own process to pay
   them close to the due date.
