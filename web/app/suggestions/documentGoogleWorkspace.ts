@@ -5,6 +5,7 @@ import { and, eq, gte, isNull, lte } from 'drizzle-orm'
 
 const TIME_WINDOW_DAYS = 10
 
+// now that I pay for this yearly, it's worth considering whether to retire this code
 export async function getGoogleWorkspaceDocument(strings: string[]) {
   if (!strings.includes('Google Workspace')) {
     return null
@@ -35,8 +36,8 @@ export async function getGoogleWorkspaceDocument(strings: string[]) {
         isNull(Transactions.journalEntryId),
         gte(Transactions.date, timeWindow.start),
         lte(Transactions.date, timeWindow.end),
-        gte(Transactions.amount, -7000),
-        lte(Transactions.amount, -5000),
+        gte(Transactions.amount, -100000),
+        lte(Transactions.amount, -70000),
       ),
     )
 

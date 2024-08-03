@@ -6,7 +6,7 @@ import {
   getRecognizedDocument,
   getUnknownDocument,
 } from '../document'
-import { getGoogleWorkspaceDocument } from './documentGoogleWorkflow'
+import { getGoogleWorkspaceDocument } from './documentGoogleWorkspace'
 
 export async function getDocumentSuggestions() {
   const pendingDocuments = await db
