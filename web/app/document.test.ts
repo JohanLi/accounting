@@ -4,6 +4,7 @@ import {
   getPDFStrings,
   getMonetaryValues,
   getForeignCurrencyMonetaryValues,
+  getDates,
 } from './document'
 import { readTestDocument } from '../tests/utils'
 
@@ -86,6 +87,20 @@ test('parse', async () => {
         amount: 1358,
       },
     ],
+  })
+})
+
+describe('getDates', () => {
+  test('JetBrains invoices', () => {
+    expect(
+      getDates(['Payment Date: 26.4.2023', '26.4.2023', 'Due date: 26.4.2023']),
+    ).toEqual([new Date('2023-04-26')])
+  })
+
+  test('Namecheap invoices', () => {
+    expect(getDates([': 5/25/2024 1:23:11 PM'], true)).toEqual([
+      new Date('2024-05-25'),
+    ])
   })
 })
 

@@ -245,10 +245,11 @@ function uniqueDate(array: Date[]) {
 }
 
 const monetaryFormats = [
-  /(\d{1,3}.\d{3}.\d{2}) SEK/, // MacBook purchase
+  /(\d{1,3}\.\d{3}\.\d{2}) SEK/, // MacBook purchase
   /(\d+,\d{2}) SEK/,
-  /(\d+.\d{2}) SEK/,
-  /(\d+.\d{3},\d{2})/,
+  /(\d+\.\d{2}) SEK/,
+  /(\d+) SEK/, // Webhallen purchase
+  /(\d+\.\d{3},\d{2})/,
   /(\d+,\d{2})/,
 ]
 export function getMonetaryValues(strings: string[]) {
@@ -267,7 +268,7 @@ export function getMonetaryValues(strings: string[]) {
       .map((found) =>
         found[1]
           // invoice
-          .replace(/.(\d{3})/, '$1')
+          .replace(/\.(\d{3})/, '$1')
           // using point as decimal separator
           .replace(',', '.'),
       ),
@@ -312,7 +313,7 @@ const dateFormats = [
   /[A-Z][a-z]{2} \d{1,2}, \d{4}/,
   /\d{4}-\d{2}-\d{2}/,
   /(\d{2})\/(\d{2})\/(\d{4})/,
-  /(\d{1,2})\.(\d{1,2})\.(\d{4})/, // JetBrains' invoices
+  /(\d{1,2})[./](\d{1,2})[./](\d{4})/,
 ]
 /*
   There exists ambiguity between MM/DD/YYYY and DD/MM/YYYY. It appears that USA and Canada use MM/DD/YYYY.
@@ -343,14 +344,22 @@ export function getDates(strings: string[], checkMMDDYYYY = false) {
           return new Date(`${foundDate[3]}-${foundDate[1]}-${foundDate[2]}`)
         }
 
+        /*
+          While "2024-05-25" is treated as UTC, strings like "2023-5-25" and "Apr 8, 2023" are treated as local time.
+          UTC+00:00 is a hack to make sure both of them are treated as UTC. Another option is padding the month and day.
+         */
         if (found === 3) {
-          return new Date(`${foundDate[3]}-${foundDate[2]}-${foundDate[1]}`)
+          if (!checkMMDDYYYY) {
+            return new Date(
+              `${foundDate[3]}-${foundDate[2]}-${foundDate[1]} UTC+00:00`,
+            )
+          }
+
+          return new Date(
+            `${foundDate[3]}-${foundDate[1]}-${foundDate[2]} UTC+00:00`,
+          )
         }
 
-        /*
-          While "2023-04-08" is treated as UTC, "Apr 8, 2023" is treated as local time.
-          UTC+00:00 is a hack to make sure both of them are treated as UTC.
-         */
         return new Date(`${foundDate[0]} UTC+00:00`)
       }),
   )
