@@ -15,9 +15,6 @@ export default function Popup() {
           <Link href="https://box.developersbay.se/profile/invoices">
             Developers Bay
           </Link>
-          <Link href="https://admin.google.com/ac/billing/accounts">
-            Google Workspace
-          </Link>
           {/*
             Order receipts from Namecheap are a frustrating experience. While they get sent to both your Namecheap
             inbox and your email, neither of these places show you your added company details. Instead, it's this

@@ -114,7 +114,6 @@ export function SuggestionsUnknownForm({
         },
       ]
     } else {
-      // TODO documentGoogleWorkspace has similar logic; merge them
       const amountVat = Math.round(
         amount * parseFloat(selectedCategory.vatRate),
       )
