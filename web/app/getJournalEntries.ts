@@ -42,7 +42,12 @@ export async function getJournalEntries({
   const journalEntries = await db
     .select({
       ...getTableColumns(JournalEntries),
-      transactions: sql<Transaction[]>`array_agg(json_build_object(
+      /*
+        Some journal entries, particularly the tax account-related ones, are linked to two transactions.
+        To prevent those cases from returning two sets of journal entry transactions, DISTINCT is used.
+        I believe it can also be accomplished using two CTEs.
+       */
+      transactions: sql<Transaction[]>`array_agg(DISTINCT jsonb_build_object(
         'accountId', ${JournalEntryTransactions.accountId},
         'amount', ${JournalEntryTransactions.amount}
       ))`,
