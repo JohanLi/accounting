@@ -249,7 +249,7 @@ const monetaryFormats = [
   /(\d+,\d{2}) SEK/,
   /(\d+\.\d{2}) SEK/,
   /(\d+) SEK/, // Webhallen purchase
-  /(\d+\.\d{3},\d{2})/,
+  /(\d+.\d{3},\d{2})/,
   /(\d+,\d{2})/,
 ]
 export function getMonetaryValues(strings: string[]) {
@@ -268,7 +268,7 @@ export function getMonetaryValues(strings: string[]) {
       .map((found) =>
         found[1]
           // invoice
-          .replace(/\.(\d{3})/, '$1')
+          .replace(/.(\d{3})/, '$1')
           // using point as decimal separator
           .replace(',', '.'),
       ),

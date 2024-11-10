@@ -105,6 +105,10 @@ describe('getDates', () => {
 })
 
 describe('getMonetaryValues', () => {
+  test('recognizes my invoices', () => {
+    expect(getMonetaryValues(['123 456,78'])).toEqual([12345678])
+  })
+
   test('works for known formats, returning the amount in ören', () => {
     expect(getMonetaryValues(['1,23 SEK'])).toEqual([123])
     expect(getMonetaryValues(['12.34 SEK'])).toEqual([1234])
