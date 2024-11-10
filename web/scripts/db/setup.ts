@@ -112,6 +112,10 @@ async function main() {
         description: 'Öres- och kronutjämning',
       },
       {
+        id: 3990,
+        description: 'Övriga ersättningar och intäkter',
+      },
+      {
         id: 4010,
         description: 'Inköp material och varor',
       },

@@ -13,10 +13,17 @@ export type VatRate = '0' | '0.06' | '0.12' | '0.25'
 
 export type Category = {
   name: string
-  debitAccountId: number
-  vatRate: VatRate
-  reverseCharge?: true
-}
+} & (
+  | {
+      debitAccountId: number
+      vatRate: VatRate
+      reverseCharge?: true
+    }
+  | {
+      creditAccountId: number
+      vatRate: Extract<VatRate, '0'>
+    }
+)
 
 export const categories: Category[] = [
   {
@@ -60,6 +67,11 @@ export const categories: Category[] = [
     debitAccountId: 7699,
     vatRate: '0',
   },
+  {
+    name: 'SJ förseningsersättning (0%)',
+    creditAccountId: 3990,
+    vatRate: '0',
+  },
 ]
 
 /*
@@ -93,7 +105,18 @@ export function SuggestionsUnknownForm({
     // TODO consider creating a general function for transactions (that also applies Math.abs to amount)
     const amount = Math.abs(selectedBankTransaction.amount)
 
-    if (!selectedCategory.reverseCharge) {
+    if ('creditAccountId' in selectedCategory) {
+      transactions = [
+        {
+          accountId: selectedCategory.creditAccountId,
+          amount: -amount,
+        },
+        {
+          accountId: 1930,
+          amount,
+        },
+      ]
+    } else if (!selectedCategory.reverseCharge) {
       const amountBeforeVat = Math.round(
         amount / (1 + parseFloat(selectedCategory.vatRate)),
       )
