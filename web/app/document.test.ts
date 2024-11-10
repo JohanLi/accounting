@@ -120,6 +120,8 @@ describe('getMonetaryValues', () => {
     expect(
       getMonetaryValues(['1,23 SEK', '12.34 SEK', '2.555,20', '380,00']),
     ).toEqual([123])
+
+    // unhandled: Skånetrafiken tickets contain "31 SEK" without decimals but "1,75 SEK" for VAT
   })
 
   test('removes duplicates', () => {
@@ -129,6 +131,12 @@ describe('getMonetaryValues', () => {
   test('sorts in descending order', () => {
     expect(getMonetaryValues(['1 600,00', '400,00', '2 000,00'])).toEqual([
       200000, 160000, 40000,
+    ])
+  })
+
+  test('prefers comma over period as the decimal separator when dealing with SEK', () => {
+    expect(getMonetaryValues(['9 876.54 SEK', '1 234,56 SEK'])).toEqual([
+      123456,
     ])
   })
 })

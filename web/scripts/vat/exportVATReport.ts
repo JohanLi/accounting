@@ -40,7 +40,7 @@ import { getJournalEntryTransactions } from './getJournalEntryTransactions'
   make sure 1650 is non-negative.
  */
 
-const FISCAL_YEAR = 2024
+const FISCAL_YEAR = 2025
 const QUARTER = 1
 
 async function main() {

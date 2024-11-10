@@ -257,8 +257,8 @@ function uniqueDate(array: Date[]) {
 
 const monetaryFormats = [
   /(\d{1,3}\.\d{3}\.\d{2}) SEK/, // MacBook purchase
-  /(\d+,\d{2}) SEK/,
-  /(\d+\.\d{2}) SEK/,
+  /(\d{1,3}(?: \d{3})*,\d{2}) SEK/,
+  /(\d{1,3}(?: \d{3})*\.\d{2}) SEK/,
   /(\d+) SEK/, // Webhallen purchase
   /(\d{1,3}([ .]?\d{3})*,\d{2})/,
   /(\d+,\d{2})/,
@@ -379,6 +379,11 @@ export function getDates(strings: string[], checkMMDDYYYY = false) {
 /*
   For documents like these, I've found it easiest to only detect dates. Then, using those dates, check against
   non-linked bank transactions to suggest values. This solution also works well for documents with foreign currencies.
+
+  TODO
+    After using this for longer, the best strategy is to use bank transactions as the starting point to
+    suggest values and dates. There might still be some value in parsing values and dates, but it'd
+    merely be for assisting manual confirmation.
  */
 const SEARCH_DAY_RANGE = 10
 const FOREIGN_CURRENCY = {
