@@ -58,6 +58,7 @@ type Characterization =
   | 'INCOME'
   | 'BANKING_COSTS'
   | 'MOBILE_PROVIDER'
+  | 'ANNUAL_REPORT'
   | 'WELLNESS'
 type VatRate = '0.25' | '0.12' | '0.06' | '0'
 
@@ -80,6 +81,11 @@ const characterizations: {
   },
   MOBILE_PROVIDER: {
     debit: 6212,
+    credit: 1930,
+    vatRate: '0.25',
+  },
+  ANNUAL_REPORT: {
+    debit: 6550,
     credit: 1930,
     vatRate: '0.25',
   },
@@ -117,6 +123,11 @@ const recognizedDocuments: RecognizedDocument[] = [
     identifiedBy: 'Hi3G Access AB',
     characterization: 'MOBILE_PROVIDER',
     description: 'Tre företagsabonnemang',
+  },
+  {
+    identifiedBy: 'Årsredovisning Online',
+    characterization: 'ANNUAL_REPORT',
+    description: 'Årsredovisning Online',
   },
   {
     identifiedBy: 'Flottsbro',
@@ -249,7 +260,7 @@ const monetaryFormats = [
   /(\d+,\d{2}) SEK/,
   /(\d+\.\d{2}) SEK/,
   /(\d+) SEK/, // Webhallen purchase
-  /(\d+.\d{3},\d{2})/,
+  /(\d{1,3}([ .]?\d{3})*,\d{2})/,
   /(\d+,\d{2})/,
 ]
 export function getMonetaryValues(strings: string[]) {

@@ -127,8 +127,8 @@ describe('getMonetaryValues', () => {
   })
 
   test('sorts in descending order', () => {
-    expect(getMonetaryValues(['12,34', '55,20', '32,10'])).toEqual([
-      5520, 3210, 1234,
+    expect(getMonetaryValues(['1 600,00', '400,00', '2 000,00'])).toEqual([
+      200000, 160000, 40000,
     ])
   })
 })
