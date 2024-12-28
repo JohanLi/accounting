@@ -1,26 +1,26 @@
+import { Metadata } from 'next'
+
+import { H1 } from '../components/common/heading'
+import { getFilterPill } from '../components/filterPill/getFilterPill'
+import { getSelect } from '../components/select/getSelect'
+import { getJournalEntries } from '../getJournalEntries'
+import { NextPageProps } from '../types'
 import {
   getAllFiscalYearsInReverse,
   getCurrentFiscalYear,
   getFiscalYear,
 } from '../utils'
-import { getJournalEntries } from '../getJournalEntries'
-import { NextPageProps } from '../types'
-import { useSelect } from '../components/select/useSelect'
-import { useFilterPill } from '../components/filterPill/useFilterPill'
-import { Metadata } from 'next'
-import { H1 } from '../components/common/heading'
 import { JournalEntries } from './JournalEntries'
 
 export const metadata: Metadata = {
   title: 'Journal entries',
 }
 
-export default async function JournalEntriesPage({
-  searchParams,
-}: NextPageProps) {
+export default async function JournalEntriesPage(props: NextPageProps) {
+  const searchParams = await props.searchParams
   const currentFiscalYear = getCurrentFiscalYear()
 
-  const [selectedFiscalYear, Select] = useSelect({
+  const [selectedFiscalYear, Select] = getSelect({
     searchParams,
     name: 'fiscalYear',
     defaultValue: currentFiscalYear,
@@ -34,7 +34,7 @@ export default async function JournalEntriesPage({
     (j) => !j.linkedToTransactionIds.length && !j.linkNotApplicable,
   )
 
-  const [journalEntryFilter, FilterPills] = useFilterPill({
+  const [journalEntryFilter, FilterPills] = getFilterPill({
     searchParams,
     name: 'filter',
     defaultValue: 'all',

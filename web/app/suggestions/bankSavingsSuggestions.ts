@@ -1,6 +1,7 @@
+import { and, asc, eq, isNull } from 'drizzle-orm'
+
 import db from '../db'
 import { Transactions } from '../schema'
-import { and, asc, eq, isNull } from 'drizzle-orm'
 
 const INTEREST_DESCRIPTION = 'RÄNTA'
 

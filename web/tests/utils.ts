@@ -1,4 +1,4 @@
-import { expect, Page } from '@playwright/test'
+import { Page, expect } from '@playwright/test'
 import { readFile } from 'fs/promises'
 
 export function readTestDocument(filename: string) {

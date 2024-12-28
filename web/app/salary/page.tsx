@@ -1,21 +1,23 @@
+import { Metadata } from 'next'
+
 import { Amount } from '../components/Amount'
+import { H1, H2 } from '../components/common/heading'
+import { getSelect } from '../components/select/getSelect'
+import { JournalEntries } from '../journalEntries/JournalEntries'
+import { NextPageProps } from '../types'
 import { getAllIncomeYearsInReverse } from '../utils'
 import SalaryForm from './SalaryForm'
-import { Metadata } from 'next'
-import { useSelect } from '../components/select/useSelect'
-import { NextPageProps } from '../types'
-import { H1, H2 } from '../components/common/heading'
-import { JournalEntries } from '../journalEntries/JournalEntries'
 import { getSalaries } from './getSalaries'
 
 export const metadata: Metadata = {
   title: 'Salary',
 }
 
-export default async function Salary({ searchParams }: NextPageProps) {
+export default async function Salary(props: NextPageProps) {
+  const searchParams = await props.searchParams
   const currentYear = new Date().getFullYear()
 
-  const [selectedYear, Select] = useSelect({
+  const [selectedYear, Select] = getSelect({
     searchParams,
     name: 'year',
     defaultValue: currentYear,

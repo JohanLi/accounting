@@ -1,14 +1,15 @@
 import {
+  InferSelectModel,
+  SQLWrapper,
   and,
   desc,
   eq,
   getTableColumns,
   gte,
-  InferSelectModel,
   lt,
   sql,
-  SQLWrapper,
 } from 'drizzle-orm'
+
 import db from './db'
 import {
   JournalEntries,

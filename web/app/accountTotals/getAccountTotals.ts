@@ -1,9 +1,9 @@
-import { and, asc, eq, gte, lt, sql, SQLWrapper } from 'drizzle-orm'
-import db from '../db'
-import { Accounts, JournalEntryTransactions, JournalEntries } from '../schema'
-import { getFiscalYear } from '../utils'
+import { SQLWrapper, and, asc, eq, gte, lt, sql } from 'drizzle-orm'
 
 import { ACCOUNT_ID_BALANCE_END_EXCLUSIVE } from '../annual-related/accountIds'
+import db from '../db'
+import { Accounts, JournalEntries, JournalEntryTransactions } from '../schema'
+import { getFiscalYear } from '../utils'
 
 export async function getAccounts() {
   return db.select().from(Accounts).orderBy(asc(Accounts.id))

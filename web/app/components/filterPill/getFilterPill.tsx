@@ -1,6 +1,7 @@
-import FilterTabClient from './FilterTabClient'
-import { NextPageProps } from '../../types'
 import { ReactNode } from 'react'
+
+import { NextPageProps } from '../../types'
+import FilterPillClient from './FilterPillClient'
 
 type Props<T> = {
   searchParams: NextPageProps['searchParams']
@@ -9,7 +10,7 @@ type Props<T> = {
   items: { label: string; value: T }[]
 }
 
-export function useFilterTab<T extends string | number>(
+export function getFilterPill<T extends string | number>(
   props: Props<T>,
 ): [T, () => ReactNode] {
   const selectedValue =
@@ -20,7 +21,7 @@ export function useFilterTab<T extends string | number>(
   return [
     selectedValue,
     () => (
-      <FilterTabClient
+      <FilterPillClient
         name={props.name}
         defaultValue={props.defaultValue.toString()}
         selectedValue={selectedValue.toString()}

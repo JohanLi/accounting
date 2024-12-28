@@ -1,4 +1,5 @@
 import { describe, expect, test, vi } from 'vitest'
+
 import { getTaxSuggestions } from './taxSuggestions'
 
 // this approach to get per-test mocks is taken from https://github.com/vitest-dev/vitest/discussions/3589#discussioncomment-6195214

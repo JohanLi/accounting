@@ -1,11 +1,12 @@
 'use server'
 
-import { updateJournalEntry } from '../../actions/updateJournalEntry'
-import { getJournalEntries } from '../../getJournalEntries'
 import { and, eq } from 'drizzle-orm'
+
+import { updateJournalEntry } from '../../actions/updateJournalEntry'
+import { DESCRIPTIONS } from '../../descriptions'
+import { getJournalEntries } from '../../getJournalEntries'
 import { JournalEntries } from '../../schema'
 import { getFiscalYear } from '../../utils'
-import { DESCRIPTIONS } from '../../descriptions'
 
 export type SubmitProfitAndTax = {
   corporateTax: number

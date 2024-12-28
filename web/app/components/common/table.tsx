@@ -1,4 +1,5 @@
 import { ReactNode } from 'react'
+
 import { classNames } from '../../utils'
 
 export function Table({ children }: { children: ReactNode }) {

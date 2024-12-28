@@ -1,5 +1,6 @@
-import { formatAmount } from './Amount'
 import { useState } from 'react'
+
+import { formatAmount } from './Amount'
 
 export type NumberOrMinus = number | '-'
 

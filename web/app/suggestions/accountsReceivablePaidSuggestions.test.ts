@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest'
+
 import { getUnpaid } from './accountsReceivablePaidSuggestions'
 
 describe('given an array of positive and negative numbers that cancel each other out', () => {

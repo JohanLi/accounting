@@ -1,12 +1,13 @@
 import Decimal from 'decimal.js'
+import { and, asc, eq, gte, isNull, lt, lte, or } from 'drizzle-orm'
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 import { TextContent } from 'pdfjs-dist/types/src/display/api'
-import { Transaction } from './getJournalEntries'
+
 import { JournalEntryUpdate } from './actions/updateJournalEntry'
-import { krToOre } from './utils'
 import db from './db'
+import { Transaction } from './getJournalEntries'
 import { Transactions } from './schema'
-import { and, asc, eq, gte, isNull, lt, lte, or } from 'drizzle-orm'
+import { krToOre } from './utils'
 
 if (typeof window == 'undefined') {
   /*
@@ -17,14 +18,14 @@ if (typeof window == 'undefined') {
     from showing up in the console.
    */
 
-  // @ts-expect-error
+  // @ts-expect-error pdf.js hack
   globalThis.DOMMatrix = {}
-  // @ts-expect-error
+  // @ts-expect-error pdf.js hack
   globalThis.Path2D = {}
 }
 
 // https://github.com/vercel/next.js/issues/58313#issuecomment-1807184812
-// @ts-expect-error
+// @ts-expect-error pdf.js hack
 await import('pdfjs-dist/build/pdf.worker.mjs')
 
 export async function getPDFStrings(buffer: Buffer) {
@@ -46,7 +47,7 @@ export async function getPDFStrings(buffer: Buffer) {
     .map((text) =>
       text.items
         .map((item) => {
-          // @ts-expect-error
+          // @ts-expect-error pdf.js hack
           return item.str
         })
         .flat(),

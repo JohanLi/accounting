@@ -1,5 +1,3 @@
-import { JournalEntryType } from '../getJournalEntries'
-import { JournalEntry } from './JournalEntry'
 import {
   DateOrAccountCodeTh,
   DescriptionTh,
@@ -7,6 +5,8 @@ import {
   LinkedTh,
   Table,
 } from '../components/common/table'
+import { JournalEntryType } from '../getJournalEntries'
+import { JournalEntry } from './JournalEntry'
 
 export function JournalEntries({
   journalEntries,

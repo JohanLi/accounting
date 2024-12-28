@@ -16,20 +16,20 @@
   some values are repeated – the total can be calculated from other fields,
   but you still need to explicitly include it.
  */
-
+import { eq, ne } from 'drizzle-orm'
 import fs from 'fs/promises'
 import { dirname } from 'path'
-import { getFiscalYearQuarter } from '../../app/utils'
-import db from '../../app/db'
-import { JournalEntries } from '../../app/schema'
-import { eq, ne } from 'drizzle-orm'
+
+import { getTotals } from '../../app/accountTotals/getAccountTotals'
 import {
   JournalEntryUpdate,
   updateJournalEntry,
 } from '../../app/actions/updateJournalEntry'
-import { getTotals } from '../../app/accountTotals/getAccountTotals'
-import { getXML } from './getXML'
+import db from '../../app/db'
+import { JournalEntries } from '../../app/schema'
+import { getFiscalYearQuarter } from '../../app/utils'
 import { getJournalEntryTransactions } from './getJournalEntryTransactions'
+import { getXML } from './getXML'
 
 /*
   An impracticality (for myself) is that the "aggregated"/total VAT account is conventionally split into two accounts:

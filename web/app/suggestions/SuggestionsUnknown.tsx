@@ -1,8 +1,9 @@
 'use client'
 
-import { SuggestionFromUnknown } from './getSuggestions'
-import { Category, SuggestionsUnknownForm } from './SuggestionsUnknownForm'
 import { useState } from 'react'
+
+import { Category, SuggestionsUnknownForm } from './SuggestionsUnknownForm'
+import { SuggestionFromUnknown } from './getSuggestions'
 
 export default function SuggestionsUnknown({
   suggestions,

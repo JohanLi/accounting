@@ -1,20 +1,21 @@
 'use client'
 
 import { Popover, Transition } from '@headlessui/react'
-import { Fragment, useEffect, useState } from 'react'
-import { classNames } from '../../utils'
 import { useRouter } from 'next/navigation'
+import { Fragment, useEffect, useState } from 'react'
+
+import { updateLinks } from '../../actions/updateLinks'
 import { TransactionsResponse } from '../../api/transactions/transactions'
+import { Amount } from '../../components/Amount'
+import { Button } from '../../components/Button'
+import { DateFormatted } from '../../components/DateFormatted'
+import { Submit } from '../../components/Submit'
+import { DescriptionTd } from '../../components/common/table'
+import { JournalEntryType } from '../../getJournalEntries'
 import { transactionTypes } from '../../schema'
 import { transactionTypeToLabel } from '../../transactions/transactionTypeToLabel'
-import { DateFormatted } from '../../components/DateFormatted'
-import { Amount } from '../../components/Amount'
-import { DescriptionTd } from '../../components/common/table'
-import { updateLinks } from '../../actions/updateLinks'
-import { Submit } from '../../components/Submit'
-import { Button } from '../../components/Button'
+import { classNames } from '../../utils'
 import { AddLinkButton, EditLinkButton } from './LinkButton'
-import { JournalEntryType } from '../../getJournalEntries'
 
 /*
   TODO

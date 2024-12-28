@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
-import { PERSONAL_TAX } from '../tax'
-import { AmountInput, displayAmountInput } from '../components/AmountInput'
-import { create } from './create'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+
+import { AmountInput, displayAmountInput } from '../components/AmountInput'
 import { Submit } from '../components/Submit'
+import { PERSONAL_TAX } from '../tax'
+import { create } from './create'
 
 type Props = {
   incomeThisYear: number

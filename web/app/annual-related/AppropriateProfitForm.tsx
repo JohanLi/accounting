@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
-import { AmountInput, displayAmountInput } from '../components/AmountInput'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+
+import { AmountInput, displayAmountInput } from '../components/AmountInput'
 import { Submit } from '../components/Submit'
 import { appropriateProfit } from './actions/appropriateProfit'
 

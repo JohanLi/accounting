@@ -1,11 +1,12 @@
-import db from '../db'
-import { Documents, JournalEntries } from '../schema'
 import { asc, eq, isNull } from 'drizzle-orm'
+
+import db from '../db'
 import {
   getPDFStrings,
   getRecognizedDocument,
   getUnknownDocument,
 } from '../document'
+import { Documents, JournalEntries } from '../schema'
 
 export async function getDocumentSuggestions() {
   const pendingDocuments = await db

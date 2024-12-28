@@ -2,9 +2,10 @@
 
 import { Menu, Transition } from '@headlessui/react'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
-import { Fragment } from 'react'
-import { classNames } from '../../utils'
 import Link from 'next/link'
+import { Fragment } from 'react'
+
+import { classNames } from '../../utils'
 import { useGetHref } from '../common/useGetHref'
 
 type Props = {

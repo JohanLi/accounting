@@ -1,7 +1,7 @@
 'use server'
 
-import { getSalaryTaxes, SALARY_ACCOUNT_ID } from '../tax'
 import { updateJournalEntry } from '../actions/updateJournalEntry'
+import { SALARY_ACCOUNT_ID, getSalaryTaxes } from '../tax'
 
 export async function create(amount: number) {
   const { preliminaryIncomeTax, payrollTax } = getSalaryTaxes(amount)

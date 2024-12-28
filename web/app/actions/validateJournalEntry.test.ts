@@ -1,8 +1,9 @@
 import { expect, test } from 'vitest'
+
 import { validate } from './validateJournalEntry'
 
 test('throws if transactions do not balance', () => {
-  for (let amounts of [
+  for (const amounts of [
     [10001, -10000],
     [5000, 5000],
     [1000, -200, -900],

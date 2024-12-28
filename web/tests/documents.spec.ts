@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+
 import { dragAndDropDocuments, expectSuggestion } from './utils'
 
 test('for each uploaded document, a suggestion is created', async ({

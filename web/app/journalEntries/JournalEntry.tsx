@@ -1,18 +1,19 @@
 'use client'
 
-import { JournalEntryType as JournalEntryType } from '../getJournalEntries'
 import { useState } from 'react'
-import EditForm from './EditForm'
-import { DateFormatted } from '../components/DateFormatted'
+
 import { Amount } from '../components/Amount'
-import DocumentLink from './DocumentLink'
 import { Button } from '../components/Button'
+import { DateFormatted } from '../components/DateFormatted'
 import {
   DateOrAccountCodeTd,
   DescriptionTd,
   DocumentTd,
   LinkedTd,
 } from '../components/common/table'
+import { JournalEntryType } from '../getJournalEntries'
+import DocumentLink from './DocumentLink'
+import EditForm from './EditForm'
 import { LinkPopover } from './link/LinkPopover'
 
 type Props = {

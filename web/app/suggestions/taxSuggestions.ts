@@ -1,6 +1,7 @@
+import { InferInsertModel, and, eq } from 'drizzle-orm'
+
 import db from '../db'
 import { Transactions } from '../schema'
-import { and, eq, InferInsertModel } from 'drizzle-orm'
 import { getTaxTransactions } from './getTaxTransactions'
 
 function taxAccountMap(description: string): {

@@ -1,13 +1,14 @@
-import { SuggestionFromUnknown } from './getSuggestions'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { DateFormatted } from '../components/DateFormatted'
-import { Amount } from '../components/Amount'
-import DocumentLink from '../journalEntries/DocumentLink'
+
 import { updateJournalEntry } from '../actions/updateJournalEntry'
+import { Amount } from '../components/Amount'
+import { DateFormatted } from '../components/DateFormatted'
 import { Submit } from '../components/Submit'
-import { TextInput } from '../journalEntries/TextInput'
 import { Transaction } from '../getJournalEntries'
+import DocumentLink from '../journalEntries/DocumentLink'
+import { TextInput } from '../journalEntries/TextInput'
+import { SuggestionFromUnknown } from './getSuggestions'
 
 export type VatRate = '0' | '0.06' | '0.12' | '0.25'
 

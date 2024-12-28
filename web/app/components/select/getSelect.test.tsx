@@ -1,10 +1,11 @@
-import { expect, describe, test } from 'vitest'
-import { useSelect } from './useSelect'
+import { describe, expect, test } from 'vitest'
 
-describe('useSelect', () => {
+import { getSelect } from './getSelect'
+
+describe('getSelect', () => {
   test('returns default value if no search params exist', () => {
     expect(
-      useSelect({
+      getSelect({
         searchParams: {},
         name: 'type',
         defaultValue: '1',
@@ -13,7 +14,7 @@ describe('useSelect', () => {
     ).toEqual('1')
 
     expect(
-      useSelect({
+      getSelect({
         searchParams: {
           typo: '3',
         },
@@ -26,7 +27,7 @@ describe('useSelect', () => {
 
   test('selected value is parsed as number if default value is number', () => {
     expect(
-      useSelect({
+      getSelect({
         searchParams: {
           fiscalYear: '2022',
         },

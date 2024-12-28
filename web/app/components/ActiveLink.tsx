@@ -1,8 +1,9 @@
 'use client'
 
-import { usePathname } from 'next/navigation'
 import Link, { LinkProps } from 'next/link'
+import { usePathname } from 'next/navigation'
 import { PropsWithChildren } from 'react'
+
 import { classNames } from '../utils'
 
 // https://nextjs.org/docs/app/building-your-application/routing/linking-and-navigating#checking-active-links

@@ -1,9 +1,6 @@
-import { Amount } from '../components/Amount'
-import { getAllFiscalYearsInReverse, getCurrentFiscalYear } from '../utils'
-import { getAccountTotals } from './getAccountTotals'
-import { useSelect } from '../components/select/useSelect'
-import { NextPageProps } from '../types'
 import { Metadata } from 'next'
+
+import { Amount } from '../components/Amount'
 import { H1 } from '../components/common/heading'
 import {
   AmountTd,
@@ -14,13 +11,18 @@ import {
   DescriptionTh,
   Table,
 } from '../components/common/table'
+import { getSelect } from '../components/select/getSelect'
+import { NextPageProps } from '../types'
+import { getAllFiscalYearsInReverse, getCurrentFiscalYear } from '../utils'
+import { getAccountTotals } from './getAccountTotals'
 
 export const metadata: Metadata = {
   title: 'Accounts',
 }
 
-export default async function AccountTotals({ searchParams }: NextPageProps) {
-  const [selectedFiscalYear, Select] = useSelect({
+export default async function AccountTotals(props: NextPageProps) {
+  const searchParams = await props.searchParams
+  const [selectedFiscalYear, Select] = getSelect({
     searchParams,
     name: 'fiscalYear',
     defaultValue: getCurrentFiscalYear(),

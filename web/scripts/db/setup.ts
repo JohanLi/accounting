@@ -1,7 +1,8 @@
+import { sql } from 'drizzle-orm'
 import { migrate } from 'drizzle-orm/postgres-js/migrator'
+
 import db from '../../app/db'
 import { Accounts } from '../../app/schema'
-import { sql } from 'drizzle-orm'
 
 // these values are largely based on https://www.bas.se/wp-content/uploads/2022/01/Kontoplan-2022.pdf
 

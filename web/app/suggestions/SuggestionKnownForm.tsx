@@ -1,15 +1,16 @@
 'use client'
 
-import { SuggestionFromKnown } from './getSuggestions'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+
+import { updateJournalEntry } from '../actions/updateJournalEntry'
+import { Amount } from '../components/Amount'
 import { formatDate } from '../components/DateFormatted'
+import { Submit } from '../components/Submit'
 import { DateInput } from '../journalEntries/DateInput'
 import DocumentLink from '../journalEntries/DocumentLink'
-import { updateJournalEntry } from '../actions/updateJournalEntry'
-import { Submit } from '../components/Submit'
 import { TextInput } from '../journalEntries/TextInput'
-import { Amount } from '../components/Amount'
+import { SuggestionFromKnown } from './getSuggestions'
 
 export function SuggestionKnownForm({
   suggestion,

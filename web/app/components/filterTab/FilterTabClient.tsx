@@ -1,7 +1,8 @@
 'use client'
 
-import { classNames } from '../../utils'
 import Link from 'next/link'
+
+import { classNames } from '../../utils'
 import { useGetHref } from '../common/useGetHref'
 
 type Props = {

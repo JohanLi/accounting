@@ -1,7 +1,7 @@
 import { InferSelectModel } from 'drizzle-orm'
-import { Transactions } from '../schema'
-import { DateFormatted } from '../components/DateFormatted'
+
 import { Amount } from '../components/Amount'
+import { DateFormatted } from '../components/DateFormatted'
 import {
   AmountTd,
   DateOrAccountCodeTd,
@@ -9,6 +9,7 @@ import {
   LinkedTd,
 } from '../components/common/table'
 import { Linked } from '../journalEntries/link/LinkButton'
+import { Transactions } from '../schema'
 
 type Props = {
   transaction: InferSelectModel<typeof Transactions>

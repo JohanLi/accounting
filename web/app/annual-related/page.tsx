@@ -1,14 +1,15 @@
 import { Metadata } from 'next'
-import { H1, H2 } from '../components/common/heading'
-import { getAnnualRelated } from './getAnnualRelated'
-import { JournalEntries } from '../journalEntries/JournalEntries'
-import { getAllFiscalYearsInReverse, getCurrentFiscalYear } from '../utils'
-import { useSelect } from '../components/select/useSelect'
-import { NextPageProps } from '../types'
+
 import { Amount } from '../components/Amount'
+import { H1, H2 } from '../components/common/heading'
+import { getSelect } from '../components/select/getSelect'
+import { JournalEntries } from '../journalEntries/JournalEntries'
+import { NextPageProps } from '../types'
+import { getAllFiscalYearsInReverse, getCurrentFiscalYear } from '../utils'
 import AppropriateProfitForm from './AppropriateProfitForm'
-import { calculateAnnualRelated } from './calculateAnnualRelated'
 import ProfitAndTaxForm from './ProfitAndTaxForm'
+import { calculateAnnualRelated } from './calculateAnnualRelated'
+import { getAnnualRelated } from './getAnnualRelated'
 import { getPaidPreliminaryTax } from './getPaidPreliminaryTax'
 import SieExport from './sie-export/SieExport'
 
@@ -24,10 +25,11 @@ export const metadata: Metadata = {
   title: 'Annual-related',
 }
 
-export default async function AnnualRelated({ searchParams }: NextPageProps) {
+export default async function AnnualRelated(props: NextPageProps) {
+  const searchParams = await props.searchParams
   const currentFiscalYear = getCurrentFiscalYear()
 
-  const [selectedFiscalYear, Select] = useSelect({
+  const [selectedFiscalYear, Select] = getSelect({
     searchParams,
     name: 'fiscalYear',
     defaultValue: currentFiscalYear,

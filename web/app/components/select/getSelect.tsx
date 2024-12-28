@@ -1,15 +1,16 @@
-import FilterPillClient from './FilterPillClient'
-import { NextPageProps } from '../../types'
 import { ReactNode } from 'react'
+
+import { NextPageProps } from '../../types'
+import SelectClient from './SelectClient'
 
 type Props<T> = {
   searchParams: NextPageProps['searchParams']
   name: string
   defaultValue: T
-  items: { label: string; value: T }[]
+  values: T[]
 }
 
-export function useFilterPill<T extends string | number>(
+export function getSelect<T extends string | number>(
   props: Props<T>,
 ): [T, () => ReactNode] {
   const selectedValue =
@@ -20,14 +21,11 @@ export function useFilterPill<T extends string | number>(
   return [
     selectedValue,
     () => (
-      <FilterPillClient
+      <SelectClient
         name={props.name}
         defaultValue={props.defaultValue.toString()}
         selectedValue={selectedValue.toString()}
-        items={props.items.map((i) => ({
-          label: i.label,
-          value: i.value.toString(),
-        }))}
+        values={props.values.map((v) => v.toString())}
       />
     ),
   ]

@@ -1,9 +1,10 @@
-import { getJournalEntries } from '../getJournalEntries'
-import { getIncomeYear } from '../utils'
-import { DIVIDEND_ACCOUNT_ID } from '../tax'
 import { eq } from 'drizzle-orm'
-import { JournalEntries } from '../schema'
+
 import { DESCRIPTIONS } from '../descriptions'
+import { getJournalEntries } from '../getJournalEntries'
+import { JournalEntries } from '../schema'
+import { DIVIDEND_ACCOUNT_ID } from '../tax'
+import { getIncomeYear } from '../utils'
 
 export async function getDividend(incomeYear: number) {
   const journalEntries = await getJournalEntries({

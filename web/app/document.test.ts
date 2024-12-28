@@ -1,12 +1,13 @@
-import { expect, test, describe } from 'vitest'
-import {
-  getRecognizedDocument,
-  getPDFStrings,
-  getMonetaryValues,
-  getForeignCurrencyMonetaryValues,
-  getDates,
-} from './document'
+import { describe, expect, test } from 'vitest'
+
 import { readTestDocument } from '../tests/utils'
+import {
+  getDates,
+  getForeignCurrencyMonetaryValues,
+  getMonetaryValues,
+  getPDFStrings,
+  getRecognizedDocument,
+} from './document'
 
 async function getRecognizedDocumentFromFile(filename: string) {
   const data = await readTestDocument(filename)

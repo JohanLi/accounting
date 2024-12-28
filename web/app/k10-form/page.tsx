@@ -1,12 +1,13 @@
-import { H1, H2 } from '../components/common/heading'
-import { getAllIncomeYearsInReverse } from '../utils'
-import { Amount } from '../components/Amount'
-import { K10_INTEREST_RATE_PERCENT } from '../tax'
 import { Metadata } from 'next'
-import { NextPageProps } from '../types'
-import { useSelect } from '../components/select/useSelect'
-import { getDividend } from './getDividend'
+
+import { Amount } from '../components/Amount'
+import { H1, H2 } from '../components/common/heading'
+import { getSelect } from '../components/select/getSelect'
 import { getSalaries } from '../salary/getSalaries'
+import { K10_INTEREST_RATE_PERCENT } from '../tax'
+import { NextPageProps } from '../types'
+import { getAllIncomeYearsInReverse } from '../utils'
+import { getDividend } from './getDividend'
 
 export const metadata: Metadata = {
   title: 'K10 form',
@@ -17,10 +18,11 @@ const STOCK_ACQUISITION_COST = 2500000
 const somethingThatBoostsDividendPool =
   (STOCK_ACQUISITION_COST * K10_INTEREST_RATE_PERCENT) / 100
 
-export default async function K10Form({ searchParams }: NextPageProps) {
+export default async function K10Form(props: NextPageProps) {
+  const searchParams = await props.searchParams
   const currentYear = new Date().getFullYear()
 
-  const [selectedYear, Select] = useSelect({
+  const [selectedYear, Select] = getSelect({
     searchParams,
     name: 'year',
     defaultValue: currentYear,

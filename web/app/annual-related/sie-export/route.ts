@@ -6,13 +6,13 @@
   a third-party service. That service functions a bit like an additional
   sanity check.
  */
+import iconv from 'iconv-lite'
 
 import {
-  getAccounts,
   getAccountTotals,
+  getAccounts,
 } from '../../accountTotals/getAccountTotals'
 import { getFiscalYear, oreToKrona } from '../../utils'
-import iconv from 'iconv-lite'
 import { ACCOUNT_ID_BALANCE_END_EXCLUSIVE } from '../accountIds'
 
 function formatDate(date: Date) {
@@ -27,7 +27,7 @@ function formatDate(date: Date) {
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
-  let fiscalYear = parseInt(searchParams.get('fiscalYear') || '')
+  const fiscalYear = parseInt(searchParams.get('fiscalYear') || '')
 
   if (!fiscalYear) {
     return new Response('fiscalYear is required', { status: 400 })
@@ -45,7 +45,7 @@ export async function GET(request: Request) {
   for (const fiscalYearOffset of [0, -1]) {
     const year = fiscalYear + fiscalYearOffset
 
-    let { startInclusive, endInclusive } = getFiscalYear(year)
+    const { startInclusive, endInclusive } = getFiscalYear(year)
 
     RAR.push(
       `#RAR ${fiscalYearOffset} ${formatDate(startInclusive)} ${formatDate(

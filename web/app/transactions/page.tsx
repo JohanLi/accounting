@@ -1,12 +1,7 @@
-import { transactionTypes } from '../schema'
-import { Transaction } from './Transaction'
-import { transactionTypeToLabel } from './transactionTypeToLabel'
-import { getTransactions } from '../api/transactions/transactions'
-import { useFilterPill } from '../components/filterPill/useFilterPill'
-import { NextPageProps } from '../types'
 import { Metadata } from 'next'
+
+import { getTransactions } from '../api/transactions/transactions'
 import { H1 } from '../components/common/heading'
-import { useFilterTab } from '../components/filterTab/useFilterTab'
 import {
   AmountTh,
   DateOrAccountCodeTh,
@@ -14,15 +9,22 @@ import {
   LinkedTh,
   Table,
 } from '../components/common/table'
+import { getFilterPill } from '../components/filterPill/getFilterPill'
+import { getFilterTab } from '../components/filterTab/getFilterTab'
+import { transactionTypes } from '../schema'
+import { NextPageProps } from '../types'
+import { Transaction } from './Transaction'
+import { transactionTypeToLabel } from './transactionTypeToLabel'
 
 export const metadata: Metadata = {
   title: 'Transactions',
 }
 
-export default async function Transactions({ searchParams }: NextPageProps) {
+export default async function Transactions(props: NextPageProps) {
+  const searchParams = await props.searchParams
   const transactions = await getTransactions()
 
-  const [selectedType, FilterTab] = useFilterTab({
+  const [selectedType, FilterTab] = getFilterTab({
     searchParams,
     name: 'type',
     defaultValue: 'bankRegular',
@@ -39,7 +41,7 @@ export default async function Transactions({ searchParams }: NextPageProps) {
     (t) => !t.journalEntryId,
   )
 
-  const [linkedFilter, LinkedFilterPill] = useFilterPill({
+  const [linkedFilter, LinkedFilterPill] = getFilterPill({
     searchParams,
     name: 'filter',
     defaultValue: 'all',

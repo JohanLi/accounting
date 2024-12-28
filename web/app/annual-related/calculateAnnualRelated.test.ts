@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest'
+
 import { calculateCorporateTax } from './calculateAnnualRelated'
 
 describe('corporate tax', () => {

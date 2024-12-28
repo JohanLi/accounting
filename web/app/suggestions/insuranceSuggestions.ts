@@ -9,10 +9,10 @@
   Because there's no monthly receipt, journal entries will be created based on
   bank transactions.
  */
+import { and, asc, eq, isNull } from 'drizzle-orm'
 
 import db from '../db'
 import { Transactions } from '../schema'
-import { and, asc, eq, isNull } from 'drizzle-orm'
 
 // set this to the first receipt
 const DOCUMENT_ID = null

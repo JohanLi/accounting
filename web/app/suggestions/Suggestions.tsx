@@ -1,7 +1,7 @@
-import { getSuggestions } from './getSuggestions'
+import { H2 } from '../components/common/heading'
 import { SuggestionKnownForm } from './SuggestionKnownForm'
 import SuggestionsUnknown from './SuggestionsUnknown'
-import { H2 } from '../components/common/heading'
+import { getSuggestions } from './getSuggestions'
 
 export default async function Suggestions() {
   const { knownDocumentSuggestions, unknownDocumentSuggestions } =

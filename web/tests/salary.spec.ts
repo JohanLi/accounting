@@ -1,4 +1,4 @@
-import { test, expect, Page } from '@playwright/test'
+import { Page, expect, test } from '@playwright/test'
 
 function expectIncomeThisYear(page: Page, value: string) {
   return expect(

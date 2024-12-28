@@ -1,12 +1,13 @@
-import { filterNull } from '../utils'
-import { getDocumentSuggestions } from './documentSuggestions'
-import { getBankSavingsSuggestions } from './bankSavingsSuggestions'
-import { getTaxSuggestions } from './taxSuggestions'
-import { getInsuranceSuggestions } from './insuranceSuggestions'
-import { getAccountsReceivablePaidSuggestions } from './accountsReceivablePaidSuggestions'
-import { Transaction } from '../getJournalEntries'
 import { InferSelectModel } from 'drizzle-orm'
+
+import { Transaction } from '../getJournalEntries'
 import { Transactions } from '../schema'
+import { filterNull } from '../utils'
+import { getAccountsReceivablePaidSuggestions } from './accountsReceivablePaidSuggestions'
+import { getBankSavingsSuggestions } from './bankSavingsSuggestions'
+import { getDocumentSuggestions } from './documentSuggestions'
+import { getInsuranceSuggestions } from './insuranceSuggestions'
+import { getTaxSuggestions } from './taxSuggestions'
 
 export type Suggestions = {
   knownDocumentSuggestions: SuggestionFromKnown[]

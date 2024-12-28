@@ -1,4 +1,5 @@
-import { test, expect } from 'vitest'
+import { expect, test } from 'vitest'
+
 import { getXML } from './getXML'
 
 test('vat total is based on 2610, 2640, 2614 and 2645', () => {

@@ -1,11 +1,12 @@
 'use client'
 
-import { DragEvent, useState } from 'react'
-import type { DocumentUpload } from '../api/documents/route'
-import { DocumentArrowUpIcon } from '@heroicons/react/24/solid'
 import { XMarkIcon } from '@heroicons/react/24/outline'
-import { getErrorMessage } from '../utils'
+import { DocumentArrowUpIcon } from '@heroicons/react/24/solid'
 import { useRouter } from 'next/navigation'
+import { DragEvent, useState } from 'react'
+
+import type { DocumentUpload } from '../api/documents/route'
+import { getErrorMessage } from '../utils'
 
 function getFilenameAndData(file: File) {
   return new Promise<DocumentUpload>((resolve, reject) => {

@@ -1,4 +1,5 @@
-import { test, expect } from 'vitest'
+import { expect, test } from 'vitest'
+
 import { getJournalEntryTransactions } from './getJournalEntryTransactions'
 
 test('moves 2610, 2640, 2614 and 2645 into 2650', () => {
