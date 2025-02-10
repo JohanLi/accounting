@@ -3,11 +3,9 @@ import Decimal from 'decimal.js'
 import { krToOre } from './utils'
 
 /*
-  Brytpunkter 2024
-  - Statlig inkomstskatt: 615 300
-      https://www.skatteverket.se/privat/skatter/beloppochprocent/2024.4.7da1d2e118be03f8e4f4a88.html#h-Brytpunkt
-  - Högsta inkomsten som utgör underlag för allmän pension: 614 500
-      https://www.pensionsmyndigheten.se/forsta-din-pension/om-pensionssystemet/sa-beraknas-din-pension-basbelopp-och-varderegler
+  Brytpunkter 2025
+  - Statlig inkomstskatt: 643 100
+      https://www.skatteverket.se/privat/skatter/beloppochprocent/2025.4.262c54c219391f2e96342eb.html#h-Brytpunkt
  */
 
 /*
@@ -15,9 +13,11 @@ import { krToOre } from './utils'
   - Fill in https://app.skatteverket.se/rakna-skatt-client-skut-skatteutrakning/lon-efter-skattetabell/fyll-i-din-lon
   - From the results, calculate a "personal tax rate". This is of interest because I don't pay myself a monthly salary – instead I do it in large clump.
  */
+
+// TODO should just enter two numbers: brytpunkt and tax to pay from the calculator. Infer rate from that
 export const PERSONAL_TAX = {
-  annualSalary: krToOre(615300),
-  rate: new Decimal('0.2412092'),
+  annualSalary: krToOre(643100),
+  rate: new Decimal('0.2286223'),
 }
 
 export const PAYROLL_TAX = new Decimal('0.3142')
@@ -40,7 +40,7 @@ export function getSalaryTaxes(amount?: number) {
 
 const currentYear = new Date().getFullYear()
 
-if (currentYear !== 2024) {
+if (currentYear !== 2025) {
   throw new Error('New year – tax rates need to be updated')
 }
 
