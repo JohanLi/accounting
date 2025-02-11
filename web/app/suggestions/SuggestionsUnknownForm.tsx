@@ -60,6 +60,11 @@ export const categories: Category[] = [
     vatRate: '0.25',
   },
   {
+    name: 'Friskvård (6%)',
+    debitAccountId: 7699,
+    vatRate: '0.06',
+  },
+  {
     name: 'Presentkort, jul (0%)',
     /*
       https://www.fortnox.se/fortnox-foretagsguide/bokforingstips/presentkort-till-personal
