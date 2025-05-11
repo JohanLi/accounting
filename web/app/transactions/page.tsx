@@ -8,6 +8,8 @@ import {
   DescriptionTh,
   LinkedTh,
   Table,
+  TableBody,
+  TableHeader,
 } from '../components/common/table'
 import { getFilterPill } from '../components/filterPill/getFilterPill'
 import { getFilterTab } from '../components/filterTab/getFilterTab'
@@ -67,23 +69,21 @@ export default async function Transactions(props: NextPageProps) {
       <div className="space-y-12">
         <div>
           <Table>
-            <thead>
-              <tr>
-                <DateOrAccountCodeTh>Date</DateOrAccountCodeTh>
-                <DescriptionTh>Description</DescriptionTh>
-                <AmountTh>Amount</AmountTh>
-                <AmountTh>Balance</AmountTh>
-                <LinkedTh />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
+            <TableHeader>
+              <DateOrAccountCodeTh>Date</DateOrAccountCodeTh>
+              <DescriptionTh>Description</DescriptionTh>
+              <AmountTh>Amount</AmountTh>
+              <AmountTh>Balance</AmountTh>
+              <LinkedTh />
+            </TableHeader>
+            <TableBody>
               {(linkedFilter === 'all'
                 ? filteredTransactions
                 : filteredNonLinkedTransactions
               ).map((transaction) => (
                 <Transaction key={transaction.id} transaction={transaction} />
               ))}
-            </tbody>
+            </TableBody>
           </Table>
         </div>
       </div>

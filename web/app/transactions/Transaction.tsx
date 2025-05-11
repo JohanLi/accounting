@@ -6,7 +6,7 @@ import {
   AmountTd,
   DateOrAccountCodeTd,
   DescriptionTd,
-  LinkedTd,
+  LinkedTd, TableRow,
 } from '../components/common/table'
 import { Linked } from '../journalEntries/link/LinkButton'
 import { Transactions } from '../schema'
@@ -17,7 +17,7 @@ type Props = {
 
 export function Transaction({ transaction }: Props) {
   return (
-    <tr>
+    <TableRow>
       <DateOrAccountCodeTd>
         <DateFormatted date={transaction.date} />
       </DateOrAccountCodeTd>
@@ -28,7 +28,7 @@ export function Transaction({ transaction }: Props) {
       <AmountTd>
         <Amount amount={transaction.balance} />
       </AmountTd>
-      <LinkedTd right>{transaction.journalEntryId && <Linked />}</LinkedTd>
-    </tr>
+      <LinkedTd>{transaction.journalEntryId && <Linked />}</LinkedTd>
+    </TableRow>
   )
 }

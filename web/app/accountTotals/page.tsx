@@ -10,6 +10,9 @@ import {
   DescriptionTd,
   DescriptionTh,
   Table,
+  TableBody,
+  TableHeader,
+  TableRow,
 } from '../components/common/table'
 import { getSelect } from '../components/select/getSelect'
 import { NextPageProps } from '../types'
@@ -42,18 +45,16 @@ export default async function AccountTotals(props: NextPageProps) {
       </div>
       <div>
         <Table>
-          <thead>
-            <tr>
-              <DateOrAccountCodeTh>Code</DateOrAccountCodeTh>
-              <DescriptionTh>Description</DescriptionTh>
-              <AmountTh>Incoming</AmountTh>
-              <AmountTh>Result</AmountTh>
-              <AmountTh>Outgoing</AmountTh>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
+          <TableHeader>
+            <DateOrAccountCodeTh>Code</DateOrAccountCodeTh>
+            <DescriptionTh>Description</DescriptionTh>
+            <AmountTh>Incoming</AmountTh>
+            <AmountTh>Result</AmountTh>
+            <AmountTh>Outgoing</AmountTh>
+          </TableHeader>
+          <TableBody>
             {accountTotals.map((a) => (
-              <tr key={a.id}>
+              <TableRow key={a.id}>
                 <DateOrAccountCodeTd>{a.id}</DateOrAccountCodeTd>
                 <DescriptionTd>{a.description}</DescriptionTd>
                 <AmountTd>
@@ -65,9 +66,9 @@ export default async function AccountTotals(props: NextPageProps) {
                 <AmountTd>
                   <Amount amount={a.closingBalance} />
                 </AmountTd>
-              </tr>
+              </TableRow>
             ))}
-          </tbody>
+          </TableBody>
         </Table>
       </div>
     </>

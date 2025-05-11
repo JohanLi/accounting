@@ -10,7 +10,7 @@ import { Amount } from '../../components/Amount'
 import { Button } from '../../components/Button'
 import { DateFormatted } from '../../components/DateFormatted'
 import { Submit } from '../../components/Submit'
-import { DescriptionTd } from '../../components/common/table'
+import { AmountTd, DateOrAccountCodeTd, DescriptionTd, TableBody } from '../../components/common/table'
 import { JournalEntryType } from '../../getJournalEntries'
 import { transactionTypes } from '../../schema'
 import { transactionTypeToLabel } from '../../transactions/transactionTypeToLabel'
@@ -95,70 +95,62 @@ function LinkForm({
             <div className="overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
               {transactions && checkedTransactionIds && (
                 <>
-                  <table className="w-full">
-                    <tbody>
-                      {transactionTypes.map((transactionType) => {
-                        const transactionsOfType = transactions.filter(
-                          (t) => t.type === transactionType,
-                        )
+                  <TableBody>
+                    {transactionTypes.map((transactionType) => {
+                      const transactionsOfType = transactions.filter(
+                        (t) => t.type === transactionType,
+                      )
 
-                        if (!transactionsOfType.length) return null
+                      if (!transactionsOfType.length) return null
 
-                        return (
-                          <Fragment key={transactionType}>
-                            <tr className="border-t border-gray-200">
-                              <th
-                                colSpan={3}
-                                scope="colgroup"
-                                className="bg-gray-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"
-                              >
-                                {transactionTypeToLabel[transactionType]}
-                              </th>
-                            </tr>
-                            {transactionsOfType.map((transaction) => (
-                              <tr
-                                key={transaction.id}
-                                onClick={() => {
-                                  if (
-                                    checkedTransactionIds.includes(
-                                      transaction.id,
-                                    )
-                                  ) {
-                                    setCheckedTransactionIds(
-                                      checkedTransactionIds.filter(
-                                        (id) => id !== transaction.id,
-                                      ),
-                                    )
-                                  } else {
-                                    setCheckedTransactionIds([
-                                      ...checkedTransactionIds,
-                                      transaction.id,
-                                    ])
-                                  }
-                                }}
-                                className={classNames(
-                                  'cursor-pointer',
+                      return (
+                        <Fragment key={transactionType}>
+                          <div
+                            className="bg-gray-100 py-2 px-4 text-left text-sm font-semibold text-gray-900 sm:pl-3"
+                          >
+                            {transactionTypeToLabel[transactionType]}
+                          </div>
+                          {transactionsOfType.map((transaction) => (
+                            <div
+                              key={transaction.id}
+                              onClick={() => {
+                                if (
                                   checkedTransactionIds.includes(transaction.id)
-                                    ? 'bg-yellow-100'
-                                    : '',
-                                )}
-                              >
-                                <td className="w-32 whitespace-nowrap px-3 py-4 text-xs text-gray-500">
-                                  <DateFormatted date={transaction.date} />
-                                </td>
-                                <DescriptionTd>
-                                  {transaction.description}
-                                </DescriptionTd>
-                                <td className="w-32 whitespace-nowrap py-4 pr-3 text-right text-sm">
-                                  <Amount amount={transaction.amount} />
-                                </td>
-                              </tr>
-                            ))}
-                          </Fragment>
-                        )
-                      })}
-                    </tbody>
-                  </table>
+                                ) {
+                                  setCheckedTransactionIds(
+                                    checkedTransactionIds.filter(
+                                      (id) => id !== transaction.id,
+                                    ),
+                                  )
+                                } else {
+                                  setCheckedTransactionIds([
+                                    ...checkedTransactionIds,
+                                    transaction.id,
+                                  ])
+                                }
+                              }}
+                              className={classNames(
+                                'cursor-pointer flex items-center py-4 px-4',
+                                checkedTransactionIds.includes(transaction.id)
+                                  ? 'bg-yellow-100'
+                                  : '',
+                              )}
+                            >
+                              <DateOrAccountCodeTd>
+                                <DateFormatted date={transaction.date} />
+                              </DateOrAccountCodeTd>
+                              <DescriptionTd>
+                                {transaction.description}
+                              </DescriptionTd>
+                              <AmountTd>
+                                <Amount amount={transaction.amount} />
+                              </AmountTd>
+                            </div>
+                          ))}
+                        </Fragment>
+                      )
+                    })}
+                  </TableBody>
                   <div className="bg-gray-50 p-4">
                     <form
                       action={async () => {

@@ -1,97 +1,123 @@
 import { ReactNode } from 'react'
 
-import { classNames } from '../../utils'
+/*
+  When creating or editing journal entries, I prefer to have all forms inlined.
+  This app is also not intended to be responsive — I only ever use it on desktop.
+
+  Because of the above reasons, I've found it more convenient to use divs
+  rather than tables (where you have to keep track of colspan).
+ */
 
 export function Table({ children }: { children: ReactNode }) {
-  return <table className="w-full divide-y divide-gray-300">{children}</table>
+  return <div className="divide-y divide-gray-300">{children}</div>
+}
+
+export function TableHeader({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex py-3.5 text-sm font-semibold text-gray-900">
+      {children}
+    </div>
+  )
+}
+
+export function TableBody({ children }: { children: ReactNode }) {
+  return <div className="divide-y divide-gray-200">{children}</div>
+}
+
+export function TableRow({ children }: { children: ReactNode }) {
+  return <div className="flex items-center py-4">{children}</div>
 }
 
 export function DateOrAccountCodeTh({ children }: { children: ReactNode }) {
   return (
-    <th
-      scope="col"
-      className="w-32 py-3.5 pr-3 text-left text-sm font-semibold text-gray-900"
-    >
+    <div className="w-32 text-left text-sm font-semibold text-gray-900">
       {children}
-    </th>
+    </div>
   )
 }
 
 export function DateOrAccountCodeTd({ children }: { children: ReactNode }) {
   return (
-    <td className="whitespace-nowrap py-4 pr-3 text-xs text-gray-500">
+    <div className="whitespace-nowrap w-32 text-xs text-gray-500">
       {children}
-    </td>
+    </div>
   )
 }
 
 export function DescriptionTh({ children }: { children: ReactNode }) {
   return (
-    <th
-      scope="col"
-      className="py-3.5 pr-6 text-left text-sm font-semibold text-gray-900"
-    >
+    <div className="flex-1 pr-6 text-left text-sm font-semibold text-gray-900">
       {children}
-    </th>
+    </div>
   )
 }
 
 export function DescriptionTd({ children }: { children: ReactNode }) {
   return (
-    <td className="whitespace-nowrap py-4 pr-6 text-sm font-medium text-gray-900">
+    <div className="whitespace-nowrap flex-1 pr-6 text-sm font-medium text-gray-900">
       {children}
-    </td>
+    </div>
+  )
+}
+
+export function TransactionsTh({ children }: { children: ReactNode }) {
+  return (
+    <div className="w-44 text-left text-sm font-semibold text-gray-900">
+      {children}
+    </div>
+  )
+}
+
+export function TransactionsTd({ children }: { children: ReactNode }) {
+  return (
+    <div className="whitespace-nowrap w-44 text-sm text-gray-500">
+      {children}
+    </div>
   )
 }
 
 export function AmountTh({ children }: { children: ReactNode }) {
   return (
-    <th
-      scope="col"
-      className="w-32 py-3.5 pr-3 text-right text-sm font-semibold text-gray-900"
-    >
+    <div className="w-32 text-right text-sm font-semibold text-gray-900">
       {children}
-    </th>
+    </div>
   )
 }
 
 export function AmountTd({ children }: { children: ReactNode }) {
   return (
-    <td className="whitespace-nowrap py-4 pr-3 text-right text-sm">
-      {children}
-    </td>
+    <div className="whitespace-nowrap w-32 text-right text-sm">{children}</div>
   )
 }
 
 export function DocumentTh() {
-  return <th scope="col" className="w-12" />
+  return <div className="w-12" />
 }
 
 export function DocumentTd({ children }: { children: ReactNode }) {
   return (
-    <td className="whitespace-nowrap py-4 text-sm text-gray-500">{children}</td>
+    <div className="w-12 whitespace-nowrap text-sm text-gray-500 text-right">
+      {children}
+    </div>
   )
 }
 
 export function LinkedTh() {
-  return <th scope="col" className="w-24" />
+  return <div className="w-24" />
 }
 
-export function LinkedTd({
-  children,
-  right,
-}: {
-  children: ReactNode
-  right?: true
-}) {
+export function LinkedTd({ children }: { children: ReactNode }) {
   return (
-    <td
-      className={classNames(
-        'whitespace-nowrap pl-3 text-xs font-medium',
-        right ? 'text-right' : '',
-      )}
-    >
+    <div className="whitespace-nowrap w-24 text-xs font-medium -my-3.5 flex justify-end">
       {children}
-    </td>
+    </div>
   )
+}
+
+export function EditTh() {
+  return <div className="w-24" />
+}
+
+export function EditTd({ children }: { children: ReactNode }) {
+  return <div className="w-24 space-x-2 text-right">{children}</div>
 }

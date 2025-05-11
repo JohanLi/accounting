@@ -36,7 +36,7 @@ export default function EditForm({ journalEntry, onClose }: Props) {
       <label className="flex-1">
         <TextInput value={description} onChange={setDescription} />
       </label>
-      <div className="space-y-1">
+      <div className="space-y-1 w-52">
         {transactions.map((t) => (
           <div
             key={t.accountId}
