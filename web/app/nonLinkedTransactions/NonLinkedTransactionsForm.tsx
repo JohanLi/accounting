@@ -73,6 +73,19 @@ export const categories: Category[] = [
     creditAccountId: 3990,
     vatRate: '0',
   },
+  /*
+    My new provider has marginally better cellular coverage,
+    but they don't let you set up an automatic monthly payment.
+
+    Still on the fence about whether to switch back to my old provider.
+    For this reason, it's not worth treating this new provider's invoices
+    as "recognized" yet.
+   */
+  {
+    name: 'Mobiltelefoni (25%)',
+    debitAccountId: 6212,
+    vatRate: '0.25',
+  },
 ]
 
 export function NonLinkedTransactionsForm({
