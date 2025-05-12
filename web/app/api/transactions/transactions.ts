@@ -77,6 +77,14 @@ export function getTransactions() {
     .orderBy(desc(Transactions.date), desc(Transactions.id))
 }
 
+export function getNonLinkedTransactions() {
+  return db
+    .select()
+    .from(Transactions)
+    .where(isNull(Transactions.journalEntryId))
+    .orderBy(desc(Transactions.date), desc(Transactions.id))
+}
+
 /*
   When transferring money, whether to the tax account or as part of paying invoices, it often
   takes a day or two before the bank transaction is registered. This day range is temporarily

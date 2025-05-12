@@ -1,9 +1,6 @@
-'use client'
-
 import { XMarkIcon } from '@heroicons/react/24/outline'
-import { DocumentArrowUpIcon } from '@heroicons/react/24/solid'
 import { useRouter } from 'next/navigation'
-import { DragEvent, useState } from 'react'
+import { DragEvent, ReactNode, useState } from 'react'
 
 import type { DocumentUpload } from '../api/documents/route'
 import { getErrorMessage } from '../utils'
@@ -25,12 +22,18 @@ function getFilenameAndData(file: File) {
   })
 }
 
-export default function DocumentUpload() {
+export default function DocumentUpload({
+  form,
+  children,
+}: {
+  form: (documentId: number) => ReactNode
+  children: ReactNode
+}) {
   const router = useRouter()
 
   const [isDragOver, setIsDragOver] = useState(false)
 
-  const [success, setSuccess] = useState('')
+  const [successDocumentId, setSuccessDocumentId] = useState(0)
   const [error, setError] = useState('')
 
   const onDragOver = (e: DragEvent) => {
@@ -93,8 +96,14 @@ export default function DocumentUpload() {
 
       const data = await response.json()
 
-      setSuccess(`Uploaded ${data.length} new document(s)`)
-      router.refresh()
+      // TODO handle this better
+      if (Array.isArray(data) && data.length) {
+        setSuccessDocumentId(data[0].id)
+        router.refresh()
+      } else {
+        // TODO should also factor in whether the document is linked or not
+        setError('This document already exists')
+      }
     } catch (e) {
       setError(getErrorMessage(e))
     }
@@ -102,7 +111,16 @@ export default function DocumentUpload() {
 
   const reset = () => {
     setError('')
-    setSuccess('')
+    setSuccessDocumentId(0)
+  }
+
+  if (successDocumentId) {
+    return (
+      <div>
+        {children}
+        {form(successDocumentId)}
+      </div>
+    )
   }
 
   /*
@@ -112,9 +130,9 @@ export default function DocumentUpload() {
    https://stackoverflow.com/questions/7110353/html5-dragleave-fired-when-hovering-a-child-element
    */
   return (
-    <div className="max-w-2xl">
+    <div>
       <div
-        className="relative mt-4 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10"
+        className="relative"
         onDrop={(e) => onDrop(e).catch((e) => setError(getErrorMessage(e)))}
         onDragOver={onDragOver}
         onDragEnter={() => {
@@ -127,33 +145,11 @@ export default function DocumentUpload() {
           {isDragOver && (
             <div className="absolute inset-0 bg-gray-100 opacity-50" />
           )}
-          <div className="flex justify-center">
-            <div className="text-center">
-              <DocumentArrowUpIcon className="mx-auto h-12 w-12 text-gray-300" />
-              <div className="mt-2 text-xs leading-5 text-gray-400">
-                Drag and drop PDF file(s)
-              </div>
-            </div>
-          </div>
+          {children}
         </div>
       </div>
-      {success && (
-        <div className="mt-4 flex items-center bg-green-50 p-4">
-          <div className="text-sm font-medium text-green-800">{success}</div>
-          <div className="ml-auto">
-            <div className="-mx-1.5 -my-1.5">
-              <button
-                type="button"
-                className="inline-flex rounded-md bg-green-50 p-1.5 text-green-500 hover:bg-green-100"
-              >
-                <XMarkIcon className="h-5 w-5" onClick={() => reset()} />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
       {error && (
-        <div className="mt-4 flex items-center bg-red-50 p-4">
+        <div className="flex items-center bg-red-50 p-4">
           <div className="text-sm font-medium text-red-800">{error}</div>
           <div className="ml-auto">
             <div className="-mx-1.5 -my-1.5">

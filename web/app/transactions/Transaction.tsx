@@ -6,7 +6,8 @@ import {
   AmountTd,
   DateOrAccountCodeTd,
   DescriptionTd,
-  LinkedTd, TableRow,
+  LinkedTd,
+  TableRow,
 } from '../components/common/table'
 import { Linked } from '../journalEntries/link/LinkButton'
 import { Transactions } from '../schema'
