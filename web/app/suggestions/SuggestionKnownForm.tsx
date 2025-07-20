@@ -10,12 +10,12 @@ import { Submit } from '../components/Submit'
 import { DateInput } from '../journalEntries/DateInput'
 import DocumentLink from '../journalEntries/DocumentLink'
 import { TextInput } from '../journalEntries/TextInput'
-import { SuggestionFromKnown } from './getSuggestions'
+import { Suggestions } from './getSuggestions'
 
 export function SuggestionKnownForm({
   suggestion,
 }: {
-  suggestion: SuggestionFromKnown
+  suggestion: Suggestions
 }) {
   const router = useRouter()
 

@@ -1,12 +1,9 @@
 import Decimal from 'decimal.js'
-import { and, asc, eq, gte, isNull, lt, lte, or } from 'drizzle-orm'
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 import { TextContent } from 'pdfjs-dist/types/src/display/api'
 
 import { JournalEntryUpdate } from './actions/updateJournalEntry'
-import db from './db'
 import { Transaction } from './getJournalEntries'
-import { Transactions } from './schema'
 import { krToOre } from './utils'
 
 if (typeof window == 'undefined') {
@@ -272,38 +269,6 @@ export function getMonetaryValues(strings: string[]) {
     .sort((a, b) => b - a)
 }
 
-const foreignCurrencyMonetaryFormats = {
-  EUR: [/€(\d+.\d{2})/, /(\d+.\d{2}) EUR/],
-  USD: [/\$(\d+.\d{2})/],
-}
-export function getForeignCurrencyMonetaryValues(strings: string[]) {
-  for (const [foreignCurrency, monetaryFormats] of Object.entries(
-    foreignCurrencyMonetaryFormats,
-  )) {
-    const found = monetaryFormats.find((regex) =>
-      strings.find((string) => string.match(regex)),
-    )
-
-    if (!found) {
-      continue
-    }
-
-    return {
-      foreignCurrency,
-      values: unique(
-        strings
-          .map((string) => string.match(found))
-          .filter((found): found is RegExpMatchArray => found !== null)
-          .map((found) => found[1]),
-      )
-        .map((string) => krToOre(string))
-        .sort((a, b) => b - a),
-    }
-  }
-
-  return null
-}
-
 const dateFormats = [
   /[A-Z][a-z]{2} \d{1,2}, \d{4}/,
   /\d{4}-\d{2}-\d{2}/,
@@ -358,99 +323,4 @@ export function getDates(strings: string[], checkMMDDYYYY = false) {
         return new Date(`${foundDate[0]} UTC+00:00`)
       }),
   )
-}
-
-/*
-  For documents like these, I've found it easiest to only detect dates. Then, using those dates, check against
-  non-linked bank transactions to suggest values. This solution also works well for documents with foreign currencies.
-
-  TODO
-    After using this for longer, the best strategy is to use bank transactions as the starting point to
-    suggest values and dates. There might still be some value in parsing values and dates, but it'd
-    merely be for assisting manual confirmation.
- */
-const SEARCH_DAY_RANGE = 10
-const FOREIGN_CURRENCY = {
-  conversionRate: 10,
-  tolerance: 0.5,
-}
-export async function getUnknownDocument(strings: string[]) {
-  const foreignValues = getForeignCurrencyMonetaryValues(strings)
-  const dates = getDates(strings, foreignValues?.foreignCurrency === 'USD')
-
-  if (!dates.length) {
-    return null
-  }
-
-  const datesSQL = or(
-    ...dates.map((date) => {
-      const startInclusive = new Date(date)
-      startInclusive.setDate(startInclusive.getDate() - SEARCH_DAY_RANGE)
-
-      const endInclusive = new Date(date)
-      endInclusive.setDate(endInclusive.getDate() + SEARCH_DAY_RANGE)
-
-      return and(
-        gte(Transactions.date, startInclusive),
-        lte(Transactions.date, endInclusive),
-      )
-    }),
-  )
-
-  let values
-  let amountSQL
-  if (!foreignValues) {
-    values = getMonetaryValues(strings)
-    amountSQL = or(...values.map((value) => eq(Transactions.amount, -value)))
-  } else {
-    values = foreignValues.values
-    amountSQL = or(
-      ...values.map((value) =>
-        and(
-          gte(
-            Transactions.amount,
-            -value *
-              FOREIGN_CURRENCY.conversionRate *
-              (1 + FOREIGN_CURRENCY.tolerance),
-          ),
-          lt(
-            Transactions.amount,
-            -value *
-              FOREIGN_CURRENCY.conversionRate *
-              (1 - FOREIGN_CURRENCY.tolerance),
-          ),
-        ),
-      ),
-    )
-  }
-
-  const bankTransactions = await db
-    .select()
-    .from(Transactions)
-    .where(
-      and(
-        eq(Transactions.type, 'bankRegular'),
-        isNull(Transactions.journalEntryId),
-        /*
-          I've encountered a PDF before that's just a scan of a printed document. In those rare cases, rather than
-          solving it through UI/code, I'll simply go here and comment out the following conditions.
-         */
-        datesSQL,
-        amountSQL,
-      ),
-    )
-    .orderBy(asc(Transactions.id))
-
-  if (!bankTransactions.length) {
-    return null
-  }
-
-  return {
-    bankTransactions,
-    // TODO implement a way to tag journal entries
-    description: '',
-    values,
-    foreignCurrency: foreignValues?.foreignCurrency,
-    dates,
-  }
 }

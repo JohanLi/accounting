@@ -1,7 +1,4 @@
-import { InferSelectModel } from 'drizzle-orm'
-
 import { Transaction } from '../getJournalEntries'
-import { Transactions } from '../schema'
 import { filterNull } from '../utils'
 import { getAccountsReceivablePaidSuggestions } from './accountsReceivablePaidSuggestions'
 import { getBankSavingsSuggestions } from './bankSavingsSuggestions'
@@ -10,11 +7,6 @@ import { getInsuranceSuggestions } from './insuranceSuggestions'
 import { getTaxSuggestions } from './taxSuggestions'
 
 export type Suggestions = {
-  knownDocumentSuggestions: SuggestionFromKnown[]
-  unknownDocumentSuggestions: SuggestionFromUnknown[]
-}
-
-export type SuggestionFromKnown = {
   date: Date
   description: string
   transactions: Transaction[]
@@ -22,16 +14,7 @@ export type SuggestionFromKnown = {
   documentId?: number
 }
 
-export type SuggestionFromUnknown = {
-  bankTransactions: InferSelectModel<typeof Transactions>[]
-  description: string
-  documentId: number
-  values: number[]
-  foreignCurrency?: string
-  dates: Date[]
-}
-
-export async function getSuggestions(): Promise<Suggestions> {
+export async function getSuggestions(): Promise<Suggestions[]> {
   const taxSuggestions = await getTaxSuggestions()
   const bankSavingsSuggestions = await getBankSavingsSuggestions()
 
@@ -39,17 +22,14 @@ export async function getSuggestions(): Promise<Suggestions> {
   const accountsReceivablePaidSuggestions =
     await getAccountsReceivablePaidSuggestions()
 
-  const { knownDocumentSuggestions, unknownDocumentSuggestions } =
+  const knownDocumentSuggestions =
     await getDocumentSuggestions()
 
-  return {
-    knownDocumentSuggestions: filterNull([
-      ...taxSuggestions,
-      ...bankSavingsSuggestions,
-      ...insuranceSuggestions,
-      ...accountsReceivablePaidSuggestions,
-      ...knownDocumentSuggestions,
-    ]),
-    unknownDocumentSuggestions,
-  }
+  return filterNull([
+    ...taxSuggestions,
+    ...bankSavingsSuggestions,
+    ...insuranceSuggestions,
+    ...accountsReceivablePaidSuggestions,
+    ...knownDocumentSuggestions,
+  ])
 }

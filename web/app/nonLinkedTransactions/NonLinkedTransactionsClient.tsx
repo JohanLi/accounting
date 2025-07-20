@@ -4,10 +4,12 @@ import { InferSelectModel } from 'drizzle-orm'
 import { useState } from 'react'
 
 import { Transactions } from '../schema'
-import { Category } from '../suggestions/SuggestionsUnknownForm'
 import { Transaction } from '../transactions/Transaction'
 import DocumentUpload from '../upload/DocumentUpload'
-import { NonLinkedTransactionsForm } from './NonLinkedTransactionsForm'
+import {
+  Category,
+  NonLinkedTransactionsForm,
+} from './NonLinkedTransactionsForm'
 
 export default function NonLinkedTransactionsClient({
   transactions,
@@ -24,14 +26,14 @@ export default function NonLinkedTransactionsClient({
   return transactions.map((transaction) => (
     <DocumentUpload
       key={transaction.id}
-      form={
-        (documentId: number) => <NonLinkedTransactionsForm
+      form={(documentId: number) => (
+        <NonLinkedTransactionsForm
           transaction={transaction}
           documentId={documentId}
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}
         />
-      }
+      )}
     >
       <Transaction key={transaction.id} transaction={transaction} />
     </DocumentUpload>

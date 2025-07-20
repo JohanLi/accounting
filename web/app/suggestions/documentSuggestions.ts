@@ -4,7 +4,6 @@ import db from '../db'
 import {
   getPDFStrings,
   getRecognizedDocument,
-  getUnknownDocument,
 } from '../document'
 import { Documents, JournalEntries } from '../schema'
 
@@ -23,7 +22,6 @@ export async function getDocumentSuggestions() {
     .orderBy(asc(Documents.id))
 
   const knownDocumentSuggestions = []
-  const unknownDocumentSuggestions = []
 
   for (const document of pendingDocuments) {
     const strings = await getPDFStrings(document.data)
@@ -36,18 +34,8 @@ export async function getDocumentSuggestions() {
         linkedToTransactionIds: [],
         documentId: document.id,
       })
-      continue
-    }
-
-    const unknownDocument = await getUnknownDocument(strings)
-
-    if (unknownDocument) {
-      unknownDocumentSuggestions.push({
-        ...unknownDocument,
-        documentId: document.id,
-      })
     }
   }
 
-  return { knownDocumentSuggestions, unknownDocumentSuggestions }
+  return knownDocumentSuggestions
 }
