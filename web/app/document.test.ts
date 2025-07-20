@@ -69,26 +69,6 @@ test('parse', async () => {
       },
     ],
   })
-
-  expect(await getRecognizedDocumentFromFile('skiing.pdf')).toEqual({
-    date: new Date('2023-01-19'),
-
-    description: 'Recognized document – Friskvård skidåkning',
-    transactions: [
-      {
-        accountId: 7699,
-        amount: 22642,
-      },
-      {
-        accountId: 1930,
-        amount: -24000,
-      },
-      {
-        accountId: 2640,
-        amount: 1358,
-      },
-    ],
-  })
 })
 
 describe('getDates', () => {

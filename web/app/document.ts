@@ -60,7 +60,6 @@ type Characterization =
   | 'BANKING_COSTS'
   | 'MOBILE_PROVIDER'
   | 'ANNUAL_REPORT'
-  | 'WELLNESS'
 type VatRate = '0.25' | '0.12' | '0.06' | '0'
 
 const characterizations: {
@@ -90,17 +89,6 @@ const characterizations: {
     credit: 1930,
     vatRate: '0.25',
   },
-  /*
-    It's kinda excessive having logic recognizing this document. I did it
-    mainly because the old accounting software handled this specific receipt
-    poorly. It couldn't get the total, and it couldn't get the VAT. It even
-    thought the date of the receipt was my date of birth.
-   */
-  WELLNESS: {
-    debit: 7699,
-    credit: 1930,
-    vatRate: '0.06',
-  },
 }
 
 type RecognizedDocument = {
@@ -129,11 +117,6 @@ const recognizedDocuments: RecognizedDocument[] = [
     identifiedBy: 'Årsredovisning Online',
     characterization: 'ANNUAL_REPORT',
     description: 'Årsredovisning Online',
-  },
-  {
-    identifiedBy: 'Flottsbro',
-    characterization: 'WELLNESS',
-    description: 'Friskvård skidåkning',
   },
 ]
 
