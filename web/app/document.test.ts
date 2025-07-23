@@ -16,11 +16,11 @@ async function getRecognizedDocumentFromFile(filename: string) {
 
 test('parse', async () => {
   expect(await getRecognizedDocumentFromFile('invoice.pdf')).toEqual({
-    date: new Date('2023-01-14'),
-    description: 'Recognized document – Inkomst',
+    date: new Date('2022-11-30'),
+    description: 'Recognized document – Inkomst kundfordran',
     transactions: [
       {
-        accountId: 1930,
+        accountId: 1510,
         amount: 20685000,
       },
       {
@@ -49,22 +49,22 @@ test('parse', async () => {
     ],
   })
 
-  expect(await getRecognizedDocumentFromFile('mobile.pdf')).toEqual({
-    date: new Date('2023-01-03'),
+  expect(await getRecognizedDocumentFromFile('mobileProvider.pdf')).toEqual({
+    date: new Date('2025-01-31'),
 
     description: 'Recognized document – Tre företagsabonnemang',
     transactions: [
       {
         accountId: 6212,
-        amount: 24880,
+        amount: 29920,
       },
       {
         accountId: 1930,
-        amount: -31100,
+        amount: -37400,
       },
       {
         accountId: 2640,
-        amount: 6220,
+        amount: 7480,
       },
     ],
   })

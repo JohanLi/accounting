@@ -9,9 +9,9 @@ export async function expectLatestTransaction(
     balance,
   }: { date: string; description: string; amount: string; balance: string },
 ) {
-  const row = page.locator('table tbody').locator('tr').nth(0)
+  const row = page.getByRole('table').getByRole('row').nth(1)
 
-  const columns = (i: number) => row.locator('td').nth(i)
+  const columns = (i: number) => row.getByRole('cell').nth(i)
 
   await expect(columns(0)).toHaveText(date)
   await expect(columns(1)).toHaveText(description)

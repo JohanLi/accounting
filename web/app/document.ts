@@ -67,7 +67,7 @@ const characterizations: {
   }
 } = {
   INCOME: {
-    debit: 1930,
+    debit: 1510,
     credit: 3011,
     vatRate: '0.25',
   },
@@ -98,7 +98,7 @@ const recognizedDocuments: RecognizedDocument[] = [
   {
     identifiedBy: 'Developers Bay AB',
     characterization: 'INCOME',
-    description: 'Inkomst',
+    description: 'Inkomst kundfordran',
   },
   {
     identifiedBy: 'Skandinaviska Enskilda Banken AB',
@@ -171,9 +171,11 @@ export async function getRecognizedDocument(
     vat = expectedVat
   }
 
+  let date: Date
   let transactions: Transaction[]
 
   if (source.characterization === 'INCOME') {
+    date = getEarliestAndLatestDate(dates).earliest
     transactions = [
       {
         accountId: debit,
@@ -189,6 +191,7 @@ export async function getRecognizedDocument(
       },
     ]
   } else {
+    date = getEarliestAndLatestDate(dates).latest
     transactions = [
       {
         accountId: debit,
@@ -209,21 +212,23 @@ export async function getRecognizedDocument(
   }
 
   return {
-    date: getLatestDate(dates),
+    date,
     // TODO implement a way to tag journal entries
     description: `Recognized document – ${source.description}`,
     transactions,
   }
 }
 
-export function getLatestDate(dates: Date[]) {
-  return dates.reduce((latest, date) => {
-    if (date > latest) {
-      return date
-    }
+function getEarliestAndLatestDate(dates: Date[]) {
+  let earliest = dates[0];
+  let latest = dates[0];
 
-    return latest
-  })
+  for (const date of dates) {
+    if (date < earliest) earliest = date;
+    if (date > latest) latest = date;
+  }
+
+  return { earliest, latest };
 }
 
 function unique<T>(array: T[]) {

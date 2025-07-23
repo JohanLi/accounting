@@ -1,15 +1,14 @@
 import { expect, test } from '@playwright/test'
 
-import { dragAndDropDocuments, expectSuggestion } from './utils'
+import { sendDocuments, expectSuggestion } from './utils'
 
-test('for each uploaded document, a suggestion is created', async ({
+test('when known documents are received, a suggestion is created', async ({
   page,
+  request,
 }) => {
+  await sendDocuments(['bank.pdf', 'invoice.pdf', 'mobileProvider.pdf'], request)
+
   await page.goto('/')
-
-  await dragAndDropDocuments(page, ['bank.pdf', 'invoice.pdf'])
-
-  await expect(page.getByText('Uploaded 2 new document(s)')).toBeVisible()
 
   await expectSuggestion(
     page,
@@ -27,30 +26,40 @@ test('for each uploaded document, a suggestion is created', async ({
   await expectSuggestion(
     page,
     {
-      date: '2023-01-14',
-      description: 'Recognized document – Inkomst',
+      date: '2022-11-30',
+      description: 'Recognized document – Inkomst kundfordran',
       transactions: [
-        ['1930', '206 850'],
+        ['1510', '206 850'],
         ['3011', '-165 480'],
         ['2610', '-41 370'],
       ],
     },
     1,
   )
+
+  await expectSuggestion(
+    page,
+    {
+      date: '2025-01-31',
+      description: 'Recognized document – Tre företagsabonnemang',
+      transactions: [
+        ['6212', '299'],
+        ['1930', '-374'],
+        ['2640', '75'],
+      ],
+    },
+    2,
+  )
 })
 
-test('after uploading a document that already exists, no suggestion should be created', async ({
-  page,
+test("when receiving a document that already exists, a new one isn't created", async ({
+  request,
 }) => {
-  await page.goto('/')
+  const response = await sendDocuments(['invoice.pdf'], request)
+  expect(response.ok()).toBe(true);
+  const data = await response.json();
 
-  await dragAndDropDocuments(page, ['mobile.pdf'])
-
-  await expect(page.getByText('Uploaded 1 new document(s)')).toBeVisible()
-
-  await dragAndDropDocuments(page, ['mobile.pdf'])
-
-  await expect(page.getByText('Uploaded 0 new document(s)')).toBeVisible()
+  expect(data).toEqual([]);
 })
 
 test('loading documents both as a PDF and as extracted strings', async ({

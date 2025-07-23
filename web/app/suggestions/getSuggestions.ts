@@ -1,9 +1,9 @@
 import { Transaction } from '../getJournalEntries'
 import { filterNull } from '../utils'
-import { getAccountsReceivablePaidSuggestions } from './accountsReceivablePaidSuggestions'
 import { getBankSavingsSuggestions } from './bankSavingsSuggestions'
 import { getDocumentSuggestions } from './documentSuggestions'
 import { getInsuranceSuggestions } from './insuranceSuggestions'
+import { getPaidInvoiceSuggestions } from './paidInvoiceSuggestions'
 import { getTaxSuggestions } from './taxSuggestions'
 
 export type Suggestions = {
@@ -19,17 +19,15 @@ export async function getSuggestions(): Promise<Suggestions[]> {
   const bankSavingsSuggestions = await getBankSavingsSuggestions()
 
   const insuranceSuggestions = await getInsuranceSuggestions()
-  const accountsReceivablePaidSuggestions =
-    await getAccountsReceivablePaidSuggestions()
+  const paidInvoiceSuggestions = await getPaidInvoiceSuggestions()
 
-  const knownDocumentSuggestions =
-    await getDocumentSuggestions()
+  const knownDocumentSuggestions = await getDocumentSuggestions()
 
   return filterNull([
     ...taxSuggestions,
     ...bankSavingsSuggestions,
     ...insuranceSuggestions,
-    ...accountsReceivablePaidSuggestions,
+    ...paidInvoiceSuggestions,
     ...knownDocumentSuggestions,
   ])
 }

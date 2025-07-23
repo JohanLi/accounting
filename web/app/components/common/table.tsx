@@ -9,28 +9,48 @@ import { ReactNode } from 'react'
  */
 
 export function Table({ children }: { children: ReactNode }) {
-  return <div className="divide-y divide-gray-300">{children}</div>
-}
-
-export function TableHeader({ children }: { children: ReactNode }) {
   return (
-    <div className="flex py-3.5 text-sm font-semibold text-gray-900">
+    <div role="table" className="divide-y divide-gray-300">
       {children}
     </div>
   )
 }
 
+export function TableHeader({ children }: { children: ReactNode }) {
+  return (
+    <div role="rowgroup">
+      <div
+        role="row"
+        className="flex py-3.5 text-sm font-semibold text-gray-900"
+      >
+        {children}
+      </div>
+    </div>
+  )
+}
+
 export function TableBody({ children }: { children: ReactNode }) {
-  return <div className="divide-y divide-gray-200">{children}</div>
+  return (
+    <div role="rowgroup" className="divide-y divide-gray-200">
+      {children}
+    </div>
+  )
 }
 
 export function TableRow({ children }: { children: ReactNode }) {
-  return <div className="flex items-center py-4">{children}</div>
+  return (
+    <div role="row" className="flex items-center py-4">
+      {children}
+    </div>
+  )
 }
 
 export function DateOrAccountCodeTh({ children }: { children: ReactNode }) {
   return (
-    <div className="w-32 text-left text-sm font-semibold text-gray-900">
+    <div
+      role="columnheader"
+      className="w-32 text-left text-sm font-semibold text-gray-900"
+    >
       {children}
     </div>
   )
@@ -38,7 +58,7 @@ export function DateOrAccountCodeTh({ children }: { children: ReactNode }) {
 
 export function DateOrAccountCodeTd({ children }: { children: ReactNode }) {
   return (
-    <div className="whitespace-nowrap w-32 text-xs text-gray-500">
+    <div role="cell" className="whitespace-nowrap w-32 text-xs text-gray-500">
       {children}
     </div>
   )
@@ -46,7 +66,10 @@ export function DateOrAccountCodeTd({ children }: { children: ReactNode }) {
 
 export function DescriptionTh({ children }: { children: ReactNode }) {
   return (
-    <div className="flex-1 pr-6 text-left text-sm font-semibold text-gray-900">
+    <div
+      role="columnheader"
+      className="flex-1 pr-6 text-left text-sm font-semibold text-gray-900"
+    >
       {children}
     </div>
   )
@@ -54,7 +77,10 @@ export function DescriptionTh({ children }: { children: ReactNode }) {
 
 export function DescriptionTd({ children }: { children: ReactNode }) {
   return (
-    <div className="whitespace-nowrap flex-1 pr-6 text-sm font-medium text-gray-900">
+    <div
+      role="cell"
+      className="whitespace-nowrap flex-1 pr-6 text-sm font-medium text-gray-900"
+    >
       {children}
     </div>
   )
@@ -62,7 +88,10 @@ export function DescriptionTd({ children }: { children: ReactNode }) {
 
 export function TransactionsTh({ children }: { children: ReactNode }) {
   return (
-    <div className="w-44 text-left text-sm font-semibold text-gray-900">
+    <div
+      role="columnheader"
+      className="w-44 text-left text-sm font-semibold text-gray-900"
+    >
       {children}
     </div>
   )
@@ -70,7 +99,7 @@ export function TransactionsTh({ children }: { children: ReactNode }) {
 
 export function TransactionsTd({ children }: { children: ReactNode }) {
   return (
-    <div className="whitespace-nowrap w-44 text-sm text-gray-500">
+    <div role="cell" className="whitespace-nowrap w-44 text-sm text-gray-500">
       {children}
     </div>
   )
@@ -78,7 +107,10 @@ export function TransactionsTd({ children }: { children: ReactNode }) {
 
 export function AmountTh({ children }: { children: ReactNode }) {
   return (
-    <div className="w-32 text-right text-sm font-semibold text-gray-900">
+    <div
+      role="columnheader"
+      className="w-32 text-right text-sm font-semibold text-gray-900"
+    >
       {children}
     </div>
   )
@@ -86,38 +118,50 @@ export function AmountTh({ children }: { children: ReactNode }) {
 
 export function AmountTd({ children }: { children: ReactNode }) {
   return (
-    <div className="whitespace-nowrap w-32 text-right text-sm">{children}</div>
+    <div role="cell" className="whitespace-nowrap w-32 text-right text-sm">
+      {children}
+    </div>
   )
 }
 
 export function DocumentTh() {
-  return <div className="w-12" />
+  return <div role="columnheader" className="w-12" />
 }
 
 export function DocumentTd({ children }: { children: ReactNode }) {
   return (
-    <div className="w-12 whitespace-nowrap text-sm text-gray-500 text-right">
+    <div
+      role="cell"
+      className="w-12 whitespace-nowrap text-sm text-gray-500 text-right"
+    >
       {children}
     </div>
   )
 }
 
 export function LinkedTh() {
-  return <div className="w-24" />
+  return <div role="columnheader" className="w-24" />
 }
 
 export function LinkedTd({ children }: { children: ReactNode }) {
   return (
-    <div className="whitespace-nowrap w-24 text-xs font-medium -my-3.5 flex justify-end">
+    <div
+      role="cell"
+      className="whitespace-nowrap w-24 text-xs font-medium -my-3.5 flex justify-end"
+    >
       {children}
     </div>
   )
 }
 
 export function EditTh() {
-  return <div className="w-24" />
+  return <div role="columnheader" className="w-24" />
 }
 
 export function EditTd({ children }: { children: ReactNode }) {
-  return <div className="w-24 space-x-2 text-right">{children}</div>
+  return (
+    <div role="cell" className="w-24 space-x-2 text-right">
+      {children}
+    </div>
+  )
 }

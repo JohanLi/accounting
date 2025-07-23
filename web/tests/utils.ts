@@ -1,44 +1,29 @@
-import { Page, expect } from '@playwright/test'
+import { APIRequestContext, Page, expect } from '@playwright/test'
 import { readFile } from 'fs/promises'
 
 export function readTestDocument(filename: string) {
   return readFile(`${__dirname}/documents/${filename}`)
 }
 
-/*
-  adapted from https://github.com/microsoft/playwright/issues/13364#issuecomment-1156288428
-
-  Half of this code runs in Node, while the other half runs in the browser.
-  There's no readFile nor Buffer in the browser – it receives the file contents
-  as base64
- */
-export async function dragAndDropDocuments(page: Page, filenames: string[]) {
+export async function sendDocuments(
+  filenames: string[],
+  request: APIRequestContext,
+) {
   const base64List = await Promise.all(
     filenames.map(async (filename) =>
       (await readTestDocument(filename)).toString('base64'),
     ),
   )
 
-  const dataTransfer = await page.evaluateHandle(
-    async ({ base64List }) => {
-      const dt = new DataTransfer()
-
-      for (const base64 of base64List) {
-        const blob = await (
-          await fetch(`data:application/octet-stream;base64,${base64}`)
-        ).blob()
-
-        dt.items.add(new File([blob], '', { type: 'application/pdf' }))
-      }
-
-      return dt
+  return request.put('/api/documents', {
+    headers: {
+      'Content-Type': 'application/json',
     },
-    { base64List },
-  )
-
-  await page
-    .getByText('Drag and drop PDF file(s)')
-    .dispatchEvent('drop', { dataTransfer })
+    data: base64List.map((base64, i) => ({
+      filename: filenames[i],
+      data: base64,
+    })),
+  })
 }
 
 export async function expectSuggestion(
