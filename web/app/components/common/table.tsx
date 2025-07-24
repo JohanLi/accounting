@@ -1,4 +1,6 @@
-import { ReactNode } from 'react'
+import { HTMLAttributes, ReactNode } from 'react'
+
+import { classNames } from '../../utils'
 
 /*
   When creating or editing journal entries, I prefer to have all forms inlined.
@@ -29,17 +31,50 @@ export function TableHeader({ children }: { children: ReactNode }) {
   )
 }
 
-export function TableBody({ children }: { children: ReactNode }) {
+export function TableBody({
+  hideDividers,
+  children,
+}: {
+  hideDividers?: true
+  children: ReactNode
+}) {
   return (
-    <div role="rowgroup" className="divide-y divide-gray-200">
+    <div
+      role="rowgroup"
+      className={hideDividers ? '' : 'divide-y divide-gray-200'}
+    >
       {children}
     </div>
   )
 }
 
-export function TableRow({ children }: { children: ReactNode }) {
+export function TableRow({
+  padding = 'regular',
+  children,
+  ...props
+}: {
+  padding?: 'regular' | 'compact' | 'extraCompact'
+  children: ReactNode
+} & HTMLAttributes<HTMLDivElement>) {
   return (
-    <div role="row" className="flex items-center py-4">
+    <div
+      role="row"
+      className={classNames(
+        'flex items-center',
+        padding === 'regular' ? 'py-4' : '',
+        padding === 'compact' ? 'py-2' : '',
+        padding === 'extraCompact' ? 'py-0.5' : '',
+      )}
+      {...props}
+    >
+      {children}
+    </div>
+  )
+}
+
+export function TableRowEditable({ children }: { children: ReactNode }) {
+  return (
+    <div role="row" className="-ml-4 flex items-center py-4">
       {children}
     </div>
   )
@@ -59,6 +94,18 @@ export function DateOrAccountCodeTh({ children }: { children: ReactNode }) {
 export function DateOrAccountCodeTd({ children }: { children: ReactNode }) {
   return (
     <div role="cell" className="whitespace-nowrap w-32 text-xs text-gray-500">
+      {children}
+    </div>
+  )
+}
+
+export function DateOrAccountCodeTdEditable({
+  children,
+}: {
+  children: ReactNode
+}) {
+  return (
+    <div role="cell" className="whitespace-nowrap w-36 text-xs text-gray-500">
       {children}
     </div>
   )
@@ -161,6 +208,56 @@ export function EditTh() {
 export function EditTd({ children }: { children: ReactNode }) {
   return (
     <div role="cell" className="w-24 space-x-2 text-right">
+      {children}
+    </div>
+  )
+}
+
+export function SubmitTd({
+  wide,
+  children,
+}: {
+  wide?: true
+  children: ReactNode
+}) {
+  return (
+    <div role="cell" className={wide ? 'w-60' : 'w-48'}>
+      {children}
+    </div>
+  )
+}
+
+export function TransactionsAccountTd({ children }: { children: ReactNode }) {
+  return (
+    <div role="cell" className="w-16 text-sm text-gray-500">
+      {children}
+    </div>
+  )
+}
+
+export function TransactionsAmountTd({ children }: { children: ReactNode }) {
+  return (
+    <div role="cell" className="flex-1 text-right text-sm font-medium">
+      {children}
+    </div>
+  )
+}
+
+export function TransactionsAmountEditableTd({
+  children,
+}: {
+  children: ReactNode
+}) {
+  return (
+    <div role="cell" className="w-28 pl-1">
+      {children}
+    </div>
+  )
+}
+
+export function CategoryTd({ children }: { children: ReactNode }) {
+  return (
+    <div role="cell" className="w-64 space-y-1">
       {children}
     </div>
   )

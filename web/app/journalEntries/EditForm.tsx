@@ -6,6 +6,18 @@ import { AmountInput } from '../components/AmountInput'
 import { Button } from '../components/Button'
 import { formatDate } from '../components/DateFormatted'
 import { Submit } from '../components/Submit'
+import {
+  DateOrAccountCodeTdEditable,
+  DescriptionTd,
+  SubmitTd,
+  Table,
+  TableBody,
+  TableRow,
+  TableRowEditable,
+  TransactionsAccountTd,
+  TransactionsAmountEditableTd,
+  TransactionsTd,
+} from '../components/common/table'
 import { JournalEntryType, Transaction } from '../getJournalEntries'
 import { DateInput } from './DateInput'
 import { TextInput } from './TextInput'
@@ -26,65 +38,62 @@ export default function EditForm({ journalEntry, onClose }: Props) {
   )
 
   return (
-    <div
-      className="-ml-4 flex items-center gap-x-3 py-4"
-      data-testid="journalEntryForm"
-    >
-      <label className="w-32">
+    <TableRowEditable>
+      <DateOrAccountCodeTdEditable>
         <DateInput value={date} onChange={setDate} />
-      </label>
-      <label className="flex-1">
+      </DateOrAccountCodeTdEditable>
+      <DescriptionTd>
         <TextInput value={description} onChange={setDescription} />
-      </label>
-      <div className="space-y-1 w-52">
-        {transactions.map((t) => (
-          <div
-            key={t.accountId}
-            className="flex items-center space-x-1"
-            data-testid="transaction"
-          >
-            <div className="w-16">
-              <TextInput
-                value={t.accountId.toString()}
-                onChange={(value) => {
-                  setTransactions(
-                    transactions.map((transaction) => {
-                      if (transaction.accountId === t.accountId) {
-                        return {
-                          ...transaction,
-                          accountId: parseInt(value),
-                        }
-                      }
+      </DescriptionTd>
+      <TransactionsTd>
+        <Table>
+          <TableBody hideDividers>
+            {transactions.map((transaction, i) => (
+              <TableRow key={i} padding="extraCompact">
+                <TransactionsAccountTd>
+                  <TextInput
+                    value={transaction.accountId.toString()}
+                    onChange={(value) => {
+                      setTransactions(
+                        transactions.map((transaction) => {
+                          if (transaction.accountId === transaction.accountId) {
+                            return {
+                              ...transaction,
+                              accountId: parseInt(value),
+                            }
+                          }
 
-                      return transaction
-                    }),
-                  )
-                }}
-              />
-            </div>
-            <div className="w-28">
-              <AmountInput
-                value={t.amount}
-                onChange={(amount) => {
-                  setTransactions(
-                    transactions.map((transaction) => {
-                      if (transaction.accountId === t.accountId) {
-                        return {
-                          ...transaction,
-                          amount,
-                        }
-                      }
+                          return transaction
+                        }),
+                      )
+                    }}
+                  />
+                </TransactionsAccountTd>
+                <TransactionsAmountEditableTd>
+                  <AmountInput
+                    value={transaction.amount}
+                    onChange={(amount) => {
+                      setTransactions(
+                        transactions.map((transaction) => {
+                          if (transaction.accountId === transaction.accountId) {
+                            return {
+                              ...transaction,
+                              amount,
+                            }
+                          }
 
-                      return transaction
-                    }),
-                  )
-                }}
-              />
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="ml-auto w-52">
+                          return transaction
+                        }),
+                      )
+                    }}
+                  />
+                </TransactionsAmountEditableTd>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TransactionsTd>
+      <SubmitTd wide>
         <form
           action={async () => {
             const entry = {
@@ -112,7 +121,7 @@ export default function EditForm({ journalEntry, onClose }: Props) {
           />
           <Submit disabled={false} />
         </form>
-      </div>
-    </div>
+      </SubmitTd>
+    </TableRowEditable>
   )
 }

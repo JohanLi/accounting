@@ -1,11 +1,13 @@
 import {
   DateOrAccountCodeTh,
   DescriptionTh,
-  DocumentTh, EditTh,
+  DocumentTh,
+  EditTh,
   LinkedTh,
   Table,
   TableBody,
-  TableHeader, TransactionsTh,
+  TableHeader,
+  TransactionsTh,
 } from '../components/common/table'
 import { JournalEntryType } from '../getJournalEntries'
 import { JournalEntry } from './JournalEntry'
@@ -20,9 +22,7 @@ export function JournalEntries({
       <TableHeader>
         <DateOrAccountCodeTh>Date</DateOrAccountCodeTh>
         <DescriptionTh>Description</DescriptionTh>
-        <TransactionsTh>
-          Transactions
-        </TransactionsTh>
+        <TransactionsTh>Transactions</TransactionsTh>
         <DocumentTh />
         <LinkedTh />
         <EditTh />

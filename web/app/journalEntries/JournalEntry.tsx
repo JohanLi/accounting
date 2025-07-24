@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 
-import { Amount } from '../components/Amount'
 import { Button } from '../components/Button'
 import { DateFormatted } from '../components/DateFormatted'
 import {
@@ -10,13 +9,14 @@ import {
   DescriptionTd,
   DocumentTd,
   EditTd,
-  LinkedTd, TableBody,
+  LinkedTd,
   TableRow,
   TransactionsTd,
 } from '../components/common/table'
 import { JournalEntryType } from '../getJournalEntries'
 import DocumentLink from './DocumentLink'
 import EditForm from './EditForm'
+import { JournalEntryTransactions } from './JournalEntryTransactions'
 import { LinkPopover } from './link/LinkPopover'
 
 type Props = {
@@ -39,20 +39,7 @@ export function JournalEntry({ journalEntry }: Props) {
       </DateOrAccountCodeTd>
       <DescriptionTd>{journalEntry.description}</DescriptionTd>
       <TransactionsTd>
-        {journalEntry.transactions.length && (
-            <TableBody>
-              {journalEntry.transactions.map((transaction, i) => (
-                <div key={i} className="flex py-2">
-                  <div className="w-16 text-sm text-gray-500">
-                    {transaction.accountId}
-                  </div>
-                  <div className="flex-1 text-right text-sm font-medium">
-                    <Amount amount={transaction.amount} />
-                  </div>
-                </div>
-              ))}
-            </TableBody>
-        )}
+        <JournalEntryTransactions transactions={journalEntry.transactions} />
       </TransactionsTd>
       <DocumentTd>
         <DocumentLink id={journalEntry.documentId} />

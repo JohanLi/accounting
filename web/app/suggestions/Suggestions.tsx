@@ -1,26 +1,33 @@
 import { H2 } from '../components/common/heading'
+import {
+  DateOrAccountCodeTh,
+  DescriptionTh, DocumentTh,
+  EditTh, LinkedTh,
+  Table,
+  TableBody,
+  TableHeader,
+  TransactionsTh,
+} from '../components/common/table'
 import { SuggestionKnownForm } from './SuggestionKnownForm'
 import { getSuggestions } from './getSuggestions'
 
 export default async function Suggestions() {
-  const suggestions =
-    await getSuggestions()
+  const suggestions = await getSuggestions()
 
   return (
     <div className="mt-8 space-y-8">
       <H2>Suggestions</H2>
       {suggestions.length > 0 && (
-        <div>
-          <div className="flex space-x-4">
-            <div className="w-32 text-sm font-semibold text-gray-900">Date</div>
-            <div className="w-96 text-sm font-semibold text-gray-900">
-              Description
-            </div>
-            <div className="w-44 text-sm font-semibold text-gray-900">
-              Transactions
-            </div>
-          </div>
-          <div>
+        <Table>
+          <TableHeader>
+            <DateOrAccountCodeTh>Date</DateOrAccountCodeTh>
+            <DescriptionTh>Description</DescriptionTh>
+            <TransactionsTh>Transactions</TransactionsTh>
+            <DocumentTh />
+            <LinkedTh />
+            <EditTh />
+          </TableHeader>
+          <TableBody>
             {suggestions.map((suggestion) => (
               <SuggestionKnownForm
                 key={`documentId-${
@@ -31,17 +38,16 @@ export default async function Suggestions() {
                 suggestion={suggestion}
               />
             ))}
-          </div>
-        </div>
+          </TableBody>
+        </Table>
       )}
       {suggestions.length === 0 && (
-          <div>
-            <span className="max-w-md text-sm text-gray-500">
-              Download documents and transactions to start
-              seeing suggestions
-            </span>
-          </div>
-        )}
+        <div>
+          <span className="max-w-md text-sm text-gray-500">
+            Download documents and transactions to start seeing suggestions
+          </span>
+        </div>
+      )}
     </div>
   )
 }

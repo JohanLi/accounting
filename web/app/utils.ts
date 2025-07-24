@@ -1,7 +1,7 @@
 import crypto from 'crypto'
 import Decimal from 'decimal.js'
 
-export function classNames(...classes: string[]) {
+export function classNames(...classes: (string | undefined)[]) {
   return classes.filter(Boolean).join(' ')
 }
 

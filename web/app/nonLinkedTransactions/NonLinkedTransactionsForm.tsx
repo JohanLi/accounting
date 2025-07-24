@@ -3,10 +3,17 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 import { updateJournalEntry } from '../actions/updateJournalEntry'
-import { Amount } from '../components/Amount'
 import { Submit } from '../components/Submit'
+import {
+  CategoryTd,
+  DateOrAccountCodeTd,
+  DescriptionTd,
+  SubmitTd,
+  TableRow,
+} from '../components/common/table'
 import { Transaction } from '../getJournalEntries'
 import DocumentLink from '../journalEntries/DocumentLink'
+import { JournalEntryTransactions } from '../journalEntries/JournalEntryTransactions'
 import { TextInput } from '../journalEntries/TextInput'
 import { Transactions } from '../schema'
 
@@ -167,19 +174,19 @@ export function NonLinkedTransactionsForm({
   }
 
   return (
-    <div className="flex gap-x-4 py-4" data-testid="journalEntryForm">
-      <div className="w-64 space-y-4">
+    <TableRow>
+      <DateOrAccountCodeTd>
+        <DocumentLink id={documentId} />
+      </DateOrAccountCodeTd>
+      <DescriptionTd>
         <TextInput
           value={description}
           onChange={(value) => setDescription(value)}
         />
-        <div className="flex items-center space-x-4">
-          <DocumentLink id={documentId} />
-        </div>
-      </div>
-      {!selectedCategory && (
-        <div className="space-y-1">
-          {categories.map((category) => (
+      </DescriptionTd>
+      <CategoryTd>
+        {!selectedCategory &&
+          categories.map((category) => (
             <label key={category.name} className="flex items-center space-x-3">
               <input
                 type="radio"
@@ -190,31 +197,19 @@ export function NonLinkedTransactionsForm({
               <span className="text-sm text-gray-900">{category.name}</span>
             </label>
           ))}
-        </div>
-      )}
-      {selectedCategory && transactions && (
-        <div className="ml-6 space-y-1">
-          <div
-            className="inline-flex cursor-pointer items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
-            onClick={() => setSelectedCategory(undefined)}
-          >
-            {selectedCategory.name}
-          </div>
-          {transactions.map((t, i) => (
+        {selectedCategory && transactions && (
+          <>
             <div
-              key={i}
-              className="flex items-center space-x-1"
-              data-testid="transaction"
+              className="inline-flex cursor-pointer items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
+              onClick={() => setSelectedCategory(undefined)}
             >
-              <div className="w-16 text-sm text-gray-900">{t.accountId}</div>
-              <div className="w-20 text-right text-sm">
-                <Amount amount={t.amount} />
-              </div>
+              {selectedCategory.name}
             </div>
-          ))}
-        </div>
-      )}
-      <div className="ml-auto w-24">
+            <JournalEntryTransactions transactions={transactions} />
+          </>
+        )}
+      </CategoryTd>
+      <SubmitTd>
         <form
           action={async () => {
             if (!selectedCategory || !transactions) {
@@ -237,7 +232,7 @@ export function NonLinkedTransactionsForm({
         >
           <Submit disabled={!selectedCategory || !transactions} />
         </form>
-      </div>
-    </div>
+      </SubmitTd>
+    </TableRow>
   )
 }

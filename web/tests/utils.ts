@@ -35,10 +35,14 @@ export async function expectSuggestion(
   }: { date: string; description: string; transactions: [string, string][] },
   number: number,
 ) {
-  const journalEntryForm = page.getByTestId('journalEntryForm').nth(number)
+  const journalEntryForm = page
+    .locator(
+      'div:has(h2:has-text("Suggestions")) [role="row"]:has(input[type="date"])',
+    )
+    .nth(number)
 
-  await expect(journalEntryForm.getByLabel('Date')).toHaveValue(date)
-  await expect(journalEntryForm.getByLabel('Description')).toHaveValue(
+  await expect(journalEntryForm.locator('input[type="date"]')).toHaveValue(date)
+  await expect(journalEntryForm.locator('input[type="text"]')).toHaveValue(
     description,
   )
 
@@ -47,8 +51,8 @@ export async function expectSuggestion(
       const t = journalEntryForm.getByTestId('transaction').nth(i)
 
       return Promise.all([
-        expect(t.locator('div').nth(0)).toHaveText(transaction[0]),
-        expect(t.locator('div').nth(1)).toHaveText(transaction[1]),
+        expect(t.locator('[role="cell"]').nth(0)).toHaveText(transaction[0]),
+        expect(t.locator('[role="cell"]').nth(1)).toHaveText(transaction[1]),
       ])
     }),
   )

@@ -4,11 +4,19 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 import { updateJournalEntry } from '../actions/updateJournalEntry'
-import { Amount } from '../components/Amount'
 import { formatDate } from '../components/DateFormatted'
 import { Submit } from '../components/Submit'
+import {
+  DateOrAccountCodeTdEditable,
+  DescriptionTd,
+  DocumentTd,
+  SubmitTd,
+  TableRowEditable,
+  TransactionsTd,
+} from '../components/common/table'
 import { DateInput } from '../journalEntries/DateInput'
 import DocumentLink from '../journalEntries/DocumentLink'
+import { JournalEntryTransactions } from '../journalEntries/JournalEntryTransactions'
 import { TextInput } from '../journalEntries/TextInput'
 import { Suggestions } from './getSuggestions'
 
@@ -23,41 +31,23 @@ export function SuggestionKnownForm({
   const [description, setDescription] = useState(suggestion.description)
 
   return (
-    <div
-      className="flex items-center gap-x-4 py-4"
-      data-testid="journalEntryForm"
-    >
-      <label className="w-36">
-        <div className="sr-only">Date</div>
+    <TableRowEditable>
+      <DateOrAccountCodeTdEditable>
         <DateInput value={date} onChange={setDate} />
-      </label>
-      <label className="w-96">
-        <div className="sr-only">Description</div>
+      </DateOrAccountCodeTdEditable>
+      <DescriptionTd>
         <TextInput
           value={description}
           onChange={(value) => setDescription(value)}
         />
-      </label>
-      <div className="space-y-1">
-        {suggestion.transactions.map((t) => (
-          <div
-            key={t.accountId}
-            className="flex items-center space-x-1"
-            data-testid="transaction"
-          >
-            <div className="w-16 text-sm text-gray-500">{t.accountId}</div>
-            <div className="w-20 text-right text-sm">
-              <Amount amount={t.amount} />
-            </div>
-          </div>
-        ))}
-      </div>
-      {!!suggestion.documentId && (
-        <div className="w-16">
-          <DocumentLink id={suggestion.documentId} />
-        </div>
-      )}
-      <div className="ml-auto w-24">
+      </DescriptionTd>
+      <TransactionsTd>
+        <JournalEntryTransactions transactions={suggestion.transactions} />
+      </TransactionsTd>
+      <DocumentTd>
+        {!!suggestion.documentId && <DocumentLink id={suggestion.documentId} />}
+      </DocumentTd>
+      <SubmitTd>
         <form
           action={async () => {
             const entry = {
@@ -76,7 +66,7 @@ export function SuggestionKnownForm({
         >
           <Submit disabled={false} />
         </form>
-      </div>
-    </div>
+      </SubmitTd>
+    </TableRowEditable>
   )
 }
