@@ -1,4 +1,10 @@
 import { Page, expect, test } from '@playwright/test'
+import { TransactionsType, TaxTransactions } from '../app/api/transactions/transactions'
+import { truncateDb } from './utils'
+
+test.afterAll(() => {
+  truncateDb()
+});
 
 export async function expectLatestTransaction(
   page: Page,
@@ -21,7 +27,7 @@ export async function expectLatestTransaction(
 
 test.describe('transactions', () => {
   test('can POST bank and tax transactions', async ({ request }) => {
-    const bankRegular = [
+    const bankRegular: TransactionsType = [
       {
         ingoingAmount: '200000.000',
         ingoingCurrency: 'SEK',
@@ -30,7 +36,6 @@ test.describe('transactions', () => {
         valueDate: '2023-12-01',
         text: 'Revenue',
         availableBalance: '200000.000',
-        accountId: '1',
         type: 'bankRegular',
       },
       {
@@ -41,7 +46,6 @@ test.describe('transactions', () => {
         valueDate: '2023-12-02',
         text: 'Some purchase',
         availableBalance: '190000.000',
-        accountId: '1',
         type: 'bankRegular',
       },
     ]
@@ -55,7 +59,6 @@ test.describe('transactions', () => {
         valueDate: '2023-12-03',
         text: 'To savings',
         availableBalance: '90000.000',
-        accountId: '1',
         type: 'bankRegular',
       },
       {
@@ -66,7 +69,6 @@ test.describe('transactions', () => {
         valueDate: '2023-12-03',
         text: 'From regular',
         availableBalance: '100000.000',
-        accountId: '1',
         type: 'bankSavings',
       },
     ]
@@ -76,7 +78,7 @@ test.describe('transactions', () => {
     })
     expect(response.status()).toEqual(200)
 
-    const tax = [
+    const tax: TaxTransactions = [
       {
         amount: '20000',
         balance: '20000',

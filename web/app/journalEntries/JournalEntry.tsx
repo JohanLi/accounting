@@ -33,7 +33,7 @@ export function JournalEntry({ journalEntry }: Props) {
   }
 
   return (
-    <TableRow>
+    <TableRow data-testid="journal-entry">
       <DateOrAccountCodeTd>
         <DateFormatted date={journalEntry.date} />
       </DateOrAccountCodeTd>

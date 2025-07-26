@@ -16,20 +16,20 @@ async function getRecognizedDocumentFromFile(filename: string) {
 
 test('parse', async () => {
   expect(await getRecognizedDocumentFromFile('invoice.pdf')).toEqual({
-    date: new Date('2022-11-30'),
+    date: new Date('2025-01-31'),
     description: 'Recognized document – Inkomst kundfordran',
     transactions: [
       {
         accountId: 1510,
-        amount: 20685000,
+        amount: 16000000,
       },
       {
         accountId: 3011,
-        amount: -16548000,
+        amount: -12800000,
       },
       {
         accountId: 2610,
-        amount: -4137000,
+        amount: -3200000,
       },
     ],
   })

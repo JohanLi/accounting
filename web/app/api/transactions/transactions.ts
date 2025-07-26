@@ -34,12 +34,14 @@ const commonSchema = z.object({
   type: z.enum(transactionTypeEnum.enumValues),
 })
 
-export const outgoingOrIngoingSchema = z.union([
+export const transactionsSchema = z.array(z.union([
   outgoingSchema.merge(commonSchema),
   ingoingSchema.merge(commonSchema),
-])
+]))
 
-export const taxTransactionSchema = z.array(
+export type TransactionsType = z.infer<typeof transactionsSchema>;
+
+export const taxTransactionsSchema = z.array(
   z.object({
     date: z.string(),
     description: z.string(),
@@ -47,6 +49,8 @@ export const taxTransactionSchema = z.array(
     balance: z.string(),
   }),
 )
+
+export type TaxTransactions = z.infer<typeof taxTransactionsSchema>;
 
 export type TransactionsResponse = InferSelectModel<typeof Transactions>[]
 

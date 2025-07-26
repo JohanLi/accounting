@@ -6,8 +6,8 @@ import { krToOre } from '../../utils'
 import {
   getExternalId,
   getTransactionsForLinkForm,
-  outgoingOrIngoingSchema,
-  taxTransactionSchema,
+  transactionsSchema,
+  taxTransactionsSchema,
   throwIfWrongSequence,
 } from './transactions'
 
@@ -30,7 +30,7 @@ export async function PUT(request: Request) {
   const body = await request.json()
 
   try {
-    const bankTransactions = outgoingOrIngoingSchema.array().safeParse(body)
+    const bankTransactions = transactionsSchema.safeParse(body)
 
     let transactions: InferInsertModel<typeof Transactions>[]
 
@@ -64,7 +64,7 @@ export async function PUT(request: Request) {
       )
     } else {
       transactions = await Promise.all(
-        taxTransactionSchema.parse(body).map(async (transaction) => ({
+        taxTransactionsSchema.parse(body).map(async (transaction) => ({
           type: 'tax',
           date: new Date(transaction.date),
           description: transaction.description,

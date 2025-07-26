@@ -1,5 +1,7 @@
 import { APIRequestContext, Page, expect } from '@playwright/test'
 import { readFile } from 'fs/promises'
+import { TransactionsType } from '../app/api/transactions/transactions'
+import { execSync } from 'child_process'
 
 export function readTestDocument(filename: string) {
   return readFile(`${__dirname}/documents/${filename}`)
@@ -32,7 +34,8 @@ export async function expectSuggestion(
     date,
     description,
     transactions,
-  }: { date: string; description: string; transactions: [string, string][] },
+    hasDocument = true,
+  }: { date: string; description: string; transactions: [string, string][], hasDocument?: boolean },
   number: number,
 ) {
   const journalEntryForm = page
@@ -49,6 +52,69 @@ export async function expectSuggestion(
   await Promise.all(
     transactions.map((transaction, i) => {
       const t = journalEntryForm.getByTestId('transaction').nth(i)
+
+      return Promise.all([
+        expect(t.locator('[role="cell"]').nth(0)).toHaveText(transaction[0]),
+        expect(t.locator('[role="cell"]').nth(1)).toHaveText(transaction[1]),
+      ])
+    }),
+  )
+
+  if (hasDocument) {
+    const pdfRequestHandled = new Promise<void>((resolve) => {
+      page.route('**/api/documents**', async (route, request) => {
+        const response = await page.request.fetch(request);
+        const headers = response.headers();
+        const body = await response.body();
+
+        expect(headers['content-type']).toContain('application/pdf');
+        expect(body.subarray(0, 4).toString()).toBe('%PDF');
+
+        await route.fulfill({
+          status: 204,
+        })
+
+        resolve()
+      })
+    })
+
+    await journalEntryForm.locator('a[href^="/api/documents"]').click()
+    await pdfRequestHandled
+  }
+}
+
+export async function submitSuggestion(
+  page: Page,
+  number: number,
+) {
+  const journalEntryForm = page
+    .locator(
+      'div:has(h2:has-text("Suggestions")) [role="row"]:has(input[type="date"])',
+    )
+    .nth(number)
+
+  await journalEntryForm.locator('button[type="submit"]').click();
+}
+
+export async function expectJournalEntry(
+  page: Page,
+  {
+    date,
+    description,
+    transactions,
+  }: { date: string; description: string; transactions: [string, string][] },
+  number: number,
+) {
+  const entry = page.getByTestId('journal-entry').nth(number)
+
+  const columns = (i: number) => entry.locator('[role="cell"]').nth(i)
+
+  await expect(columns(0)).toHaveText(date)
+  await expect(columns(1)).toHaveText(description)
+
+  await Promise.all(
+    transactions.map((transaction, i) => {
+      const t = entry.getByTestId('transaction').nth(i)
 
       return Promise.all([
         expect(t.locator('[role="cell"]').nth(0)).toHaveText(transaction[0]),
@@ -79,4 +145,17 @@ export async function expectEntry(
   for (let i = 0; i < transactions.length; i++) {
     await expect(transactionRows(i)).toHaveText(transactions[i])
   }
+}
+
+export async function sendTransactions(
+  transactions: TransactionsType,
+  request: APIRequestContext,
+) {
+  return request.put('/api/transactions', {
+    data: transactions.reverse(),
+  })
+}
+
+export function truncateDb() {
+  execSync('pnpm run swc scripts/db/truncate.ts', { stdio: 'inherit' });
 }
