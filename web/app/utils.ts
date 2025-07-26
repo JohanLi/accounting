@@ -1,5 +1,6 @@
 import crypto from 'crypto'
 import Decimal from 'decimal.js'
+import { NextPageProps } from './types'
 
 export function classNames(...classes: (string | undefined)[]) {
   return classes.filter(Boolean).join(' ')
@@ -109,4 +110,21 @@ export function getErrorMessage(error: unknown) {
   }
 
   return String(error)
+}
+
+export function getSearchParam(
+  searchParams: Awaited<NextPageProps['searchParams']>,
+  key: string
+) {
+  const value = searchParams[key];
+
+  if (Array.isArray(value)) {
+    throw new Error(`${key} is an array`)
+  }
+
+  if (!value) {
+    return ''
+  }
+
+  return value
 }
