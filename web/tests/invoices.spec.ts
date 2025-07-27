@@ -125,30 +125,47 @@ test.describe('handling invoices using Fakturametoden', () => {
 
     await page.goto('/')
 
-    await expectSuggestion(
-      page,
-      {
-        date: '2025-03-17',
-        description: 'Inkomst – betalning av kundfordran',
-        transactions: [
-          ['1930', '160 000'],
-          ['1510', '-160 000'],
-        ],
-        hasDocument: false,
-      },
-      0,
-    )
+    await submitSuggestion(page, 0)
+    await submitSuggestion(page, 1)
 
-    await expectSuggestion(
+    await page.goto('/journalEntries')
+
+    await page.locator('button[aria-haspopup="menu"]').click()
+
+    await page.getByRole('menuitem', { name: '2025' }).click()
+
+    await expectJournalEntry(
       page,
       {
         date: '2025-04-14',
         description: 'Inkomst – betalning av kundfordran',
         transactions: [
-          ['1930', '200 000'],
           ['1510', '-200 000'],
+          ['1930', '200 000'],
         ],
-        hasDocument: false,
+        linkedTransactions: [{
+          date: '2025-04-14',
+          description: 'BG 1234-5678',
+          amount: '200 000'
+        }]
+      },
+      0,
+    )
+
+    await expectJournalEntry(
+      page,
+      {
+        date: '2025-03-17',
+        description: 'Inkomst – betalning av kundfordran',
+        transactions: [
+          ['1510', '-160 000'],
+          ['1930', '160 000'],
+        ],
+        linkedTransactions: [{
+          date: '2025-03-17',
+          description: 'BG 1234-5678',
+          amount: '160 000'
+        }]
       },
       1,
     )

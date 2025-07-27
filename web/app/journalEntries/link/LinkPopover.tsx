@@ -1,6 +1,6 @@
 'use client'
 
-import { Popover, Transition } from '@headlessui/react'
+import { Popover, PopoverPanel } from '@headlessui/react'
 import { useRouter } from 'next/navigation'
 import { Fragment, useEffect, useState } from 'react'
 
@@ -10,7 +10,11 @@ import { Amount } from '../../components/Amount'
 import { Button } from '../../components/Button'
 import { DateFormatted } from '../../components/DateFormatted'
 import { Submit } from '../../components/Submit'
-import { AmountTd, DateOrAccountCodeTd, DescriptionTd, TableBody } from '../../components/common/table'
+import {
+  AmountTd,
+  DateOrAccountCodeTd,
+  DescriptionTd,
+} from '../../components/common/table'
 import { JournalEntryType } from '../../getJournalEntries'
 import { transactionTypes } from '../../schema'
 import { transactionTypeToLabel } from '../../transactions/transactionTypeToLabel'
@@ -18,10 +22,9 @@ import { classNames } from '../../utils'
 import { AddLinkButton, EditLinkButton } from './LinkButton'
 
 /*
-  TODO
-    handle cases where there are no transactions to suggest for a given journal entry
-    closing the popover should reset the checked transactions
-    investigate if it's better to fetch transactions as part of the initial server response already
+  TODO add tests for
+    - no transactions
+    - checked transactions should reset after closing the popover
  */
 
 export function LinkPopover({
@@ -60,6 +63,7 @@ function LinkForm({
 
   useEffect(() => {
     if (!open) {
+      setCheckedTransactionIds(undefined)
       return
     }
 
@@ -78,80 +82,67 @@ function LinkForm({
       {journalEntry.linkedToTransactionIds.length > 0 && (
         <EditLinkButton open={open} />
       )}
-      <Transition
-        show={open && !!transactions && !!checkedTransactionIds}
-        enter="transition ease-out duration-100"
-        enterFrom="opacity-0 translate-y-1"
-        enterTo="opacity-100 translate-y-0"
-        leave="transition ease-in duration-75"
-        leaveFrom="opacity-100 translate-y-0"
-        leaveTo="opacity-0 translate-y-1"
-      >
-        <Popover.Panel
-          static
-          className="absolute left-20 top-1/2 w-screen max-w-lg -translate-y-1/2 transform"
-        >
+      {transactions && checkedTransactionIds && (
+        <PopoverPanel className="absolute left-20 top-1/2 w-screen max-w-lg -translate-y-1/2 transform">
           {({ close }) => (
             <div className="overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
-              {transactions && checkedTransactionIds && (
-                <>
-                  <TableBody>
-                    {transactionTypes.map((transactionType) => {
-                      const transactionsOfType = transactions.filter(
-                        (t) => t.type === transactionType,
-                      )
+              {transactionTypes.map((transactionType) => {
+                const transactionsOfType = transactions.filter(
+                  (t) => t.type === transactionType,
+                )
 
-                      if (!transactionsOfType.length) return null
+                if (!transactionsOfType.length) return null
 
-                      return (
-                        <Fragment key={transactionType}>
-                          <div
-                            className="bg-gray-100 py-2 px-4 text-left text-sm font-semibold text-gray-900 sm:pl-3"
-                          >
-                            {transactionTypeToLabel[transactionType]}
-                          </div>
-                          {transactionsOfType.map((transaction) => (
-                            <div
-                              key={transaction.id}
-                              onClick={() => {
-                                if (
-                                  checkedTransactionIds.includes(transaction.id)
-                                ) {
-                                  setCheckedTransactionIds(
-                                    checkedTransactionIds.filter(
-                                      (id) => id !== transaction.id,
-                                    ),
-                                  )
-                                } else {
-                                  setCheckedTransactionIds([
-                                    ...checkedTransactionIds,
-                                    transaction.id,
-                                  ])
-                                }
-                              }}
-                              className={classNames(
-                                'cursor-pointer flex items-center py-4 px-4',
-                                checkedTransactionIds.includes(transaction.id)
-                                  ? 'bg-yellow-100'
-                                  : '',
-                              )}
-                            >
-                              <DateOrAccountCodeTd>
-                                <DateFormatted date={transaction.date} />
-                              </DateOrAccountCodeTd>
-                              <DescriptionTd>
-                                {transaction.description}
-                              </DescriptionTd>
-                              <AmountTd>
-                                <Amount amount={transaction.amount} />
-                              </AmountTd>
-                            </div>
-                          ))}
-                        </Fragment>
-                      )
-                    })}
-                  </TableBody>
-                  <div className="bg-gray-50 p-4">
+                return (
+                  <Fragment key={transactionType}>
+                    <div className="bg-gray-100 py-2 px-4 text-left text-sm font-semibold text-gray-900 sm:pl-3">
+                      {transactionTypeToLabel[transactionType]}
+                    </div>
+                    {transactionsOfType.map((transaction) => (
+                      <div
+                        key={transaction.id}
+                        onClick={() => {
+                          if (
+                            checkedTransactionIds.includes(transaction.id)
+                          ) {
+                            setCheckedTransactionIds(
+                              checkedTransactionIds.filter(
+                                (id) => id !== transaction.id,
+                              ),
+                            )
+                          } else {
+                            setCheckedTransactionIds([
+                              ...checkedTransactionIds,
+                              transaction.id,
+                            ])
+                          }
+                        }}
+                        className={classNames(
+                          'cursor-pointer flex items-center py-4 px-4',
+                          checkedTransactionIds.includes(transaction.id)
+                            ? 'bg-yellow-100'
+                            : '',
+                        )}
+                        role="row"
+                      >
+                        <DateOrAccountCodeTd>
+                          <DateFormatted date={transaction.date} />
+                        </DateOrAccountCodeTd>
+                        <DescriptionTd>
+                          {transaction.description}
+                        </DescriptionTd>
+                        <AmountTd>
+                          <Amount amount={transaction.amount} />
+                        </AmountTd>
+                      </div>
+                    ))}
+                  </Fragment>
+                )
+              })}
+              <div className="bg-gray-50 p-4">
+                {transactions &&
+                  checkedTransactionIds &&
+                  transactions.length > 0 && (
                     <form
                       action={async () => {
                         if (!checkedTransactionIds) {
@@ -171,13 +162,18 @@ function LinkForm({
                       <Submit disabled={!checkedTransactionIds} />
                       <Button type="secondary" onClick={close} text="Cancel" />
                     </form>
-                  </div>
-                </>
-              )}
+                  )}
+                {!transactions ||
+                  (transactions.length === 0 && (
+                    <span className="text-sm text-gray-900">
+                      No non-linked transactions close in time were found
+                    </span>
+                  ))}
+              </div>
             </div>
           )}
-        </Popover.Panel>
-      </Transition>
+        </PopoverPanel>
+      )}
     </>
   )
 }
