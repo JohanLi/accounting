@@ -8,6 +8,8 @@
 # https://unix.stackexchange.com/a/52066
 set -e
 
+# if a separate NEXT_DIST_DIR is not set, running tests locally can crash the dev server
+export NEXT_DIST_DIR=tests/.next
 export PORT=3001
 export POSTGRES_PORT=5433
 

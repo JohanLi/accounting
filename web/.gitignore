@@ -1,19 +1,7 @@
-# dependencies
-/node_modules
-
-# next.js
+/node_modules/
 /.next/
-
-# production
-/build
-
-# misc
 .DS_Store
-
-# debug
 npm-debug.log*
-
-# local env files
 .env
 
 # typescript
@@ -25,8 +13,9 @@ next-env.d.ts
 *.sql
 
 # Playwright
-/tests/report
-/tests/results
+/tests/.next/
+/tests/report/
+/tests/results/
 
 # will be added later
 /drizzle/
