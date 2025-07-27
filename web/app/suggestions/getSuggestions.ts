@@ -15,19 +15,17 @@ export type Suggestions = {
 }
 
 export async function getSuggestions(): Promise<Suggestions[]> {
-  const taxSuggestions = await getTaxSuggestions()
-  const bankSavingsSuggestions = await getBankSavingsSuggestions()
-
-  const insuranceSuggestions = await getInsuranceSuggestions()
-  const paidInvoiceSuggestions = await getPaidInvoiceSuggestions()
-
-  const knownDocumentSuggestions = await getDocumentSuggestions()
-
-  return filterNull([
-    ...taxSuggestions,
-    ...bankSavingsSuggestions,
-    ...insuranceSuggestions,
-    ...paidInvoiceSuggestions,
-    ...knownDocumentSuggestions,
+  const groups = await Promise.all([
+    getTaxSuggestions(),
+    getBankSavingsSuggestions(),
+    getInsuranceSuggestions(),
+    getPaidInvoiceSuggestions(),
+    getDocumentSuggestions(),
   ])
+
+  return groups
+    .map((group) =>
+      filterNull(group).sort((a, b) => a.date.getTime() - b.date.getTime()),
+    )
+    .flat()
 }

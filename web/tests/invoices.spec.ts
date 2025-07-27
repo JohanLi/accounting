@@ -18,23 +18,16 @@ test.describe('handling invoices using Fakturametoden', () => {
     page,
     request,
   }) => {
+    /*
+      Invoices (and most other documents and receipts) are sorted by newest first on other platforms.
+      When my script downloads a batch of them, the newest then ends up with the lowest ID.
+
+      While it doesn't matter all too much, I find it easier to mentally keep track of Suggestions if the
+      earliest date comes first.
+     */
     await sendDocuments(['invoice2.pdf', 'invoice.pdf'], request)
 
     await page.goto('/')
-
-    await expectSuggestion(
-      page,
-      {
-        date: '2025-02-28',
-        description: 'Recognized document – Inkomst kundfordran',
-        transactions: [
-          ['1510', '200 000'],
-          ['3011', '-160 000'],
-          ['2610', '-40 000'],
-        ],
-      },
-      0,
-    )
 
     await expectSuggestion(
       page,
@@ -45,6 +38,20 @@ test.describe('handling invoices using Fakturametoden', () => {
           ['1510', '160 000'],
           ['3011', '-128 000'],
           ['2610', '-32 000'],
+        ],
+      },
+      0,
+    )
+
+    await expectSuggestion(
+      page,
+      {
+        date: '2025-02-28',
+        description: 'Recognized document – Inkomst kundfordran',
+        transactions: [
+          ['1510', '200 000'],
+          ['3011', '-160 000'],
+          ['2610', '-40 000'],
         ],
       },
       1,
