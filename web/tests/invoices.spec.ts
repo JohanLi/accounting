@@ -57,8 +57,8 @@ test.describe('handling invoices using Fakturametoden', () => {
       1,
     )
 
-    await submitSuggestion(page, 0)
-    await submitSuggestion(page, 1)
+    await submitSuggestion(page)
+    await submitSuggestion(page)
 
     await page.goto('/journalEntries')
 
@@ -132,8 +132,8 @@ test.describe('handling invoices using Fakturametoden', () => {
 
     await page.goto('/')
 
-    await submitSuggestion(page, 0)
-    await submitSuggestion(page, 1)
+    await submitSuggestion(page)
+    await submitSuggestion(page)
 
     await page.goto('/journalEntries')
 

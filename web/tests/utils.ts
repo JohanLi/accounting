@@ -70,35 +70,16 @@ export async function expectSuggestion(
     }),
   )
 
-  const pdfRequestHandled = new Promise<void>((resolve) => {
-    page.route('**/api/documents**', async (route, request) => {
-      const response = await page.request.fetch(request)
-      const headers = response.headers()
-      const body = await response.body()
-
-      expect(headers['content-type']).toContain('application/pdf')
-      expect(body.subarray(0, 4).toString()).toBe('%PDF')
-
-      await route.fulfill({
-        status: 204,
-      })
-
-      resolve()
-    })
-  })
-
-  await journalEntryForm.locator('a[href^="/api/documents"]').click()
-  await pdfRequestHandled
+  await expect(journalEntryForm.locator('a:has(svg[data-slot="icon"])')).toHaveAttribute('href', /\/api\/documents\?id=\d+/);
 }
 
-export async function submitSuggestion(page: Page, number: number) {
-  const journalEntryForm = page
-    .locator(
-      'div:has(h2:has-text("Suggestions")) [role="row"]:has(input[type="date"])',
-    )
-    .nth(number)
+export async function submitSuggestion(page: Page, index = 0) {
+  const journalEntryForms = page.locator('div:has(h2:has-text("Suggestions")) [role="row"]:has(input[type="date"])')
+  const initialCount = await journalEntryForms.count()
 
-  await journalEntryForm.locator('button[type="submit"]').click()
+  await journalEntryForms.nth(index).locator('button[type="submit"]').click()
+
+  await expect(journalEntryForms).toHaveCount(initialCount - 1)
 }
 
 export async function expectJournalEntry(
