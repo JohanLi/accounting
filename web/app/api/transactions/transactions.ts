@@ -9,7 +9,7 @@ import {
   ne,
   or,
 } from 'drizzle-orm'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 import db from '../../db'
 import { JournalEntries, Transactions, transactionTypeEnum } from '../../schema'
@@ -35,8 +35,8 @@ const commonSchema = z.object({
 })
 
 export const transactionsSchema = z.array(z.union([
-  outgoingSchema.merge(commonSchema),
-  ingoingSchema.merge(commonSchema),
+  outgoingSchema.extend(commonSchema.shape),
+  ingoingSchema.extend(commonSchema.shape),
 ]))
 
 export type TransactionsType = z.infer<typeof transactionsSchema>;

@@ -25,7 +25,7 @@ export default function RootLayout(props: { children: ReactNode }) {
             <Nav />
           </div>
           <main className="w-full pl-60">
-            <div className="max-w-[64rem] p-8">{props.children}</div>
+            <div className="max-w-5xl p-8">{props.children}</div>
           </main>
         </div>
       </body>

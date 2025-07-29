@@ -24,7 +24,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'next dev',
+    command: 'next dev --turbopack',
     url: `http://localhost:${PORT}`,
     stdout: 'pipe',
   },
