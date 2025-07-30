@@ -40,7 +40,7 @@ jobs:
       - run: pnpm test
 
       - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps
+        run: pnpm exec playwright install chromium
 
       - run: pnpm run test-e2e
 
@@ -48,5 +48,5 @@ jobs:
         if: always()
         with:
           name: tests-report
-          path: ./tests/report
+          path: ./web/tests/report
           retention-days: 30
