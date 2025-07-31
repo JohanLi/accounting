@@ -173,5 +173,5 @@ export async function sendTransactions(
 }
 
 export function truncateDb() {
-  execSync('pnpm run swc scripts/db/truncate.ts', { stdio: 'inherit' })
+  execSync('tsx ./scripts/db/truncate.ts', { stdio: 'inherit' })
 }

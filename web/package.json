@@ -2,14 +2,15 @@
   "name": "web",
   "version": "0.1.0",
   "scripts": {
-    "setup": "sh ./scripts/setup.sh",
-    "swc": "node -r @swc-node/register",
-    "reset": "sh ./scripts/reset.sh",
     "dev": "next dev --turbopack",
     "test": "vitest",
     "test-e2e": "sh ./tests/test-e2e.sh",
     "pre-commit": "pnpm exec lint-staged && CI=true pnpm test && tsc --noEmit",
-    "export-vat": "pnpm run swc ./scripts/vat/exportVATReport.ts"
+    "export-vat": "tsx ./scripts/vat/exportVATReport.ts",
+    "db:setup": "sh ./scripts/setup.sh",
+    "db:reset": "sh ./scripts/reset.sh",
+    "db:import": "sh ./scripts/db/import.sh",
+    "db:export": "sh ./scripts/db/export.sh"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
@@ -34,10 +35,8 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@playwright/test": "^1.54.1",
-    "@swc-node/register": "^1.10.10",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/postcss": "^4.1.11",
-    "tailwindcss": "^4.1.11",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/node": "24.1.0",
     "@types/react": "19.1.9",
@@ -49,6 +48,8 @@
     "lint-staged": "^16.1.2",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
+    "tailwindcss": "^4.1.11",
+    "tsx": "^4.20.3",
     "typescript": "5.8.3",
     "vitest": "^3.2.4"
   }

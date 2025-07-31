@@ -7,4 +7,4 @@ docker volume create --name=accounting-postgres
 docker compose up -d --wait
 
 pnpm drizzle-kit generate
-pnpm run swc scripts/db/setup.ts
+tsx scripts/db/setup.ts
