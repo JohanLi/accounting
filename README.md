@@ -17,11 +17,3 @@ pnpm dev
 
 If using Apple silicon, you'll need to [do this](https://github.com/Automattic/node-canvas/issues/2036#issuecomment-1627742027)
 before running `pnpm install`.
-
-#### Updating dependencies
-
-```
-pnpm update "\!eslint" --latest
-```
-
-eslint: no version 9 support yet https://github.com/vercel/next.js/issues/64409
