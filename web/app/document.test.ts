@@ -24,12 +24,12 @@ test('parse', async () => {
         amount: 16000000,
       },
       {
-        accountId: 3011,
-        amount: -12800000,
-      },
-      {
         accountId: 2610,
         amount: -3200000,
+      },
+      {
+        accountId: 3011,
+        amount: -12800000,
       },
     ],
   })
@@ -55,16 +55,16 @@ test('parse', async () => {
     description: 'Recognized document – Tre företagsabonnemang',
     transactions: [
       {
+        accountId: 2640,
+        amount: 7480,
+      },
+      {
         accountId: 6212,
         amount: 29920,
       },
       {
         accountId: 1930,
         amount: -37400,
-      },
-      {
-        accountId: 2640,
-        amount: 7480,
       },
     ],
   })

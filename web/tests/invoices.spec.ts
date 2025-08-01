@@ -36,8 +36,8 @@ test.describe('handling invoices using Fakturametoden', () => {
         description: 'Recognized document – Inkomst kundfordran',
         transactions: [
           ['1510', '160 000'],
-          ['3011', '-128 000'],
           ['2610', '-32 000'],
+          ['3011', '-128 000'],
         ],
       },
       0,
@@ -50,8 +50,8 @@ test.describe('handling invoices using Fakturametoden', () => {
         description: 'Recognized document – Inkomst kundfordran',
         transactions: [
           ['1510', '200 000'],
-          ['3011', '-160 000'],
           ['2610', '-40 000'],
+          ['3011', '-160 000'],
         ],
       },
       1,
@@ -62,24 +62,19 @@ test.describe('handling invoices using Fakturametoden', () => {
 
     await page.goto('/journalEntries')
 
-    await page.locator('button[aria-haspopup="menu"]').click()
+    await page.locator('label:has-text("FY") button[aria-haspopup="menu"]').click()
 
     await page.getByRole('menuitem', { name: '2025' }).click()
 
-    /*
-      TODO:
-       the order of transactions needs to be looked over. It should definitely be
-       consistent between Suggestions and Journal Entries.
-     */
     await expectJournalEntry(
       page,
       {
         date: '2025-02-28',
         description: 'Recognized document – Inkomst kundfordran',
         transactions: [
-          ['3011', '-160 000'],
-          ['2610', '-40 000'],
           ['1510', '200 000'],
+          ['2610', '-40 000'],
+          ['3011', '-160 000'],
         ],
       },
       0,
@@ -91,9 +86,9 @@ test.describe('handling invoices using Fakturametoden', () => {
         date: '2025-01-31',
         description: 'Recognized document – Inkomst kundfordran',
         transactions: [
-          ['3011', '-128 000'],
-          ['2610', '-32 000'],
           ['1510', '160 000'],
+          ['2610', '-32 000'],
+          ['3011', '-128 000'],
         ],
       },
       1,
@@ -137,7 +132,7 @@ test.describe('handling invoices using Fakturametoden', () => {
 
     await page.goto('/journalEntries')
 
-    await page.locator('button[aria-haspopup="menu"]').click()
+    await page.locator('label:has-text("FY") button[aria-haspopup="menu"]').click()
 
     await page.getByRole('menuitem', { name: '2025' }).click()
 
@@ -147,8 +142,8 @@ test.describe('handling invoices using Fakturametoden', () => {
         date: '2025-04-14',
         description: 'Inkomst – betalning av kundfordran',
         transactions: [
-          ['1510', '-200 000'],
           ['1930', '200 000'],
+          ['1510', '-200 000'],
         ],
         linkedTransactions: [{
           date: '2025-04-14',
@@ -165,8 +160,8 @@ test.describe('handling invoices using Fakturametoden', () => {
         date: '2025-03-17',
         description: 'Inkomst – betalning av kundfordran',
         transactions: [
-          ['1510', '-160 000'],
           ['1930', '160 000'],
+          ['1510', '-160 000'],
         ],
         linkedTransactions: [{
           date: '2025-03-17',

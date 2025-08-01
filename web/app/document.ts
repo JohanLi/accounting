@@ -167,12 +167,12 @@ export async function getRecognizedDocument(
         amount: total,
       },
       {
-        accountId: credit,
-        amount: -(total - vat),
-      },
-      {
         accountId: 2610, // assumes 25% vat
         amount: -vat,
+      },
+      {
+        accountId: credit,
+        amount: -(total - vat),
       },
     ]
   } else {
@@ -189,7 +189,7 @@ export async function getRecognizedDocument(
     ]
 
     if (vatRate !== '0') {
-      transactions.push({
+      transactions.unshift({
         accountId: 2640,
         amount: vat,
       })

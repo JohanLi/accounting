@@ -39,8 +39,8 @@ test('when known documents are received, a suggestion is created', async ({
       description: 'Recognized document – Inkomst kundfordran',
       transactions: [
         ['1510', '160 000'],
-        ['3011', '-128 000'],
         ['2610', '-32 000'],
+        ['3011', '-128 000'],
       ],
     },
     1,
@@ -52,9 +52,9 @@ test('when known documents are received, a suggestion is created', async ({
       date: '2025-01-31',
       description: 'Recognized document – Tre företagsabonnemang',
       transactions: [
+        ['2640', '75'],
         ['6212', '299'],
         ['1930', '-374'],
-        ['2640', '75'],
       ],
     },
     2,

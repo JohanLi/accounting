@@ -35,20 +35,20 @@ function taxAccountMap(description: string): {
     description === 'Korrigerad kostnadsränta'
   ) {
     return {
-      credit: 1630,
       debit: 8423, // Kostnadsränta för skatter och avgifter (Ej avdragsgilla kostnader)
+      credit: 1630,
       description,
     }
   }
 
   if (description === 'Debiterad preliminärskatt') {
     return {
-      credit: 1630,
       /*
         https://www.fortnox.se/fortnox-foretagsguide/bokforingstips/preliminarskatt-i-aktiebolag
         https://www.arsredovisning-online.se/bokfora_slutlig_skatt
        */
       debit: 2510, // Skatteskulder
+      credit: 1630,
       description: 'Debiterad preliminärskatt',
     }
   }
@@ -72,16 +72,16 @@ function taxAccountMap(description: string): {
    */
   if (description === 'Utbetalning') {
     return {
-      credit: 1630,
       debit: 1930,
+      credit: 1630,
       description: 'Utbetalning',
     }
   }
 
   if (description.startsWith('Moms ')) {
     return {
-      credit: 1630,
       debit: 2650, // Redovisningskonto för moms
+      credit: 1630,
       description: 'Dragning av moms',
     }
   }
@@ -92,32 +92,32 @@ function taxAccountMap(description: string): {
    */
   if (/^Beslut \d{6} moms /.test(description)) {
     return {
-      credit: 1630,
       debit: 2650, // Redovisningskonto för moms
+      credit: 1630,
       description: 'Beslut moms',
     }
   }
 
   if (description.startsWith('Arbetsgivaravgift ')) {
     return {
-      credit: 1630,
       debit: 2731, // Avräkning lagstadgade sociala avgifter
+      credit: 1630,
       description: 'Arbetsgivaravgift',
     }
   }
 
   if (/^(Avdragen skatt|Beslut \d{6} avdragen skatt)/.test(description)) {
     return {
-      credit: 1630,
       debit: 2710, // Personalskatt
+      credit: 1630,
       description: 'Personalskatt',
     }
   }
 
   if (description === 'Slutlig skatt') {
     return {
-      credit: 1630,
       debit: 2510,
+      credit: 1630,
       description: 'Slutlig skatt',
     }
   }

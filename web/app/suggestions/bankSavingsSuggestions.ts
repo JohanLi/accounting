@@ -38,8 +38,8 @@ export async function getBankSavingsSuggestions() {
       }
 
       const transactions = [
-        { accountId: 1930, amount: -transaction.amount },
         { accountId: 1931, amount: transaction.amount },
+        { accountId: 1930, amount: -transaction.amount },
       ]
 
       const linkedToTransactionIds = [

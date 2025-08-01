@@ -17,6 +17,19 @@ import {
   Transactions,
 } from './schema'
 
+function sortTransactions(transactions: Transaction[]): Transaction[] {
+  return transactions.sort((a, b) => {
+    const aIsDebit = a.amount >= 0
+    const bIsDebit = b.amount >= 0
+
+    if (aIsDebit !== bIsDebit) {
+      return aIsDebit ? -1 : 1
+    }
+
+    return a.accountId - b.accountId
+  })
+}
+
 export type Transaction = {
   accountId: number
   amount: number
@@ -81,6 +94,7 @@ export async function getJournalEntries({
 
     return {
       ...j,
+      transactions: sortTransactions(j.transactions),
       linkNotApplicable,
     }
   })
