@@ -85,7 +85,7 @@ function LinkForm({
       {transactions && checkedTransactionIds && (
         <PopoverPanel className="absolute left-20 top-1/2 w-screen max-w-lg -translate-y-1/2 transform">
           {({ close }) => (
-            <div className="overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+            <div className="overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black/5">
               {transactionTypes.map((transactionType) => {
                 const transactionsOfType = transactions.filter(
                   (t) => t.type === transactionType,

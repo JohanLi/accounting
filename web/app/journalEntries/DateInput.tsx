@@ -21,7 +21,7 @@ export function DateInput(props: Props) {
       type="date"
       value={props.value}
       onChange={(e) => props.onChange(e.target.value)}
-      className="w-32 block rounded-md border-0 py-1.5 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
+      className="w-32 block rounded-md border-0 py-1.5 text-sm text-gray-900 shadow-xs ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
     />
   )
 }

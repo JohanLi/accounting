@@ -16,10 +16,14 @@
       "@types/react-dom": "19.0.2"
     },
     "onlyBuiltDependencies": [
+      "@parcel/watcher",
       "@swc/core",
+      "@tailwindcss/oxide",
+      "esbuild",
       "lmdb",
       "msgpackr-extract",
-      "sharp"
+      "sharp",
+      "unrs-resolver"
     ]
   }
 }
