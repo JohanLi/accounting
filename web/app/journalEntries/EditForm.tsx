@@ -55,15 +55,15 @@ export default function EditForm({ journalEntry, onClose }: Props) {
                     value={transaction.accountId.toString()}
                     onChange={(value) => {
                       setTransactions(
-                        transactions.map((transaction) => {
-                          if (transaction.accountId === transaction.accountId) {
+                        transactions.map((t) => {
+                          if (t.accountId === transaction.accountId) {
                             return {
-                              ...transaction,
+                              ...t,
                               accountId: parseInt(value),
                             }
                           }
 
-                          return transaction
+                          return t
                         }),
                       )
                     }}
@@ -74,15 +74,15 @@ export default function EditForm({ journalEntry, onClose }: Props) {
                     value={transaction.amount}
                     onChange={(amount) => {
                       setTransactions(
-                        transactions.map((transaction) => {
-                          if (transaction.accountId === transaction.accountId) {
+                        transactions.map((t) => {
+                          if (t.accountId === transaction.accountId) {
                             return {
-                              ...transaction,
+                              ...t,
                               amount,
                             }
                           }
 
-                          return transaction
+                          return t
                         }),
                       )
                     }}
