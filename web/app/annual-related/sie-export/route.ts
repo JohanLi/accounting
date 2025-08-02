@@ -2,7 +2,7 @@
   The format is SIE 4E, described here:
   https://sie.se/wp-content/uploads/2020/05/SIE_filformat_ver_4B_080930.pdf
 
-  This export is necessary, because I plan to submit FY 2023 through
+  This export is necessary, because I plan to submit FY2023 through
   a third-party service. That service functions a bit like an additional
   sanity check.
  */

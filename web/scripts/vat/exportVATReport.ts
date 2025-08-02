@@ -19,6 +19,7 @@
 import { eq, ne } from 'drizzle-orm'
 import fs from 'fs/promises'
 import { dirname } from 'path'
+import readline from 'readline'
 
 import { getTotals } from '../../app/accountTotals/getAccountTotals'
 import {
@@ -40,16 +41,70 @@ import { getXML } from './getXML'
   make sure 1650 is non-negative.
  */
 
-const FISCAL_YEAR = 2025
-const QUARTER = 1
+export function getPreviousFiscalYearQuarter(): {
+  fiscalYear: number
+  quarter: number
+} {
+  const now = new Date()
+  const fiscalYearStartMonth = 6
 
+  const month = now.getMonth()
+  const year = now.getFullYear()
+
+  const fiscalMonth = (month + 12 - fiscalYearStartMonth) % 12
+  const quarter = Math.floor(fiscalMonth / 3) + 1
+
+  let fiscalYear
+  let previousQuarter = quarter - 1
+
+  if (month < 6) {
+    fiscalYear = year
+  } else {
+    fiscalYear = year + 1
+  }
+
+  if (previousQuarter === 0) {
+    previousQuarter = 4
+    fiscalYear -= 1
+  }
+
+  return {
+    fiscalYear,
+    quarter: previousQuarter,
+  }
+}
+
+function promptInput(query: string, defaultValue: number) {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  })
+
+  return new Promise<number>((resolve) => {
+    rl.question(`${query} [${defaultValue}]: `, (answer) => {
+      rl.close()
+      resolve(parseInt(answer.trim()) || defaultValue)
+    })
+  })
+}
+
+/*
+  TODO
+    an E2E test to consider is generating VAT reports for FY2024 and FY2025,
+    and comparing the generated XML files and journal entries.
+ */
 async function main() {
+  const { fiscalYear, quarter } = getPreviousFiscalYearQuarter()
+
+  const inputFiscalYear = await promptInput('Enter fiscal year', fiscalYear)
+  const inputQuarter = await promptInput('Enter quarter (1–4)', quarter)
+
   const { startInclusive, endInclusive, endExclusive } = getFiscalYearQuarter(
-    FISCAL_YEAR,
-    QUARTER,
+    inputFiscalYear,
+    inputQuarter,
   )
 
-  const journalEntryDescription = `Momsredovisning ${FISCAL_YEAR} Q${QUARTER}`
+  const journalEntryDescription = `Momsredovisning FY${inputFiscalYear} Q${inputQuarter}`
 
   console.log(journalEntryDescription)
 
@@ -96,7 +151,7 @@ async function main() {
 
   await updateJournalEntry(vatReportJournalEntry)
 
-  const path = `${__dirname}/output/${FISCAL_YEAR}-q${QUARTER}.xml`
+  const path = `${__dirname}/output/${inputFiscalYear}-q${inputQuarter}.xml`
   await fs.mkdir(dirname(path), { recursive: true })
   await fs.writeFile(path, xml)
 
@@ -105,7 +160,9 @@ async function main() {
   process.exit(0)
 }
 
-main().catch((e) => {
-  console.error(e)
-  process.exit(1)
-})
+if (require.main === module) {
+  main().catch((e) => {
+    console.error(e)
+    process.exit(1)
+  })
+}

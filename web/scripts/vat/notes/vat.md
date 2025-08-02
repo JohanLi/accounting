@@ -12,7 +12,7 @@ Sources:
 
 VAT returns/declarations are done every month, quarter, or year depending
 on revenue. When I started the company, I only had to do it yearly. After
-FY 2023, it'll be done quarterly.
+FY2023, it'll be done quarterly.
 
 #### VAT return journal entry
 

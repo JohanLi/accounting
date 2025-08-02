@@ -31,9 +31,9 @@ and Skatteverket will adjust the amount deducted accordingly.
 
 Some time after you've submitted your annual report (actually, it's Inkomstdeklaration 2), Skatteverket will
 return all your paid preliminary tax to your tax account. I haven't figured out exactly when this happens.
-Funnily enough, for FY 2022, this transaction occurred as late as FY 2024.
+Funnily enough, for FY2022, this transaction occurred as late as FY2024.
 
 **Slutlig skatt**
 
-On the same day, provided you have corporate tax to pay (which I didn't in FY 2021),
+On the same day, provided you have corporate tax to pay (which I didn't in FY2021),
 Skatteverket deducts the full amount of your corporate tax from your tax account as.

@@ -9,7 +9,7 @@ export async function getPaidPreliminaryTax(fiscalYear: number) {
 
   /*
    Preliminary tax is shifted one month forward. E.g., the installment for June 2023, which is the final month of
-   FY 2023, is paid in July 2023.
+   FY2023, is paid in July 2023.
    */
   const startInclusive = new Date(currentFiscalYear.startInclusive)
   startInclusive.setMonth(startInclusive.getMonth() + 1)
