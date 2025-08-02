@@ -9,6 +9,11 @@ import { Accounts } from '../../app/schema'
 async function main() {
   await migrate(db, { migrationsFolder: 'drizzle' })
 
+  /*
+    TODO
+      - check DB and application code for unused accounts
+      - Look into Typescript support
+   */
   await db
     .insert(Accounts)
     .values([
@@ -127,6 +132,10 @@ async function main() {
       {
         id: 4535,
         description: 'Inköp av tjänster från annat EU-land 25%',
+      },
+      {
+        id: 5010,
+        description: 'Lokalhyra',
       },
       {
         id: 5410,

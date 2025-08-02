@@ -45,8 +45,13 @@ export const categories: Category[] = [
     vatRate: '0',
   },
   {
+    name: 'Lokalhyra (25%)',
+    debitAccountId: 5010,
+    vatRate: '0.25',
+  },
+  {
     name: 'Kost och logi (12%)',
-    debitAccountId: 6550,
+    debitAccountId: 5831,
     vatRate: '0.12',
   },
   {
