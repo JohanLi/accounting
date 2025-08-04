@@ -2,6 +2,7 @@ import { and, asc, eq, isNull, like } from 'drizzle-orm'
 
 import db from '../db'
 import { Transactions } from '../schema'
+import { Transaction } from '../getJournalEntries'
 
 export async function getPaidInvoiceSuggestions() {
   const insuranceProviderTransactions = await db
@@ -20,7 +21,7 @@ export async function getPaidInvoiceSuggestions() {
     const transactions = [
       { accountId: 1930, amount: transaction.amount },
       { accountId: 1510, amount: -transaction.amount },
-    ]
+    ] satisfies Transaction[]
 
     const linkedToTransactionIds = [transaction.id]
 

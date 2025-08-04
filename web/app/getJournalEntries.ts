@@ -16,6 +16,7 @@ import {
   JournalEntryTransactions,
   Transactions,
 } from './schema'
+import { AccountCode } from './types'
 
 function sortTransactions(transactions: Transaction[]): Transaction[] {
   return transactions.sort((a, b) => {
@@ -31,7 +32,7 @@ function sortTransactions(transactions: Transaction[]): Transaction[] {
 }
 
 export type Transaction = {
-  accountId: number
+  accountId: AccountCode
   amount: number
 }
 

@@ -2,6 +2,7 @@
 
 import { updateJournalEntry } from '../actions/updateJournalEntry'
 import { SALARY_ACCOUNT_ID, getSalaryTaxes } from '../tax'
+import { Transaction } from '../getJournalEntries'
 
 export async function create(amount: number) {
   const { preliminaryIncomeTax, payrollTax } = getSalaryTaxes(amount)
@@ -27,7 +28,7 @@ export async function create(amount: number) {
       accountId: 7510, // Arbetsgivaravgifter
       amount: payrollTax,
     },
-  ]
+  ] satisfies Transaction[]
 
   const journalEntry = {
     date: new Date(),

@@ -13,6 +13,7 @@ import { and, asc, eq, isNull } from 'drizzle-orm'
 
 import db from '../db'
 import { Transactions } from '../schema'
+import { Transaction } from '../getJournalEntries'
 
 // set this to the first receipt
 const DOCUMENT_ID = null
@@ -34,7 +35,7 @@ export async function getInsuranceSuggestions() {
     const transactions = [
       { accountId: 6310, amount: transaction.amount },
       { accountId: 1930, amount: -transaction.amount },
-    ]
+    ] satisfies Transaction[]
 
     const linkedToTransactionIds = [transaction.id]
 

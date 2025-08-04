@@ -28,6 +28,7 @@ import {
 } from '../../app/actions/updateJournalEntry'
 import db from '../../app/db'
 import { JournalEntries } from '../../app/schema'
+import { AccountCode, chartOfAccounts } from '../../app/types'
 import { getFiscalYearQuarter } from '../../app/utils'
 import { getJournalEntryTransactions } from './getJournalEntryTransactions'
 import { getXML } from './getXML'
@@ -88,6 +89,10 @@ function promptInput(query: string, defaultValue: number) {
   })
 }
 
+function isKnownAccountCode(id: number): id is AccountCode {
+  return id in chartOfAccounts
+}
+
 /*
   TODO
     an E2E test to consider is generating VAT reports for FY2024 and FY2025,
@@ -108,11 +113,15 @@ async function main() {
 
   console.log(journalEntryDescription)
 
-  const accounts = await getTotals({
-    startInclusive,
-    endExclusive,
-    where: ne(JournalEntries.description, journalEntryDescription),
-  })
+  const accounts = (
+    await getTotals({
+      startInclusive,
+      endExclusive,
+      where: ne(JournalEntries.description, journalEntryDescription),
+    })
+  ).filter((a): a is { id: AccountCode; amount: number } =>
+    isKnownAccountCode(a.id),
+  )
 
   /*
     When dealing with Skatteverket, all decimals are supposed to be truncated. For VAT, my understanding

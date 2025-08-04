@@ -16,6 +16,7 @@ import DocumentLink from '../journalEntries/DocumentLink'
 import { JournalEntryTransactions } from '../journalEntries/JournalEntryTransactions'
 import { TextInput } from '../journalEntries/TextInput'
 import { Transactions } from '../schema'
+import { AccountCode } from '../types'
 
 export type VatRate = '0' | '0.06' | '0.12' | '0.25'
 
@@ -23,12 +24,12 @@ export type Category = {
   name: string
 } & (
   | {
-      debitAccountId: number
+      debitAccountId: AccountCode
       vatRate: VatRate
       reverseCharge?: true
     }
   | {
-      creditAccountId: number
+      creditAccountId: AccountCode
       vatRate: Extract<VatRate, '0'>
     }
 )

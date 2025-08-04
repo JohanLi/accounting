@@ -5,6 +5,7 @@ import { TextContent } from 'pdfjs-dist/types/src/display/api'
 import { JournalEntryUpdate } from './actions/updateJournalEntry'
 import { Transaction } from './getJournalEntries'
 import { krToOre } from './utils'
+import { AccountCode } from './types'
 
 // https://github.com/vercel/next.js/issues/58313#issuecomment-1807184812
 // @ts-expect-error pdf.js hack
@@ -46,8 +47,8 @@ type VatRate = '0.25' | '0.12' | '0.06' | '0'
 
 const characterizations: {
   [key in Characterization]: {
-    debit: number
-    credit: number
+    debit: AccountCode
+    credit: AccountCode
     vatRate: VatRate
   }
 } = {

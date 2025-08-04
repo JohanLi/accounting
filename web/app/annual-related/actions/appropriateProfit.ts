@@ -1,6 +1,7 @@
 'use server'
 
 import { updateJournalEntry } from '../../actions/updateJournalEntry'
+import { Transaction } from '../../getJournalEntries'
 
 export async function appropriateProfit(
   profit: number,
@@ -30,7 +31,7 @@ export async function appropriateProfit(
         accountId: 2898,
         amount: -dividendAmount,
       },
-    ],
+    ] satisfies Transaction[],
     linkedToTransactionIds: [],
   }
 
@@ -52,7 +53,7 @@ export async function appropriateProfit(
         accountId: 2898,
         amount: dividendAmount,
       },
-    ],
+    ] satisfies Transaction[],
     linkedToTransactionIds: [],
   }
 

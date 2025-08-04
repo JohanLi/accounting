@@ -27,6 +27,7 @@ type Props = {
   onClose: () => void
 }
 
+// TODO consider if this form is worth keeping as it's almost never used to warrant a UI
 export default function EditForm({ journalEntry, onClose }: Props) {
   const router = useRouter()
 
@@ -55,6 +56,7 @@ export default function EditForm({ journalEntry, onClose }: Props) {
                     value={transaction.accountId.toString()}
                     onChange={(value) => {
                       setTransactions(
+                        // @ts-expect-error TODO allow non-recognized AccountCodes but validate on submit
                         transactions.map((t) => {
                           if (t.accountId === transaction.accountId) {
                             return {

@@ -4,7 +4,7 @@ import { and, eq } from 'drizzle-orm'
 
 import { updateJournalEntry } from '../../actions/updateJournalEntry'
 import { DESCRIPTIONS } from '../../descriptions'
-import { getJournalEntries } from '../../getJournalEntries'
+import { getJournalEntries, Transaction } from '../../getJournalEntries'
 import { JournalEntries } from '../../schema'
 import { getFiscalYear } from '../../utils'
 
@@ -42,7 +42,7 @@ export async function submitProfitAndTax({
         accountId: 8910,
         amount: corporateTax,
       },
-    ],
+    ] satisfies Transaction[],
     linkedToTransactionIds: [],
   }
 
@@ -66,7 +66,7 @@ export async function submitProfitAndTax({
         accountId: 8999,
         amount: profitAfterTax,
       },
-    ],
+    ] satisfies Transaction[],
     linkedToTransactionIds: [],
   }
 
@@ -90,7 +90,7 @@ export async function submitProfitAndTax({
         accountId: 2099,
         amount: profitAfterTax,
       },
-    ],
+    ] satisfies Transaction[],
     linkedToTransactionIds: [],
   }
 

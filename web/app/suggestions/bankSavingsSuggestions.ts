@@ -2,6 +2,7 @@ import { and, asc, eq, isNull } from 'drizzle-orm'
 
 import db from '../db'
 import { Transactions } from '../schema'
+import { Transaction } from '../getJournalEntries'
 
 const INTEREST_DESCRIPTION = 'RÄNTA'
 
@@ -40,7 +41,7 @@ export async function getBankSavingsSuggestions() {
       const transactions = [
         { accountId: 1931, amount: transaction.amount },
         { accountId: 1930, amount: -transaction.amount },
-      ]
+      ] satisfies Transaction[]
 
       const linkedToTransactionIds = [
         transaction.id,
@@ -64,7 +65,7 @@ export async function getBankSavingsSuggestions() {
       transactions: [
         { accountId: 1931, amount: transaction.amount },
         { accountId: 8310, amount: -transaction.amount },
-      ],
+      ] satisfies Transaction[],
       linkedToTransactionIds: [transaction.id],
     }))
 

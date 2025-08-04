@@ -3,10 +3,11 @@ import { InferInsertModel, and, eq } from 'drizzle-orm'
 import db from '../db'
 import { Transactions } from '../schema'
 import { getTaxTransactions } from './getTaxTransactions'
+import { AccountCode } from '../types'
 
 function taxAccountMap(description: string): {
-  debit: number
-  credit: number
+  debit: AccountCode
+  credit: AccountCode
   description: string
   searchForBankTransaction?: true
 } | null {

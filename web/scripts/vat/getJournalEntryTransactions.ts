@@ -1,11 +1,13 @@
 // this isn't an exhaustive list – for outgoing VAT, I've only included the 25% rate
+import { AccountCode } from '../../app/types'
+
 const VAT_ACCOUNT_IDS = [2610, 2614, 2640, 2645]
 
 export function getJournalEntryTransactions({
   accounts,
   vatTotalTruncated,
 }: {
-  accounts: { id: number; amount: number }[]
+  accounts: { id: AccountCode; amount: number }[]
   vatTotalTruncated: number
 }) {
   const vatAccounts = accounts.filter((a) => VAT_ACCOUNT_IDS.includes(a.id))
