@@ -6,9 +6,9 @@ import { krToOre } from '../../utils'
 import {
   getExternalId,
   getTransactionsForLinkForm,
-  transactionsSchema,
   taxTransactionsSchema,
   throwIfWrongSequence,
+  transactionsSchema,
 } from './transactions'
 
 export async function GET(request: Request) {

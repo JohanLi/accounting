@@ -1,10 +1,14 @@
 import { Page, expect, test } from '@playwright/test'
-import { TransactionsType, TaxTransactions } from '../app/api/transactions/transactions'
+
+import {
+  TaxTransactions,
+  TransactionsType,
+} from '../app/api/transactions/transactions'
 import { truncateDb } from './utils'
 
 test.afterAll(() => {
   truncateDb()
-});
+})
 
 export async function expectLatestTransaction(
   page: Page,

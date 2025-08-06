@@ -62,7 +62,9 @@ test.describe('handling invoices using Fakturametoden', () => {
 
     await page.goto('/journalEntries')
 
-    await page.locator('label:has-text("FY") button[aria-haspopup="menu"]').click()
+    await page
+      .locator('label:has-text("FY") button[aria-haspopup="menu"]')
+      .click()
 
     await page.getByRole('menuitem', { name: '2025' }).click()
 
@@ -132,7 +134,9 @@ test.describe('handling invoices using Fakturametoden', () => {
 
     await page.goto('/journalEntries')
 
-    await page.locator('label:has-text("FY") button[aria-haspopup="menu"]').click()
+    await page
+      .locator('label:has-text("FY") button[aria-haspopup="menu"]')
+      .click()
 
     await page.getByRole('menuitem', { name: '2025' }).click()
 
@@ -145,11 +149,13 @@ test.describe('handling invoices using Fakturametoden', () => {
           ['1930', '200 000'],
           ['1510', '-200 000'],
         ],
-        linkedTransactions: [{
-          date: '2025-04-14',
-          description: 'BG 1234-5678',
-          amount: '200 000'
-        }]
+        linkedTransactions: [
+          {
+            date: '2025-04-14',
+            description: 'BG 1234-5678',
+            amount: '200 000',
+          },
+        ],
       },
       0,
     )
@@ -163,11 +169,13 @@ test.describe('handling invoices using Fakturametoden', () => {
           ['1930', '160 000'],
           ['1510', '-160 000'],
         ],
-        linkedTransactions: [{
-          date: '2025-03-17',
-          description: 'BG 1234-5678',
-          amount: '160 000'
-        }]
+        linkedTransactions: [
+          {
+            date: '2025-03-17',
+            description: 'BG 1234-5678',
+            amount: '160 000',
+          },
+        ],
       },
       1,
     )

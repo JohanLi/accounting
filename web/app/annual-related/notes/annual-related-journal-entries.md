@@ -2,7 +2,7 @@
 
 On the last day of a given fiscal year, two journal entries need to be created:
 
-- **Skatt på årets resultat** Move 2510 to 8910 (Skatt som belastar årets resultat). This assumes you've calculated the corporate tax, 
+- **Skatt på årets resultat** Move 2510 to 8910 (Skatt som belastar årets resultat). This assumes you've calculated the corporate tax,
   which is often done together with the annual report.
 - **Årets resultat** Move 2099 to 8999.
 

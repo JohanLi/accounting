@@ -1,8 +1,8 @@
 import { and, asc, eq, isNull, like } from 'drizzle-orm'
 
 import db from '../db'
-import { Transactions } from '../schema'
 import { Transaction } from '../getJournalEntries'
+import { Transactions } from '../schema'
 
 export async function getPaidInvoiceSuggestions() {
   const insuranceProviderTransactions = await db

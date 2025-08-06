@@ -4,8 +4,8 @@ import { TextContent } from 'pdfjs-dist/types/src/display/api'
 
 import { JournalEntryUpdate } from './actions/updateJournalEntry'
 import { Transaction } from './getJournalEntries'
-import { krToOre } from './utils'
 import { AccountCode } from './types'
+import { krToOre } from './utils'
 
 // https://github.com/vercel/next.js/issues/58313#issuecomment-1807184812
 // @ts-expect-error pdf.js hack
@@ -206,15 +206,15 @@ export async function getRecognizedDocument(
 }
 
 function getEarliestAndLatestDate(dates: Date[]) {
-  let earliest = dates[0];
-  let latest = dates[0];
+  let earliest = dates[0]
+  let latest = dates[0]
 
   for (const date of dates) {
-    if (date < earliest) earliest = date;
-    if (date > latest) latest = date;
+    if (date < earliest) earliest = date
+    if (date > latest) latest = date
   }
 
-  return { earliest, latest };
+  return { earliest, latest }
 }
 
 function unique<T>(array: T[]) {

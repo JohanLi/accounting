@@ -1,8 +1,10 @@
 import { H2 } from '../components/common/heading'
 import {
   DateOrAccountCodeTh,
-  DescriptionTh, DocumentTh,
-  EditTh, LinkedTh,
+  DescriptionTh,
+  DocumentTh,
+  EditTh,
+  LinkedTh,
   Table,
   TableBody,
   TableHeader,

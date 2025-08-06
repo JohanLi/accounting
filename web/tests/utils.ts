@@ -70,11 +70,15 @@ export async function expectSuggestion(
     }),
   )
 
-  await expect(journalEntryForm.locator('a:has(svg[data-slot="icon"])')).toHaveAttribute('href', /\/api\/documents\?id=\d+/);
+  await expect(
+    journalEntryForm.locator('a:has(svg[data-slot="icon"])'),
+  ).toHaveAttribute('href', /\/api\/documents\?id=\d+/)
 }
 
 export async function submitSuggestion(page: Page, index = 0) {
-  const journalEntryForms = page.locator('div:has(h2:has-text("Suggestions")) [role="row"]:has(input[type="date"])')
+  const journalEntryForms = page.locator(
+    'div:has(h2:has-text("Suggestions")) [role="row"]:has(input[type="date"])',
+  )
   const initialCount = await journalEntryForms.count()
 
   await journalEntryForms.nth(index).locator('button[type="submit"]').click()

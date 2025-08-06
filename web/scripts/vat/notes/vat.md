@@ -8,6 +8,7 @@ Treated as a debt to Skatteverket.
 is what you get back from Skatteverket/it's treated as a credit.
 
 Sources:
+
 - https://www.fortnox.se/fortnox-foretagsguide/bokforingstips/moms
 
 VAT returns/declarations are done every month, quarter, or year depending
@@ -36,6 +37,7 @@ when reporting VAT, and that it may look strange in the annual report.
 accounts that are supposed to always be positive or negative.)
 
 Sources:
+
 - https://foretagande.se/forum/bokforing-skatter-och-foretagsformer/72818-moms-1650-mot-2650
 - https://foretagande.se/forum/bokforing-skatter-och-foretagsformer/72811-hur-bokfora-aterbetalning-av-skatterattelse-pa-moms
 - https://forum.vismaspcs.se/t5/Fragor-om-bokforing/Omfora-moms-fran-2650-till-1650-vid-bokslut/td-p/113024

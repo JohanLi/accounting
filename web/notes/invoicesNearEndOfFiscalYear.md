@@ -10,7 +10,7 @@ Kontantmetoden is convenient as it allows you to skip the invoice entry.
 When invoice is created:
 
 | Account | Amount |
-|---------|--------|
+| ------- | ------ |
 | 1510    | 20000  |
 | 2610    | -4000  |
 | 3011    | -16000 |
@@ -18,7 +18,7 @@ When invoice is created:
 When invoice is paid:
 
 | Account | Amount |
-|---------|--------|
+| ------- | ------ |
 | 1930    | 20000  |
 | 1510    | -20000 |
 
@@ -27,7 +27,7 @@ When invoice is paid:
 When paid:
 
 | Account | Amount |
-|---------|--------|
+| ------- | ------ |
 | 1930    | 20000  |
 | 2610    | -4000  |
 | 3011    | -16000 |
@@ -52,7 +52,7 @@ the quarterly VAT reports are more even:
 #### Fakturametoden
 
 | Quarter | Invoices |
-|---------|----------|
+| ------- | -------- |
 | 1       | 4        |
 | 2       | 4        |
 | 3       | 4        |
@@ -61,7 +61,7 @@ the quarterly VAT reports are more even:
 #### Kontantmetoden
 
 | Quarter | Invoices |
-|---------|----------|
+| ------- | -------- |
 | 1       | 2        |
 | 2       | 4        |
 | 3       | 4        |

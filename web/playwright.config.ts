@@ -3,7 +3,7 @@ import { defineConfig, devices } from '@playwright/test'
 const PORT = process.env.PORT
 
 if (!PORT) {
-  throw new Error('PORT is not set');
+  throw new Error('PORT is not set')
 }
 
 export default defineConfig({

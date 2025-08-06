@@ -1,8 +1,8 @@
 'use server'
 
 import { updateJournalEntry } from '../actions/updateJournalEntry'
-import { SALARY_ACCOUNT_ID, getSalaryTaxes } from '../tax'
 import { Transaction } from '../getJournalEntries'
+import { SALARY_ACCOUNT_ID, getSalaryTaxes } from '../tax'
 
 export async function create(amount: number) {
   const { preliminaryIncomeTax, payrollTax } = getSalaryTaxes(amount)

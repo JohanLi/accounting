@@ -4,7 +4,7 @@ import { and, eq } from 'drizzle-orm'
 
 import { updateJournalEntry } from '../../actions/updateJournalEntry'
 import { DESCRIPTIONS } from '../../descriptions'
-import { getJournalEntries, Transaction } from '../../getJournalEntries'
+import { Transaction, getJournalEntries } from '../../getJournalEntries'
 import { JournalEntries } from '../../schema'
 import { getFiscalYear } from '../../utils'
 

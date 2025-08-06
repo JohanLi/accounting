@@ -1,8 +1,8 @@
 import { ReactNode } from 'react'
 
 import { NextPageProps } from '../../types'
-import SelectClient from './SelectClient'
 import { getSearchParam } from '../../utils'
+import SelectClient from './SelectClient'
 
 type Props<T> = {
   searchParams: Awaited<NextPageProps['searchParams']>
@@ -17,9 +17,8 @@ export function getSelect<T extends string | number>(
   const value = getSearchParam(props.searchParams, props.name)
 
   const selectedValue =
-    ((typeof props.defaultValue === 'number'
-      ? parseInt(value)
-      : value) as T) || props.defaultValue
+    ((typeof props.defaultValue === 'number' ? parseInt(value) : value) as T) ||
+    props.defaultValue
 
   return [
     selectedValue,

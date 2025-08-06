@@ -102,9 +102,7 @@ function LinkForm({
                       <div
                         key={transaction.id}
                         onClick={() => {
-                          if (
-                            checkedTransactionIds.includes(transaction.id)
-                          ) {
+                          if (checkedTransactionIds.includes(transaction.id)) {
                             setCheckedTransactionIds(
                               checkedTransactionIds.filter(
                                 (id) => id !== transaction.id,
@@ -128,9 +126,7 @@ function LinkForm({
                         <DateOrAccountCodeTd>
                           <DateFormatted date={transaction.date} />
                         </DateOrAccountCodeTd>
-                        <DescriptionTd>
-                          {transaction.description}
-                        </DescriptionTd>
+                        <DescriptionTd>{transaction.description}</DescriptionTd>
                         <AmountTd>
                           <Amount amount={transaction.amount} />
                         </AmountTd>

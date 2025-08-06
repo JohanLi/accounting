@@ -12,8 +12,8 @@
 import { and, asc, eq, isNull } from 'drizzle-orm'
 
 import db from '../db'
-import { Transactions } from '../schema'
 import { Transaction } from '../getJournalEntries'
+import { Transactions } from '../schema'
 
 // set this to the first receipt
 const DOCUMENT_ID = null

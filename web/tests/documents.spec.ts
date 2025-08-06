@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-import { sendDocuments, expectSuggestion, truncateDb } from './utils'
+import { expectSuggestion, sendDocuments, truncateDb } from './utils'
 
 /*
   Gotcha: if a test fails, afterAll() is actually run before the next test starts.
@@ -9,13 +9,16 @@ import { sendDocuments, expectSuggestion, truncateDb } from './utils'
  */
 test.afterAll(() => {
   truncateDb()
-});
+})
 
 test('when known documents are received, a suggestion is created', async ({
   page,
   request,
 }) => {
-  await sendDocuments(['bank.pdf', 'invoice.pdf', 'mobileProvider.pdf'], request)
+  await sendDocuments(
+    ['bank.pdf', 'invoice.pdf', 'mobileProvider.pdf'],
+    request,
+  )
 
   await page.goto('/')
 
@@ -67,10 +70,10 @@ test("when receiving a document that already exists, a new one isn't created", a
   await sendDocuments(['invoice.pdf'], request)
 
   const response = await sendDocuments(['invoice.pdf'], request)
-  expect(response.ok()).toBe(true);
-  const data = await response.json();
+  expect(response.ok()).toBe(true)
+  const data = await response.json()
 
-  expect(data).toEqual([]);
+  expect(data).toEqual([])
 })
 
 test('loading documents both as a PDF and as extracted strings', async ({
@@ -78,10 +81,10 @@ test('loading documents both as a PDF and as extracted strings', async ({
 }) => {
   let response = await sendDocuments(['jetbrainsWebstorm.pdf'], request)
 
-  expect(response.ok()).toBe(true);
-  const data = await response.json();
+  expect(response.ok()).toBe(true)
+  const data = await response.json()
 
-  const id = data[0].id;
+  const id = data[0].id
 
   response = await request.get(`/api/documents?id=${id}`)
   expect(response.headers()['content-type']).toEqual('application/pdf')
