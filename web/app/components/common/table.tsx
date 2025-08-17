@@ -93,7 +93,7 @@ export function DateOrAccountCodeTh({ children }: { children: ReactNode }) {
 
 export function DateOrAccountCodeTd({ children }: { children: ReactNode }) {
   return (
-    <div role="cell" className="whitespace-nowrap w-32 text-xs text-gray-500">
+    <div role="cell" className="w-32 text-xs whitespace-nowrap text-gray-500">
       {children}
     </div>
   )
@@ -105,7 +105,7 @@ export function DateOrAccountCodeTdEditable({
   children: ReactNode
 }) {
   return (
-    <div role="cell" className="whitespace-nowrap w-36 text-xs text-gray-500">
+    <div role="cell" className="w-36 text-xs whitespace-nowrap text-gray-500">
       {children}
     </div>
   )
@@ -126,7 +126,7 @@ export function DescriptionTd({ children }: { children: ReactNode }) {
   return (
     <div
       role="cell"
-      className="whitespace-nowrap flex-1 pr-6 text-sm font-medium text-gray-900"
+      className="flex-1 pr-6 text-sm font-medium whitespace-nowrap text-gray-900"
     >
       {children}
     </div>
@@ -146,7 +146,7 @@ export function TransactionsTh({ children }: { children: ReactNode }) {
 
 export function TransactionsTd({ children }: { children: ReactNode }) {
   return (
-    <div role="cell" className="whitespace-nowrap w-44 text-sm text-gray-500">
+    <div role="cell" className="w-44 text-sm whitespace-nowrap text-gray-500">
       {children}
     </div>
   )
@@ -165,7 +165,7 @@ export function AmountTh({ children }: { children: ReactNode }) {
 
 export function AmountTd({ children }: { children: ReactNode }) {
   return (
-    <div role="cell" className="whitespace-nowrap w-32 text-right text-sm">
+    <div role="cell" className="w-32 text-right text-sm whitespace-nowrap">
       {children}
     </div>
   )
@@ -179,7 +179,7 @@ export function DocumentTd({ children }: { children: ReactNode }) {
   return (
     <div
       role="cell"
-      className="w-12 whitespace-nowrap text-sm text-gray-500 text-right"
+      className="w-12 text-right text-sm whitespace-nowrap text-gray-500"
     >
       {children}
     </div>
@@ -194,7 +194,7 @@ export function LinkedTd({ children }: { children: ReactNode }) {
   return (
     <div
       role="cell"
-      className="whitespace-nowrap w-24 text-xs font-medium -my-3.5 flex justify-end"
+      className="-my-3.5 flex w-24 justify-end text-xs font-medium whitespace-nowrap"
     >
       {children}
     </div>

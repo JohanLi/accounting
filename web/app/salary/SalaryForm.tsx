@@ -28,7 +28,7 @@ export default function SalaryForm(props: Props) {
   const amountInvalid = amount <= 0 || amount > max
 
   return (
-    <div className="mb-24 mt-4">
+    <div className="mt-4 mb-24">
       {reachedLimit && (
         <div className="mt-4 max-w-md text-sm text-red-500">
           You have reached the annual salary limit of{' '}

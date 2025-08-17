@@ -31,7 +31,7 @@ export default async function Salary(props: NextPageProps) {
       <H1>Salary</H1>
       <div className="flex">
         <h2 className="flex w-64 justify-between">
-          <span className="text-base font-semibold leading-6 text-gray-900">
+          <span className="text-base leading-6 font-semibold text-gray-900">
             Income this year
           </span>
           <Amount amount={total} />

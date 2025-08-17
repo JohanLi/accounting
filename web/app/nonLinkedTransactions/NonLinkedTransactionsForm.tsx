@@ -206,7 +206,7 @@ export function NonLinkedTransactionsForm({
         {selectedCategory && transactions && (
           <>
             <div
-              className="inline-flex cursor-pointer items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
+              className="inline-flex cursor-pointer items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-gray-500/10 ring-inset"
               onClick={() => setSelectedCategory(undefined)}
             >
               {selectedCategory.name}

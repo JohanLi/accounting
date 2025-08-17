@@ -83,7 +83,7 @@ function LinkForm({
         <EditLinkButton open={open} />
       )}
       {transactions && checkedTransactionIds && (
-        <PopoverPanel className="absolute left-20 top-1/2 w-screen max-w-lg -translate-y-1/2 transform">
+        <PopoverPanel className="absolute top-1/2 left-20 w-screen max-w-lg -translate-y-1/2 transform">
           {({ close }) => (
             <div className="overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black/5">
               {transactionTypes.map((transactionType) => {
@@ -95,7 +95,7 @@ function LinkForm({
 
                 return (
                   <Fragment key={transactionType}>
-                    <div className="bg-gray-100 py-2 px-4 text-left text-sm font-semibold text-gray-900 sm:pl-3">
+                    <div className="bg-gray-100 px-4 py-2 text-left text-sm font-semibold text-gray-900 sm:pl-3">
                       {transactionTypeToLabel[transactionType]}
                     </div>
                     {transactionsOfType.map((transaction) => (
@@ -116,7 +116,7 @@ function LinkForm({
                           }
                         }}
                         className={classNames(
-                          'cursor-pointer flex items-center py-4 px-4',
+                          'flex cursor-pointer items-center px-4 py-4',
                           checkedTransactionIds.includes(transaction.id)
                             ? 'bg-yellow-100'
                             : '',

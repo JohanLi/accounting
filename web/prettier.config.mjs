@@ -8,8 +8,9 @@ const config = {
   importOrderSeparation: true,
   importOrderSortSpecifiers: true,
   plugins: [
-    'prettier-plugin-tailwindcss',
     '@trivago/prettier-plugin-sort-imports',
+    // has to be last, see: https://github.com/tailwindlabs/prettier-plugin-tailwindcss?tab=readme-ov-file#compatibility-with-other-prettier-plugins
+    'prettier-plugin-tailwindcss',
   ],
 }
 

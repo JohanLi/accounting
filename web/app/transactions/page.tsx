@@ -63,7 +63,7 @@ export default async function Transactions(props: NextPageProps) {
     <>
       <H1>Transactions</H1>
       <FilterTab />
-      <div className="mb-4 mt-8 flex justify-end space-x-4">
+      <div className="mt-8 mb-4 flex justify-end space-x-4">
         <LinkedFilterPill />
       </div>
       <div className="space-y-12">

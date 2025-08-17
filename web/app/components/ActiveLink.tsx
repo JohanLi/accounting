@@ -20,7 +20,7 @@ export default function ActiveLink({
         isActive
           ? 'bg-gray-800 text-white'
           : 'text-gray-400 hover:bg-gray-800 hover:text-white',
-        'group flex gap-x-3 rounded-md px-4 py-2 text-sm font-semibold leading-6',
+        'group flex gap-x-3 rounded-md px-4 py-2 text-sm leading-6 font-semibold',
       )}
       {...props}
     >

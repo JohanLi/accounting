@@ -58,7 +58,7 @@ export default function Nav() {
             </ul>
           </li>
           <li>
-            <div className="mb-2 text-xs font-semibold leading-6 text-gray-400">
+            <div className="mb-2 text-xs leading-6 font-semibold text-gray-400">
               Specialized tools
             </div>
             <ul role="list" className="-mx-2 space-y-2">

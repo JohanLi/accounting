@@ -3,7 +3,7 @@ import Decimal from 'decimal.js'
 
 import { NextPageProps } from './types'
 
-export function classNames(...classes: (string | undefined)[]) {
+export function classNames(...classes: (string | boolean | undefined)[]) {
   return classes.filter(Boolean).join(' ')
 }
 

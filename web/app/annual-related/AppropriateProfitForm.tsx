@@ -21,7 +21,7 @@ export default function AppropriateProfitForm(props: Props) {
   const amountInvalid = amount < 0 || amount > max
 
   return (
-    <div className="mb-24 mt-4">
+    <div className="mt-4 mb-24">
       <form
         action={() => {
           appropriateProfit(props.profitThisYear, amount).then(() => {

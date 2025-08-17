@@ -18,7 +18,7 @@ export default function ProfitAndTaxForm(props: SubmitProfitAndTax) {
   const router = useRouter()
 
   return (
-    <div className="mb-24 mt-4 space-y-2">
+    <div className="mt-4 mb-24 space-y-2">
       <form
         action={() => {
           submitProfitAndTax(props).then(() => {
