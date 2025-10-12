@@ -4,7 +4,6 @@ export function classNames(...classes: string[]) {
 
 export const COMPANY_START_DATE = '2020-10-01'
 
-// by ChatGPT
 export function getTomorrow() {
   const currentDate = new Date()
 
@@ -35,4 +34,15 @@ export function waitFor(selector: string, count: number = 1) {
       subtree: true,
     })
   })
+}
+
+export async function responseToBase64(response: Response): Promise<string> {
+  const blob = await response.blob()
+  const dataUrl: string = await new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onloadend = () => resolve(reader.result as string)
+    reader.onerror = reject
+    reader.readAsDataURL(blob)
+  })
+  return dataUrl.split(",", 2)[1]
 }

@@ -1,7 +1,9 @@
-import '~contents/style.css'
+import React, { ReactNode } from 'react'
+import ReactDOM from 'react-dom/client';
+import "@/assets/tailwind.css";
 
-export default function Popup() {
-  return (
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
     <div className="w-64 space-y-4 p-4">
       <div className="space-y-2">
         <h2 className="text-lg font-semibold leading-6 text-gray-900">
@@ -42,10 +44,10 @@ export default function Popup() {
         </ul>
       </div>
     </div>
-  )
-}
+  </React.StrictMode>,
+);
 
-function Link({ href, children }) {
+function Link({ href, children }: { href: string; children: ReactNode }) {
   return (
     <li>
       <a

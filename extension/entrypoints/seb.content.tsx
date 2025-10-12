@@ -11,21 +11,41 @@
   Invoices are found in Kundservice > Dokument & avtal
  */
 
-import cssText from 'data-text:./style.css'
-import type { PlasmoCSConfig } from 'plasmo'
+import ReactDOM from 'react-dom/client'
+import { COMPANY_START_DATE, getTomorrow } from '@/entrypoints/content/utils.ts'
+import Download from './content/download.tsx'
+import "@/assets/tailwind.css";
 
-import Download from '../download'
-import { COMPANY_START_DATE, getTomorrow } from '../utils'
-
-export const config: PlasmoCSConfig = {
+export default defineContentScript({
   matches: ['https://apps.seb.se/ccs/ibf/*'],
-}
+  cssInjectionMode: 'ui',
 
-export const getStyle = () => {
-  const style = document.createElement('style')
-  style.textContent = cssText
-  return style
-}
+  async main(ctx) {
+    const ui = await createShadowRootUi(ctx, {
+      name: 'download-ui',
+      position: 'inline',
+      anchor: 'body',
+      onMount: (container) => {
+        const app = document.createElement('div');
+        container.append(app);
+
+        const root = ReactDOM.createRoot(app);
+        root.render(
+          <Download
+            getDownloads={getDownloads}
+            requestInit={{ credentials: 'include' }}
+          />
+        );
+        return root;
+      },
+      onRemove: (root) => {
+        root?.unmount();
+      },
+    });
+
+    ui.mount();
+  },
+});
 
 type Document = {
   document_key: string
@@ -71,13 +91,4 @@ async function getDownloads() {
       url: `${API_BASE_URL}/pdf/${document.document_key}`,
       filename: `bookkeeping/seb/seb-${document.effective_date}.pdf`,
     }))
-}
-
-export default function Seb() {
-  return (
-    <Download
-      getDownloads={getDownloads}
-      requestInit={{ credentials: 'include' }}
-    />
-  )
 }

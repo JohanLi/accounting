@@ -1,18 +1,37 @@
-import cssText from 'data-text:./style.css'
-import type { PlasmoCSConfig } from 'plasmo'
+import ReactDOM from 'react-dom/client'
+import { waitFor } from '@/entrypoints/content/utils.ts'
+import Download from './content/download.tsx'
+import "@/assets/tailwind.css";
 
-import Download from '../download'
-import { waitFor } from '../utils'
-
-export const config: PlasmoCSConfig = {
+export default defineContentScript({
   matches: ['https://box.developersbay.se/profile/invoices'],
-}
+  cssInjectionMode: 'ui',
 
-export const getStyle = () => {
-  const style = document.createElement('style')
-  style.textContent = cssText
-  return style
-}
+  async main(ctx) {
+    const ui = await createShadowRootUi(ctx, {
+      name: 'download-ui',
+      position: 'inline',
+      anchor: 'body',
+      onMount: (container) => {
+        const app = document.createElement('div');
+        container.append(app);
+
+        const root = ReactDOM.createRoot(app);
+        root.render(
+          <Download
+            getDownloads={getDownloads}
+          />
+        );
+        return root;
+      },
+      onRemove: (root) => {
+        root?.unmount();
+      },
+    });
+
+    ui.mount();
+  },
+});
 
 /*
  After 2024, they changed the format of the invoices. This applies retroactively as well – downloading older invoices
@@ -59,8 +78,4 @@ async function getDownloads() {
     url: a.href,
     filename: `${a.getAttribute('download')}.pdf`,
   }))
-}
-
-export default function DevelopersBay() {
-  return <Download getDownloads={getDownloads} />
 }

@@ -2,21 +2,37 @@
   This will likely get replaced by Skatteverket's official API – application pending
  */
 
-import cssText from 'data-text:./style.css'
-import iconv from 'iconv-lite'
-import type { PlasmoCSConfig } from 'plasmo'
+import ReactDOM from 'react-dom/client'
+import "@/assets/tailwind.css";
+import DownloadTransactions from '@/entrypoints/content/downloadTransactions.tsx'
 
-import DownloadTransactions from '../downloadTransactions'
-
-export const config: PlasmoCSConfig = {
+export default defineContentScript({
   matches: ['https://sso.skatteverket.se/sk/ska/*'],
-}
+  cssInjectionMode: 'ui',
 
-export const getStyle = () => {
-  const style = document.createElement('style')
-  style.textContent = cssText
-  return style
-}
+  async main(ctx) {
+    const ui = await createShadowRootUi(ctx, {
+      name: 'download-ui',
+      position: 'inline',
+      anchor: 'body',
+      onMount: (container) => {
+        const app = document.createElement('div');
+        container.append(app);
+
+        const root = ReactDOM.createRoot(app);
+        root.render(
+          <DownloadTransactions getDownloads={getDownloads} />
+        );
+        return root;
+      },
+      onRemove: (root) => {
+        root?.unmount();
+      },
+    });
+
+    ui.mount();
+  },
+});
 
 const API_BASE_URL = 'https://sso.skatteverket.se/sk/ska/hamtaBokfTrans.do'
 
@@ -62,13 +78,10 @@ async function getDownloads() {
     throw new Error('Unexpected content-type')
   }
 
+  const bytes = new Uint8Array(await response.arrayBuffer())
+  const utf8 = new TextDecoder("iso-8859-1").decode(bytes)
+
   const parser = new DOMParser()
-
-  const utf8 = iconv.decode(
-    Buffer.from(await response.arrayBuffer()),
-    'iso-8859-1',
-  )
-
   const document = parser.parseFromString(utf8, 'text/html')
   const table = document.getElementById('bokf_trans_sort')
   const rows = table.getElementsByTagName('tr')
@@ -103,8 +116,4 @@ async function getDownloads() {
   }
 
   return transactions
-}
-
-export default function TransactionsTax() {
-  return <DownloadTransactions getDownloads={getDownloads} />
 }

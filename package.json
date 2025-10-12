@@ -23,6 +23,7 @@
       "lmdb",
       "msgpackr-extract",
       "sharp",
+      "spawn-sync",
       "unrs-resolver"
     ]
   }

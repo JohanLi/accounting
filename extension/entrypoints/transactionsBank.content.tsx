@@ -1,18 +1,35 @@
-import cssText from 'data-text:./style.css'
-import type { PlasmoCSConfig } from 'plasmo'
+import ReactDOM from 'react-dom/client'
+import { COMPANY_START_DATE, getTomorrow } from '@/entrypoints/content/utils.ts'
+import "@/assets/tailwind.css";
+import DownloadTransactions from '@/entrypoints/content/downloadTransactions.tsx'
 
-import DownloadTransactions from '../downloadTransactions'
-import { COMPANY_START_DATE, getTomorrow } from '../utils'
-
-export const config: PlasmoCSConfig = {
+export default defineContentScript({
   matches: ['https://apps.seb.se/ccs/accounts/accounts-and-balances/*'],
-}
+  cssInjectionMode: 'ui',
 
-export const getStyle = () => {
-  const style = document.createElement('style')
-  style.textContent = cssText
-  return style
-}
+  async main(ctx) {
+    const ui = await createShadowRootUi(ctx, {
+      name: 'download-ui',
+      position: 'inline',
+      anchor: 'body',
+      onMount: (container) => {
+        const app = document.createElement('div');
+        container.append(app);
+
+        const root = ReactDOM.createRoot(app);
+        root.render(
+          <DownloadTransactions getDownloads={getDownloads} />
+        );
+        return root;
+      },
+      onRemove: (root) => {
+        root?.unmount();
+      },
+    });
+
+    ui.mount();
+  },
+});
 
 const API_BASE_URL =
   'https://apps.seb.se/ssc/accounts-web-service-corporate/search-transactions'
@@ -21,25 +38,25 @@ const API_BASE_URL =
  Having these in public should not matter, but I wouldn't be surprised if
  there's some "Broken Access Control" going on for an endpoint like this.
  */
-const regularAccountId = process.env.PLASMO_PUBLIC_SEB_REGULAR_ACCOUNT_ID
-const savingsAccountId = process.env.PLASMO_PUBLIC_SEB_SAVINGS_ACCOUNT_ID
+const regularAccountId = import.meta.env.VITE_SEB_REGULAR_ACCOUNT_ID
+const savingsAccountId = import.meta.env.VITE_SEB_SAVINGS_ACCOUNT_ID
 
 if (!regularAccountId) {
-  throw new Error('Missing PLASMO_PUBLIC_SEB_REGULAR_ACCOUNT_ID')
+  throw new Error('Missing VITE_SEB_REGULAR_ACCOUNT_ID')
 }
 
 if (!savingsAccountId) {
-  throw new Error('Missing PLASMO_PUBLIC_SEB_SAVINGS_ACCOUNT_ID')
+  throw new Error('Missing VITE_SEB_SAVINGS_ACCOUNT_ID')
 }
 
 /*
  SEB appears to add four digits to the end of your organization id.
  Since I don't know what they're for, I've not included it in version control.
  */
-const organizationId = process.env.PLASMO_PUBLIC_SEB_ORGANIZATION_ID
+const organizationId = import.meta.env.VITE_SEB_ORGANIZATION_ID
 
 if (!organizationId) {
-  throw new Error('Missing PLASMO_PUBLIC_SEB_ORGANIZATION_ID')
+  throw new Error('Missing VITE_SEB_ORGANIZATION_ID')
 }
 
 async function getDownloads() {
@@ -79,8 +96,4 @@ async function getDownloads() {
 
     return transaction
   })
-}
-
-export default function TransactionsBank() {
-  return <DownloadTransactions getDownloads={getDownloads} />
 }
