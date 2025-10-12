@@ -1,7 +1,10 @@
-import '@/assets/tailwind.css'
-import DownloadTransactions from '@/entrypoints/content/downloadTransactions.tsx'
-import { COMPANY_START_DATE, getTomorrow } from '@/entrypoints/content/utils.ts'
 import ReactDOM from 'react-dom/client'
+import { createShadowRootUi } from 'wxt/utils/content-script-ui/shadow-root'
+import { defineContentScript } from 'wxt/utils/define-content-script'
+
+import DownloadTransactions from '../components/downloadTransactions.tsx'
+import '../components/tailwind.css'
+import { COMPANY_START_DATE, getTomorrow } from '../components/utils.ts'
 
 export default defineContentScript({
   matches: ['https://apps.seb.se/ccs/accounts/accounts-and-balances/*'],
@@ -77,7 +80,7 @@ async function getDownloads() {
     throw new Error('Failed to download bank transactions')
   }
 
-  return (await response.json()).transactions.map((transaction) => {
+  return (await response.json()).transactions.map((transaction: any) => {
     if (transaction.accountId === regularAccountId) {
       transaction.type = 'bankRegular'
     } else if (transaction.accountId === savingsAccountId) {

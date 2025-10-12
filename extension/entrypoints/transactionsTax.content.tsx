@@ -1,9 +1,12 @@
 /*
   This will likely get replaced by Skatteverket's official API – application pending
  */
-import '@/assets/tailwind.css'
-import DownloadTransactions from '@/entrypoints/content/downloadTransactions.tsx'
 import ReactDOM from 'react-dom/client'
+import { createShadowRootUi } from 'wxt/utils/content-script-ui/shadow-root'
+import { defineContentScript } from 'wxt/utils/define-content-script'
+
+import DownloadTransactions from '../components/downloadTransactions.tsx'
+import '../components/tailwind.css'
 
 export default defineContentScript({
   matches: ['https://sso.skatteverket.se/sk/ska/*'],
@@ -71,7 +74,7 @@ async function getDownloads() {
 
   const contentType = response.headers.get('content-type')
 
-  if (!contentType.includes('charset=ISO-8859-1')) {
+  if (!contentType || !contentType.includes('charset=ISO-8859-1')) {
     throw new Error('Unexpected content-type')
   }
 
@@ -81,6 +84,11 @@ async function getDownloads() {
   const parser = new DOMParser()
   const document = parser.parseFromString(utf8, 'text/html')
   const table = document.getElementById('bokf_trans_sort')
+
+  if (!table) {
+    throw new Error('Table containing transactions not found')
+  }
+
   const rows = table.getElementsByTagName('tr')
 
   const transactions = []
@@ -94,8 +102,14 @@ async function getDownloads() {
   for (let i = 2; i < rows.length - 1; i++) {
     const row = rows[i]
 
+    const dateCell = row.cells[0].querySelector('.hidden-xs')
+
+    if (!dateCell) {
+      throw new Error('Table cell containing date not found')
+    }
+
     transactions.push({
-      date: row.cells[0].querySelector('.hidden-xs').textContent.trim(),
+      date: dateCell.textContent.trim(),
       description: row.cells[1].textContent.trim(),
       amount: row.cells[2].textContent.trim().replace(/\s/g, ''),
       balance: row.cells[4].textContent.trim().replace(/\s/g, ''),

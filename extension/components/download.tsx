@@ -1,27 +1,40 @@
+import pLimit from 'p-limit'
 import { useEffect, useReducer } from 'react'
 import { browser } from 'wxt/browser'
 
 import type {
-  RequestTransactions,
+  RequestFiles,
   Response,
-  Transactions,
-} from '../background.ts'
-import LoadingSpinner from './loadingSpinner'
-import { classNames } from './utils'
+  UploadFile,
+} from '../entrypoints/background.ts'
+import LoadingSpinner from './loadingSpinner.tsx'
+import { classNames, responseToBase64 } from './utils.ts'
+
+/*
+ For SEB, downloading too many in parallel seems to cause the server to
+ error out. It's probably a good idea to do this in general, though.
+ */
+const limit = pLimit(5)
+
+export type DownloadType = {
+  url: string
+  filename: string
+}
 
 type Props = {
-  getDownloads: () => Promise<Transactions>
+  getDownloads: () => Promise<DownloadType[]>
+  requestInit?: RequestInit
 }
 
 type State = {
   state: 'initial' | 'foundUrls' | 'downloading' | 'downloaded'
-  downloads: Transactions
+  downloads: DownloadType[]
   created: number
   error: string
 }
 
 export type Action =
-  | { type: 'foundDownloads'; payload: Transactions }
+  | { type: 'foundDownloads'; payload: DownloadType[] }
   | { type: 'downloadStarted' }
   | { type: 'downloadCompleted'; payload: number }
   | { type: 'reset' }
@@ -68,7 +81,7 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-export default function DownloadTransactions({ getDownloads }: Props) {
+export default function Download({ getDownloads, requestInit }: Props) {
   const [state, dispatch] = useReducer(reducer, initialState)
 
   useEffect(() => {
@@ -89,12 +102,28 @@ export default function DownloadTransactions({ getDownloads }: Props) {
   const onClick = async () => {
     dispatch({ type: 'downloadStarted' })
 
-    const response = await browser.runtime.sendMessage<
-      RequestTransactions,
-      Response
-    >({
-      type: 'transactions',
-      transactions: state.downloads,
+    let uploadFiles: UploadFile[]
+
+    try {
+      uploadFiles = await Promise.all(
+        state.downloads.map(async (download) => {
+          const response = await limit(() => fetch(download.url, requestInit))
+          const data = await responseToBase64(response)
+          return {
+            filename: download.filename,
+            data,
+          }
+        }),
+      )
+    } catch (e) {
+      console.error(e)
+      dispatch({ type: 'error', payload: 'Failed to download' })
+      return
+    }
+
+    const response = await browser.runtime.sendMessage<RequestFiles, Response>({
+      type: 'files',
+      uploadFiles,
     })
 
     if ('error' in response) {
@@ -128,7 +157,7 @@ export default function DownloadTransactions({ getDownloads }: Props) {
       )}
       {!state.error && (
         <>
-          {state.state === 'initial' && 'Attempting to fetch transactions...'}
+          {state.state === 'initial' && 'Attempting to fetch invoices...'}
           {(state.state === 'foundUrls' || state.state === 'downloading') && (
             <button
               type="button"
@@ -142,7 +171,7 @@ export default function DownloadTransactions({ getDownloads }: Props) {
               disabled={state.state === 'downloading'}
             >
               {state.state === 'foundUrls' && (
-                <>Download {state.downloads.length} transactions</>
+                <>Download {state.downloads.length} invoices</>
               )}
               {state.state === 'downloading' && (
                 <>

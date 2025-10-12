@@ -7,6 +7,7 @@ export default defineConfig({
   vite: () => ({
     plugins: [tailwindcss()],
   }),
+  imports: false,
   dev: {
     server: {
       // the default 3000 clashes with Next.js

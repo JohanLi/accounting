@@ -1,8 +1,10 @@
-import '@/assets/tailwind.css'
-import { waitFor } from '@/entrypoints/content/utils.ts'
 import ReactDOM from 'react-dom/client'
+import { createShadowRootUi } from 'wxt/utils/content-script-ui/shadow-root'
+import { defineContentScript } from 'wxt/utils/define-content-script'
 
-import Download from './content/download.tsx'
+import Download from '../components/download.tsx'
+import '../components/tailwind.css'
+import { waitFor } from '../components/utils.ts'
 
 export default defineContentScript({
   matches: ['https://box.developersbay.se/profile/invoices'],

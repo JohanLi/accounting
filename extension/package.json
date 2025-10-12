@@ -1,10 +1,11 @@
 {
   "name": "accounting",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "wxt"
+    "dev": "wxt",
+    "pre-commit": "pnpm exec lint-staged && tsc --noEmit"
   },
   "lint-staged": {
     "*.{ts,tsx}": [

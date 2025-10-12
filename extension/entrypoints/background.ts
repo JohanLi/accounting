@@ -1,4 +1,5 @@
 import { browser } from 'wxt/browser'
+import { defineBackground } from 'wxt/utils/define-background'
 
 export type UploadFile = {
   data: string
