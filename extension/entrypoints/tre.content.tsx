@@ -34,14 +34,12 @@ export default defineContentScript({
   },
 });
 
-// unfortunately, you can't ever be sure they don't treat this as a password somewhere
-const accountNumber = import.meta.env.VITE_TRE_ACCOUNT_NUMBER
-
-if (!accountNumber) {
-  throw new Error('Missing VITE_TRE_ACCOUNT_NUMBER')
-}
-
-const COUNT = 4
+/*
+  TODO
+    should be 4, but the 4th invoice and onwards has a different account number
+    due to recently switching back to Tre
+ */
+const COUNT = 3
 
 const selector = 'a[href^="/mitt3/fakturor/"]'
 
@@ -51,20 +49,25 @@ async function getDownloads() {
   return Array.from(document.querySelectorAll(selector))
     .slice(0, COUNT)
     .map((element) => {
-      const match = element
+      const href = element
         .getAttribute('href')
-        .match(/\/mitt3\/fakturor\/(\d+)/)
+
+      if (!href) {
+        throw new Error('No href')
+      }
+
+      const match = href
+        .match(/\/mitt3\/fakturor\/(\d+)\/(\d+)/)
 
       if (match) {
-        const invoiceNumber = match[1]
+        const [, accountNumber, invoiceNumber] = match
 
         return {
-          url: `https://www.tre.se/t/api/invoices/my3/api/v1/accounts/${accountNumber}/invoices/${invoiceNumber}/document?errorCallback=/mitt3/fakturor`,
+          url: `https://www.tre.se/mitt3/document/invoice/${accountNumber}/${invoiceNumber}`,
           filename: `bookkeeping/tre/tre-${invoiceNumber}.pdf`,
         }
       }
 
-      console.log(element)
-      throw new Error('One of the invoice links does not seem to have an ID')
+      throw new Error('Account number and invoice number were not found')
     })
 }
