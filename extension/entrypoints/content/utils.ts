@@ -44,5 +44,5 @@ export async function responseToBase64(response: Response): Promise<string> {
     reader.onerror = reject
     reader.readAsDataURL(blob)
   })
-  return dataUrl.split(",", 2)[1]
+  return dataUrl.split(',', 2)[1]
 }

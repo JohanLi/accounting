@@ -10,11 +10,11 @@
 
   Invoices are found in Kundservice > Dokument & avtal
  */
-
-import ReactDOM from 'react-dom/client'
+import '@/assets/tailwind.css'
 import { COMPANY_START_DATE, getTomorrow } from '@/entrypoints/content/utils.ts'
+import ReactDOM from 'react-dom/client'
+
 import Download from './content/download.tsx'
-import "@/assets/tailwind.css";
 
 export default defineContentScript({
   matches: ['https://apps.seb.se/ccs/ibf/*'],
@@ -26,26 +26,26 @@ export default defineContentScript({
       position: 'inline',
       anchor: 'body',
       onMount: (container) => {
-        const app = document.createElement('div');
-        container.append(app);
+        const app = document.createElement('div')
+        container.append(app)
 
-        const root = ReactDOM.createRoot(app);
+        const root = ReactDOM.createRoot(app)
         root.render(
           <Download
             getDownloads={getDownloads}
             requestInit={{ credentials: 'include' }}
-          />
-        );
-        return root;
+          />,
+        )
+        return root
       },
       onRemove: (root) => {
-        root?.unmount();
+        root?.unmount()
       },
-    });
+    })
 
-    ui.mount();
+    ui.mount()
   },
-});
+})
 
 type Document = {
   document_key: string

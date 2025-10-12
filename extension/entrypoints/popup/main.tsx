@@ -1,12 +1,12 @@
+import '@/assets/tailwind.css'
 import React, { ReactNode } from 'react'
-import ReactDOM from 'react-dom/client';
-import "@/assets/tailwind.css";
+import ReactDOM from 'react-dom/client'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <div className="w-64 space-y-4 p-4">
       <div className="space-y-2">
-        <h2 className="text-lg font-semibold leading-6 text-gray-900">
+        <h2 className="text-lg leading-6 font-semibold text-gray-900">
           Documents
         </h2>
         <ul className="list-inside list-disc text-base">
@@ -31,7 +31,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         </ul>
       </div>
       <div className="space-y-2">
-        <h2 className="text-lg font-semibold leading-6 text-gray-900">
+        <h2 className="text-lg leading-6 font-semibold text-gray-900">
           Transactions
         </h2>
         <ul className="list-inside list-disc text-base">
@@ -45,7 +45,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       </div>
     </div>
   </React.StrictMode>,
-);
+)
 
 function Link({ href, children }: { href: string; children: ReactNode }) {
   return (

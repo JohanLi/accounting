@@ -1,7 +1,8 @@
-import ReactDOM from 'react-dom/client'
+import '@/assets/tailwind.css'
 import { waitFor } from '@/entrypoints/content/utils.ts'
+import ReactDOM from 'react-dom/client'
+
 import Download from './content/download.tsx'
-import "@/assets/tailwind.css";
 
 export default defineContentScript({
   matches: ['https://www.tre.se/mitt3/fakturor'],
@@ -13,26 +14,26 @@ export default defineContentScript({
       position: 'inline',
       anchor: 'body',
       onMount: (container) => {
-        const app = document.createElement('div');
-        container.append(app);
+        const app = document.createElement('div')
+        container.append(app)
 
-        const root = ReactDOM.createRoot(app);
+        const root = ReactDOM.createRoot(app)
         root.render(
           <Download
             getDownloads={getDownloads}
             requestInit={{ credentials: 'include' }}
-          />
-        );
-        return root;
+          />,
+        )
+        return root
       },
       onRemove: (root) => {
-        root?.unmount();
+        root?.unmount()
       },
-    });
+    })
 
-    ui.mount();
+    ui.mount()
   },
-});
+})
 
 /*
   TODO
@@ -49,15 +50,13 @@ async function getDownloads() {
   return Array.from(document.querySelectorAll(selector))
     .slice(0, COUNT)
     .map((element) => {
-      const href = element
-        .getAttribute('href')
+      const href = element.getAttribute('href')
 
       if (!href) {
         throw new Error('No href')
       }
 
-      const match = href
-        .match(/\/mitt3\/fakturor\/(\d+)\/(\d+)/)
+      const match = href.match(/\/mitt3\/fakturor\/(\d+)\/(\d+)/)
 
       if (match) {
         const [, accountNumber, invoiceNumber] = match

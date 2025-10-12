@@ -1,7 +1,7 @@
-import ReactDOM from 'react-dom/client'
-import { COMPANY_START_DATE, getTomorrow } from '@/entrypoints/content/utils.ts'
-import "@/assets/tailwind.css";
+import '@/assets/tailwind.css'
 import DownloadTransactions from '@/entrypoints/content/downloadTransactions.tsx'
+import { COMPANY_START_DATE, getTomorrow } from '@/entrypoints/content/utils.ts'
+import ReactDOM from 'react-dom/client'
 
 export default defineContentScript({
   matches: ['https://apps.seb.se/ccs/accounts/accounts-and-balances/*'],
@@ -13,23 +13,21 @@ export default defineContentScript({
       position: 'inline',
       anchor: 'body',
       onMount: (container) => {
-        const app = document.createElement('div');
-        container.append(app);
+        const app = document.createElement('div')
+        container.append(app)
 
-        const root = ReactDOM.createRoot(app);
-        root.render(
-          <DownloadTransactions getDownloads={getDownloads} />
-        );
-        return root;
+        const root = ReactDOM.createRoot(app)
+        root.render(<DownloadTransactions getDownloads={getDownloads} />)
+        return root
       },
       onRemove: (root) => {
-        root?.unmount();
+        root?.unmount()
       },
-    });
+    })
 
-    ui.mount();
+    ui.mount()
   },
-});
+})
 
 const API_BASE_URL =
   'https://apps.seb.se/ssc/accounts-web-service-corporate/search-transactions'

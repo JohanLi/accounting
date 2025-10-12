@@ -1,6 +1,5 @@
 import { useEffect, useReducer } from 'react'
-
-import { browser } from "wxt/browser";
+import { browser } from 'wxt/browser'
 
 import type {
   RequestTransactions,
@@ -90,7 +89,10 @@ export default function DownloadTransactions({ getDownloads }: Props) {
   const onClick = async () => {
     dispatch({ type: 'downloadStarted' })
 
-    const response = await browser.runtime.sendMessage<RequestTransactions, Response>({
+    const response = await browser.runtime.sendMessage<
+      RequestTransactions,
+      Response
+    >({
       type: 'transactions',
       transactions: state.downloads,
     })
@@ -109,7 +111,7 @@ export default function DownloadTransactions({ getDownloads }: Props) {
   const goBack = (
     <button
       type="button"
-      className="cursor-pointer mt-4 rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-xs ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+      className="mt-4 cursor-pointer rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-xs ring-1 ring-gray-300 ring-inset hover:bg-gray-50"
       onClick={() => dispatch({ type: 'reset' })}
     >
       Go back
@@ -117,7 +119,7 @@ export default function DownloadTransactions({ getDownloads }: Props) {
   )
 
   return (
-    <div className="fixed bottom-4 right-4 h-32 w-64 rounded-lg bg-white p-4 font-sans shadow-lg ring-1 ring-black/5">
+    <div className="fixed right-4 bottom-4 h-32 w-64 rounded-lg bg-white p-4 font-sans shadow-lg ring-1 ring-black/5">
       {state.error && (
         <>
           <div>{state.error}</div>
@@ -131,7 +133,7 @@ export default function DownloadTransactions({ getDownloads }: Props) {
             <button
               type="button"
               className={classNames(
-                'cursor-pointer inline-flex rounded bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600',
+                'inline-flex cursor-pointer rounded bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600',
                 state.state === 'downloading'
                   ? 'cursor-not-allowed opacity-50'
                   : '',

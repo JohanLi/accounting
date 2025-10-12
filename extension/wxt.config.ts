@@ -1,5 +1,5 @@
-import { defineConfig } from 'wxt';
-import tailwindcss from "@tailwindcss/vite";
+import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from 'wxt'
 
 // See https://wxt.dev/api/config.html
 export default defineConfig({
@@ -11,10 +11,10 @@ export default defineConfig({
     server: {
       // the default 3000 clashes with Next.js
       port: 3001,
-    }
+    },
   },
   webExt: {
     // I prefer to load the unpacked extension into my regular Chrome profile as it's more convenient for logins
     disabled: true,
   },
-});
+})

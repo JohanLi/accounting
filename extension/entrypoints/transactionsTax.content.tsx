@@ -1,10 +1,9 @@
 /*
   This will likely get replaced by Skatteverket's official API – application pending
  */
-
-import ReactDOM from 'react-dom/client'
-import "@/assets/tailwind.css";
+import '@/assets/tailwind.css'
 import DownloadTransactions from '@/entrypoints/content/downloadTransactions.tsx'
+import ReactDOM from 'react-dom/client'
 
 export default defineContentScript({
   matches: ['https://sso.skatteverket.se/sk/ska/*'],
@@ -16,23 +15,21 @@ export default defineContentScript({
       position: 'inline',
       anchor: 'body',
       onMount: (container) => {
-        const app = document.createElement('div');
-        container.append(app);
+        const app = document.createElement('div')
+        container.append(app)
 
-        const root = ReactDOM.createRoot(app);
-        root.render(
-          <DownloadTransactions getDownloads={getDownloads} />
-        );
-        return root;
+        const root = ReactDOM.createRoot(app)
+        root.render(<DownloadTransactions getDownloads={getDownloads} />)
+        return root
       },
       onRemove: (root) => {
-        root?.unmount();
+        root?.unmount()
       },
-    });
+    })
 
-    ui.mount();
+    ui.mount()
   },
-});
+})
 
 const API_BASE_URL = 'https://sso.skatteverket.se/sk/ska/hamtaBokfTrans.do'
 
@@ -79,7 +76,7 @@ async function getDownloads() {
   }
 
   const bytes = new Uint8Array(await response.arrayBuffer())
-  const utf8 = new TextDecoder("iso-8859-1").decode(bytes)
+  const utf8 = new TextDecoder('iso-8859-1').decode(bytes)
 
   const parser = new DOMParser()
   const document = parser.parseFromString(utf8, 'text/html')

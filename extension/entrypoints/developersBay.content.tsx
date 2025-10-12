@@ -1,7 +1,8 @@
-import ReactDOM from 'react-dom/client'
+import '@/assets/tailwind.css'
 import { waitFor } from '@/entrypoints/content/utils.ts'
+import ReactDOM from 'react-dom/client'
+
 import Download from './content/download.tsx'
-import "@/assets/tailwind.css";
 
 export default defineContentScript({
   matches: ['https://box.developersbay.se/profile/invoices'],
@@ -13,25 +14,21 @@ export default defineContentScript({
       position: 'inline',
       anchor: 'body',
       onMount: (container) => {
-        const app = document.createElement('div');
-        container.append(app);
+        const app = document.createElement('div')
+        container.append(app)
 
-        const root = ReactDOM.createRoot(app);
-        root.render(
-          <Download
-            getDownloads={getDownloads}
-          />
-        );
-        return root;
+        const root = ReactDOM.createRoot(app)
+        root.render(<Download getDownloads={getDownloads} />)
+        return root
       },
       onRemove: (root) => {
-        root?.unmount();
+        root?.unmount()
       },
-    });
+    })
 
-    ui.mount();
+    ui.mount()
   },
-});
+})
 
 /*
  After 2024, they changed the format of the invoices. This applies retroactively as well – downloading older invoices
