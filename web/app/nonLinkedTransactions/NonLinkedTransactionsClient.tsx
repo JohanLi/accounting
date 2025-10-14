@@ -17,10 +17,12 @@ export default function NonLinkedTransactionsClient({
   transactions: InferSelectModel<typeof Transactions>[]
 }) {
   /*
-    Letting a single form select/change the category for all forms is intentional.
-    The idea is that I typically upload receipts that belong to the same category in the same batch.
+    Letting a single form select/change both the description and category for
+    all forms is intentional. The reason is that I typically upload multiple
+    similar receipts at once, e.g., for SJ, SL, or Skånetrafiken.
     There's probably a more elegant solution UI-wise, but this will do.
    */
+  const [description, setDescription] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<Category>()
 
   return transactions.map((transaction) => (
@@ -30,6 +32,8 @@ export default function NonLinkedTransactionsClient({
         <NonLinkedTransactionsForm
           transaction={transaction}
           documentId={documentId}
+          description={description}
+          setDescription={setDescription}
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}
         />

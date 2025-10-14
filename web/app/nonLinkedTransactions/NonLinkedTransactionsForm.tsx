@@ -1,6 +1,5 @@
 import { InferSelectModel } from 'drizzle-orm'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
 
 import { updateJournalEntry } from '../actions/updateJournalEntry'
 import { Submit } from '../components/Submit'
@@ -104,17 +103,19 @@ export const categories: Category[] = [
 export function NonLinkedTransactionsForm({
   transaction,
   documentId,
+  description,
+  setDescription,
   selectedCategory,
   setSelectedCategory,
 }: {
   transaction: InferSelectModel<typeof Transactions>
   documentId: number
+  description: string
+  setDescription: (description: string) => void
   selectedCategory: Category | undefined
   setSelectedCategory: (category: Category | undefined) => void
 }) {
   const router = useRouter()
-
-  const [description, setDescription] = useState('')
 
   let transactions: Transaction[] | undefined
 
