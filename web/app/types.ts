@@ -35,6 +35,8 @@ export const chartOfAccounts = {
   5810: 'Biljetter',
   5831: 'Kost och logi i Sverige',
   5832: 'Kost och logi i utlandet',
+  6071: 'Representation, avdragsgill',
+  6072: 'Representation, ej avdragsgill',
   6212: 'Mobiltelefon',
   6230: 'Datakommunikation',
   6310: 'Företagsförsäkringar',

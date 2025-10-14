@@ -46,11 +46,12 @@ export async function PUT(request: Request) {
   const documents = await Promise.all(
     files.map(async (file) => {
       const data = Buffer.from(file.data, 'base64')
+      const { filename } = file
 
       return {
-        filename: file.filename,
+        filename,
         data,
-        hash: await getPdfHash(data),
+        hash: await getPdfHash(data, filename),
       }
     }),
   )
