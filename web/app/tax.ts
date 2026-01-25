@@ -2,22 +2,21 @@ import Decimal from 'decimal.js'
 
 import { krToOre } from './utils'
 
-/*
-  Brytpunkter 2025
-  - Statlig inkomstskatt: 643 100
-      https://www.skatteverket.se/privat/skatter/beloppochprocent/2025.4.262c54c219391f2e96342eb.html#h-Brytpunkt
- */
+const currentYear = new Date().getFullYear()
 
-/*
-  How it's set:
-  - Fill in https://app.skatteverket.se/rakna-skatt-client-skut-skatteutrakning/lon-efter-skattetabell/fyll-i-din-lon
-  - From the results, calculate a "personal tax rate". This is of interest because I don't pay myself a monthly salary – instead I do it in large clump.
- */
+if (currentYear !== 2026) {
+  throw new Error('New year – tax rates need to be updated')
+}
 
-// TODO should just enter two numbers: brytpunkt and tax to pay from the calculator. Infer rate from that
+// taken from https://www.skatteverket.se/privat/skatter/beloppochprocent/2026.4.1522bf3f19aea8075ba21.html#h-Brytpunkt
+const STATE_TAX_BREAKPOINT = 660400
+
+// comes from plugging in STATE_TAX_BREAKPOINT into the calculator at https://www7.skatteverket.se/portal/rakna-ut-skatt
+const YEAR_TAX = 147141
+
 export const PERSONAL_TAX = {
-  annualSalary: krToOre(643100),
-  rate: new Decimal('0.2286223'),
+  annualSalary: krToOre(STATE_TAX_BREAKPOINT),
+  rate: new Decimal(YEAR_TAX / STATE_TAX_BREAKPOINT),
 }
 
 export const PAYROLL_TAX = new Decimal('0.3142')
@@ -36,12 +35,6 @@ export function getSalaryTaxes(amount?: number) {
       .toNumber(),
     payrollTax: Decimal.mul(amount, PAYROLL_TAX).round().toNumber(),
   }
-}
-
-const currentYear = new Date().getFullYear()
-
-if (currentYear !== 2025) {
-  throw new Error('New year – tax rates need to be updated')
 }
 
 export const SALARY_ACCOUNT_ID = 7210
