@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import { getBankSavingsSuggestions } from './bankSavingsSuggestions'
+import { getReimburseSelfSuggestions } from './reimburseSelfSuggestions'
 import { getDocumentSuggestions } from './documentSuggestions'
 import { getSuggestions } from './getSuggestions'
 import { getInsuranceSuggestions } from './insuranceSuggestions'
@@ -21,6 +22,9 @@ vi.mock('./paidInvoiceSuggestions', () => ({
 }))
 vi.mock('./documentSuggestions', () => ({
   getDocumentSuggestions: vi.fn(),
+}))
+vi.mock('./reimburseSelfSuggestions', () => ({
+  getReimburseSelfSuggestions: vi.fn(),
 }))
 
 describe('getSuggestions', () => {
@@ -60,6 +64,7 @@ describe('getSuggestions', () => {
         documentId: 1,
       },
     ])
+    vi.mocked(getReimburseSelfSuggestions).mockResolvedValue([])
 
     const suggestions = await getSuggestions()
 

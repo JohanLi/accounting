@@ -42,8 +42,8 @@ export type JournalEntryType = InferSelectModel<typeof JournalEntries> & {
   linkNotApplicable: boolean
 }
 
-const OLD_BANK_ACCOUNT_ID = 1932
-const PERSONAL_PAYMENT_ACCOUNT_ID = 2890
+const OLD_BANK_ACCOUNT_ID = 1932 satisfies AccountCode
+export const PERSONAL_PAYMENT_ACCOUNT_ID = 2890 satisfies AccountCode
 
 export async function getJournalEntries({
   startInclusive,

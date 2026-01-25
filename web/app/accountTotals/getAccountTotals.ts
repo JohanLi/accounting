@@ -76,7 +76,7 @@ export async function getTotal({
   where,
 }: {
   startInclusive: Date
-  endExclusive: Date
+  endExclusive?: Date
   where?: SQLWrapper
 }) {
   return db
@@ -92,7 +92,7 @@ export async function getTotal({
     .where(
       and(
         gte(JournalEntries.date, startInclusive),
-        lt(JournalEntries.date, endExclusive),
+        endExclusive && lt(JournalEntries.date, endExclusive),
         where,
       ),
     )

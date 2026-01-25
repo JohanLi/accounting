@@ -1,6 +1,7 @@
 import { Transaction } from '../getJournalEntries'
 import { filterNull } from '../utils'
 import { getBankSavingsSuggestions } from './bankSavingsSuggestions'
+import { getReimburseSelfSuggestions } from './reimburseSelfSuggestions'
 import { getDocumentSuggestions } from './documentSuggestions'
 import { getInsuranceSuggestions } from './insuranceSuggestions'
 import { getPaidInvoiceSuggestions } from './paidInvoiceSuggestions'
@@ -21,6 +22,7 @@ export async function getSuggestions(): Promise<Suggestions[]> {
     getInsuranceSuggestions(),
     getPaidInvoiceSuggestions(),
     getDocumentSuggestions(),
+    getReimburseSelfSuggestions(),
   ])
 
   return groups
