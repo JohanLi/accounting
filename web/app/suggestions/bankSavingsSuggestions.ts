@@ -1,6 +1,7 @@
 import { and, asc, eq, isNull } from 'drizzle-orm'
 
 import db from '../db'
+import { getNonLinkedBankTransactions } from '../getNonLinkedBankTransactions'
 import { Transaction } from '../getJournalEntries'
 import { Transactions } from '../schema'
 
@@ -22,17 +23,12 @@ export async function getBankSavingsSuggestions() {
   const transfers = bankSavingsTransactions
     .filter((transaction) => transaction.description !== INTEREST_DESCRIPTION)
     .map(async (transaction) => {
-      const bankRegularTransactionMatch = await db
-        .select()
-        .from(Transactions)
-        .where(
-          and(
-            eq(Transactions.type, 'bankRegular'),
-            isNull(Transactions.journalEntryId),
-            eq(Transactions.date, transaction.date),
-            eq(Transactions.amount, -transaction.amount),
-          ),
-        )
+      const bankRegularTransactionMatch = await getNonLinkedBankTransactions({
+        where: and(
+          eq(Transactions.date, transaction.date),
+          eq(Transactions.amount, -transaction.amount),
+        ),
+      })
 
       if (!bankRegularTransactionMatch.length) {
         return null

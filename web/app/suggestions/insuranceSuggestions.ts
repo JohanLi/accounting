@@ -9,9 +9,9 @@
   Because there's no monthly receipt, journal entries will be created based on
   bank transactions.
  */
-import { and, asc, eq, isNull } from 'drizzle-orm'
+import { asc, eq } from 'drizzle-orm'
 
-import db from '../db'
+import { getNonLinkedBankTransactions } from '../getNonLinkedBankTransactions'
 import { Transaction } from '../getJournalEntries'
 import { Transactions } from '../schema'
 
@@ -19,16 +19,9 @@ import { Transactions } from '../schema'
 const DOCUMENT_ID = null
 
 export async function getInsuranceSuggestions() {
-  const insuranceProviderTransactions = await db
-    .select()
-    .from(Transactions)
-    .where(
-      and(
-        eq(Transactions.type, 'bankRegular'),
-        eq(Transactions.description, 'TRYGG-HANSA'),
-        isNull(Transactions.journalEntryId),
-      ),
-    )
+  const insuranceProviderTransactions = await getNonLinkedBankTransactions({
+    where: eq(Transactions.description, 'TRYGG-HANSA'),
+  })
     .orderBy(asc(Transactions.id))
 
   return insuranceProviderTransactions.map((transaction) => {

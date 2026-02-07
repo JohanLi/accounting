@@ -1,11 +1,20 @@
-import Decimal from 'decimal.js'
-import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
-import { TextContent } from 'pdfjs-dist/types/src/display/api'
+import Decimal from 'decimal.js';
+import { and, eq, like } from 'drizzle-orm';
+import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
+import { TextContent } from 'pdfjs-dist/types/src/display/api';
 
-import { JournalEntryUpdate } from './actions/updateJournalEntry'
-import { Transaction } from './getJournalEntries'
-import { AccountCode } from './types'
-import { krToOre } from './utils'
+
+
+import { JournalEntryUpdate } from './actions/updateJournalEntry';
+import { Transaction } from './getJournalEntries';
+import { getNonLinkedBankTransactions } from './getNonLinkedBankTransactions';
+import { Transactions } from './schema';
+import { AccountCode } from './types';
+import { krToOre } from './utils';
+
+
+
+
 
 // https://github.com/vercel/next.js/issues/58313#issuecomment-1807184812
 // @ts-expect-error pdf.js hack
@@ -78,6 +87,7 @@ type RecognizedDocument = {
   identifiedBy: string
   characterization: Characterization
   description: string
+  getLinkedToTransactionIds?: (date: Date) => Promise<number[]>
 }
 
 const recognizedDocuments: RecognizedDocument[] = [
@@ -95,6 +105,16 @@ const recognizedDocuments: RecognizedDocument[] = [
     identifiedBy: 'Hi3G Access AB',
     characterization: 'MOBILE_PROVIDER',
     description: 'Tre företagsabonnemang',
+    getLinkedToTransactionIds: async (date) => {
+      const transactions = await getNonLinkedBankTransactions({
+        where: and(
+          like(Transactions.description, 'TRE %'),
+          eq(Transactions.date, date),
+        ),
+      })
+
+      return transactions.map((transaction) => transaction.id)
+    },
   },
   {
     identifiedBy: 'Årsredovisning Online',
@@ -107,7 +127,7 @@ export async function getRecognizedDocument(
   strings: string[],
 ): Promise<Pick<
   JournalEntryUpdate,
-  'date' | 'description' | 'transactions'
+  'date' | 'description' | 'transactions' | 'linkedToTransactionIds'
 > | null> {
   let source = recognizedDocuments.find((source) =>
     strings.includes(source.identifiedBy),
@@ -197,11 +217,22 @@ export async function getRecognizedDocument(
     }
   }
 
+  let linkedToTransactionIds: number[] = []
+
+  if (source.getLinkedToTransactionIds) {
+    linkedToTransactionIds = await source.getLinkedToTransactionIds(date)
+
+    if (!linkedToTransactionIds.length) {
+      return null
+    }
+  }
+
   return {
     date,
     // TODO implement a way to tag journal entries
     description: `Recognized document – ${source.description}`,
     transactions,
+    linkedToTransactionIds,
   }
 }
 

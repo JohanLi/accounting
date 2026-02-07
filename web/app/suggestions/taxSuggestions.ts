@@ -1,6 +1,6 @@
 import { InferInsertModel, and, eq } from 'drizzle-orm'
 
-import db from '../db'
+import { getNonLinkedBankTransactions } from '../getNonLinkedBankTransactions'
 import { Transactions } from '../schema'
 import { AccountCode } from '../types'
 import { getTaxTransactions } from './getTaxTransactions'
@@ -142,16 +142,12 @@ async function searchForBankTransaction(
   const yesterday = new Date(taxTransaction.date)
   yesterday.setDate(yesterday.getDate() - 1)
 
-  const bankTransactions = await db
-    .select()
-    .from(Transactions)
-    .where(
-      and(
-        eq(Transactions.type, 'bankRegular'),
-        eq(Transactions.date, yesterday),
-        eq(Transactions.amount, -taxTransaction.amount),
-      ),
-    )
+  const bankTransactions = await getNonLinkedBankTransactions({
+    where: and(
+      eq(Transactions.date, yesterday),
+      eq(Transactions.amount, -taxTransaction.amount),
+    ),
+  })
 
   if (!bankTransactions.length) {
     console.error(

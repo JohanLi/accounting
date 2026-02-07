@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 
 import { readTestDocument } from '../tests/utils'
 import {
@@ -7,6 +7,11 @@ import {
   getPDFStrings,
   getRecognizedDocument,
 } from './document'
+import { getNonLinkedBankTransactions } from './getNonLinkedBankTransactions'
+
+vi.mock('./getNonLinkedBankTransactions', () => ({
+  getNonLinkedBankTransactions: vi.fn(),
+}))
 
 async function getRecognizedDocumentFromFile(filename: string) {
   const data = await readTestDocument(filename)
@@ -32,6 +37,7 @@ test('parse', async () => {
         amount: -12800000,
       },
     ],
+    linkedToTransactionIds: [],
   })
 
   expect(await getRecognizedDocumentFromFile('bank.pdf')).toEqual({
@@ -47,11 +53,19 @@ test('parse', async () => {
         amount: -13000,
       },
     ],
+    linkedToTransactionIds: [],
   })
+
+  vi.mocked(getNonLinkedBankTransactions).mockResolvedValueOnce([
+    {
+      id: 22,
+      amount: -37400,
+      date: new Date('2025-01-31'),
+    },
+  ])
 
   expect(await getRecognizedDocumentFromFile('mobileProvider.pdf')).toEqual({
     date: new Date('2025-01-31'),
-
     description: 'Recognized document – Tre företagsabonnemang',
     transactions: [
       {
@@ -67,6 +81,7 @@ test('parse', async () => {
         amount: -37400,
       },
     ],
+    linkedToTransactionIds: [22],
   })
 })
 

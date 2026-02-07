@@ -1,20 +1,13 @@
-import { and, asc, eq, isNull, like } from 'drizzle-orm'
+import { asc, like } from 'drizzle-orm'
 
-import db from '../db'
+import { getNonLinkedBankTransactions } from '../getNonLinkedBankTransactions'
 import { Transaction } from '../getJournalEntries'
 import { Transactions } from '../schema'
 
 export async function getPaidInvoiceSuggestions() {
-  const insuranceProviderTransactions = await db
-    .select()
-    .from(Transactions)
-    .where(
-      and(
-        eq(Transactions.type, 'bankRegular'),
-        like(Transactions.description, 'BG %'),
-        isNull(Transactions.journalEntryId),
-      ),
-    )
+  const insuranceProviderTransactions = await getNonLinkedBankTransactions({
+    where: like(Transactions.description, 'BG %'),
+  })
     .orderBy(asc(Transactions.id))
 
   return insuranceProviderTransactions.map((transaction) => {

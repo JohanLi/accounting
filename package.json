@@ -5,7 +5,7 @@
     "setup": "pnpm --filter web run setup",
     "dev": "pnpm run -r dev",
     "prepare": "husky",
-    "pre-commit": "pnpm run -r pre-commit"
+    "pre-commit": "pnpm run -r --workspace-concurrency=1 pre-commit"
   },
   "devDependencies": {
     "husky": "^9.0.11"

@@ -1,7 +1,7 @@
-import { and, eq, isNull } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 
 import { getTotal } from '../accountTotals/getAccountTotals'
-import db from '../db'
+import { getNonLinkedBankTransactions } from '../getNonLinkedBankTransactions'
 import { PERSONAL_PAYMENT_ACCOUNT_ID, Transaction } from '../getJournalEntries'
 import { JournalEntryTransactions, Transactions } from '../schema'
 import { getCurrentFiscalYear, getFiscalYear } from '../utils'
@@ -25,16 +25,9 @@ export async function getReimburseSelfSuggestions() {
     return []
   }
 
-  const transactions = await db
-    .select()
-    .from(Transactions)
-    .where(
-      and(
-        eq(Transactions.type, 'bankRegular'),
-        isNull(Transactions.journalEntryId),
-        eq(Transactions.amount, -amount),
-      ),
-    )
+  const transactions = await getNonLinkedBankTransactions({
+    where: eq(Transactions.amount, -amount),
+  })
 
   return transactions.map((transaction) => {
     const transactions = [

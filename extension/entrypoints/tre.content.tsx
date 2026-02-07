@@ -37,12 +37,7 @@ export default defineContentScript({
   },
 })
 
-/*
-  TODO
-    should be 4, but the 4th invoice and onwards has a different account number
-    due to recently switching back to Tre
- */
-const COUNT = 3
+const COUNT = 4
 
 const selector = 'a[href^="/mitt3/fakturor/"]'
 

@@ -28,7 +28,6 @@ export async function getDocumentSuggestions() {
     if (recognizedDocument) {
       knownDocumentSuggestions.push({
         ...recognizedDocument,
-        linkedToTransactionIds: [],
         documentId: document.id,
       })
     }
