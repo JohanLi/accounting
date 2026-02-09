@@ -1,20 +1,14 @@
-import Decimal from 'decimal.js';
-import { and, eq, like } from 'drizzle-orm';
-import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
-import { TextContent } from 'pdfjs-dist/types/src/display/api';
+import Decimal from 'decimal.js'
+import { and, eq, like, sql } from 'drizzle-orm'
+import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
+import { TextContent } from 'pdfjs-dist/types/src/display/api'
 
-
-
-import { JournalEntryUpdate } from './actions/updateJournalEntry';
-import { Transaction } from './getJournalEntries';
-import { getNonLinkedBankTransactions } from './getNonLinkedBankTransactions';
-import { Transactions } from './schema';
-import { AccountCode } from './types';
-import { krToOre } from './utils';
-
-
-
-
+import { JournalEntryUpdate } from './actions/updateJournalEntry'
+import { Transaction } from './getJournalEntries'
+import { getNonLinkedBankTransactions } from './getNonLinkedBankTransactions'
+import { Transactions } from './schema'
+import { AccountCode } from './types'
+import { krToOre } from './utils'
 
 // https://github.com/vercel/next.js/issues/58313#issuecomment-1807184812
 // @ts-expect-error pdf.js hack
@@ -87,7 +81,7 @@ type RecognizedDocument = {
   identifiedBy: string
   characterization: Characterization
   description: string
-  getLinkedToTransactionIds?: (date: Date) => Promise<number[]>
+  getLinkedToTransactionIds?: (date: Date, amount: number) => Promise<number[]>
 }
 
 const recognizedDocuments: RecognizedDocument[] = [
@@ -100,16 +94,29 @@ const recognizedDocuments: RecognizedDocument[] = [
     identifiedBy: 'Skandinaviska Enskilda Banken AB',
     characterization: 'BANKING_COSTS',
     description: 'SEB månadsavgift',
+    getLinkedToTransactionIds: async (date, amount) => {
+      const transactions = await getNonLinkedBankTransactions({
+        date,
+        dateMarginDays: 1,
+        where: and(
+          eq(Transactions.amount, -amount),
+          sql`${Transactions.description} ~ '^[0-9]+$'`,
+        ),
+      })
+
+      return transactions.map((transaction) => transaction.id)
+    },
   },
   {
     identifiedBy: 'Hi3G Access AB',
     characterization: 'MOBILE_PROVIDER',
     description: 'Tre företagsabonnemang',
-    getLinkedToTransactionIds: async (date) => {
+    getLinkedToTransactionIds: async (date, amount) => {
       const transactions = await getNonLinkedBankTransactions({
+        date,
         where: and(
+          eq(Transactions.amount, amount),
           like(Transactions.description, 'TRE %'),
-          eq(Transactions.date, date),
         ),
       })
 
@@ -220,7 +227,7 @@ export async function getRecognizedDocument(
   let linkedToTransactionIds: number[] = []
 
   if (source.getLinkedToTransactionIds) {
-    linkedToTransactionIds = await source.getLinkedToTransactionIds(date)
+    linkedToTransactionIds = await source.getLinkedToTransactionIds(date, total)
 
     if (!linkedToTransactionIds.length) {
       return null

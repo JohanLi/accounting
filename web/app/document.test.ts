@@ -40,6 +40,15 @@ test('parse', async () => {
     linkedToTransactionIds: [],
   })
 
+  vi.mocked(getNonLinkedBankTransactions).mockResolvedValueOnce([
+    {
+      id: 5,
+      amount: -13000,
+      // intentionally a day ahead, based on what's occurring in practice
+      date: new Date('2025-04-02'),
+    },
+  ])
+
   expect(await getRecognizedDocumentFromFile('bank.pdf')).toEqual({
     date: new Date('2023-04-03'),
     description: 'Recognized document – SEB månadsavgift',
@@ -53,7 +62,7 @@ test('parse', async () => {
         amount: -13000,
       },
     ],
-    linkedToTransactionIds: [],
+    linkedToTransactionIds: [5],
   })
 
   vi.mocked(getNonLinkedBankTransactions).mockResolvedValueOnce([

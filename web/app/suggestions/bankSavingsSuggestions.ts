@@ -24,8 +24,8 @@ export async function getBankSavingsSuggestions() {
     .filter((transaction) => transaction.description !== INTEREST_DESCRIPTION)
     .map(async (transaction) => {
       const bankRegularTransactionMatch = await getNonLinkedBankTransactions({
+        date: transaction.date,
         where: and(
-          eq(Transactions.date, transaction.date),
           eq(Transactions.amount, -transaction.amount),
         ),
       })
