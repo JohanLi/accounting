@@ -81,6 +81,12 @@ export const categories: Category[] = [
     vatRate: '0',
   },
   {
+    // not all Friskvård is 6%, but what I spend it on typically is
+    name: 'Friskvård (6%)',
+    debitAccountId: 7699,
+    vatRate: '0.06',
+  },
+  {
     name: 'SJ förseningsersättning (0%)',
     creditAccountId: 3990,
     vatRate: '0',
