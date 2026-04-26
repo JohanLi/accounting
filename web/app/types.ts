@@ -4,6 +4,7 @@ export type NextPageProps = {
 
 // these values are largely based on https://www.bas.se/wp-content/uploads/2022/01/Kontoplan-2022.pdf
 export const chartOfAccounts = {
+  1385: 'Kapitalförsäkring',
   1510: 'Kundfordringar',
   1630: 'Skattekonto',
   1650: 'Momsfordran',

@@ -6,6 +6,7 @@ import { getDocumentSuggestions } from './documentSuggestions'
 import { getInsuranceSuggestions } from './insuranceSuggestions'
 import { getPaidInvoiceSuggestions } from './paidInvoiceSuggestions'
 import { getTaxSuggestions } from './taxSuggestions'
+import { getInvestmentAccountSuggestions } from './investmentAccountSuggestions'
 
 export type Suggestions = {
   date: Date
@@ -22,6 +23,7 @@ export async function getSuggestions(): Promise<Suggestions[]> {
     getInsuranceSuggestions(),
     getPaidInvoiceSuggestions(),
     getDocumentSuggestions(),
+    getInvestmentAccountSuggestions(),
     getReimburseSelfSuggestions(),
   ])
 
