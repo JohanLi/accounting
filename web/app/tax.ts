@@ -42,4 +42,4 @@ export const SALARY_ACCOUNT_ID = 7210 satisfies AccountCode
 export const DIVIDEND_ACCOUNT_ID = 2898 satisfies AccountCode
 
 // used for Omkostnadsbelopp vid årets ingång
-export const K10_INTEREST_RATE_PERCENT = 11.62
+export const K10_INTEREST_RATE_PERCENT = 10.96
