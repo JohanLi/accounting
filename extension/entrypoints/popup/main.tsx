@@ -39,7 +39,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <Link href="https://apps.seb.se/ccs/accounts/accounts-and-balances/">
             Bank account
           </Link>
-          <Link href="https://sso.skatteverket.se/sk/ska/hamtaBokfTrans.do">
+          <Link href="https://www7.skatteverket.se/portal/vem-vill-du-foretrada/?returnUrl=https%3A%2F%2Fwww7.skatteverket.se%2Fportal%2Fskattekonto">
             Tax account
           </Link>
         </ul>
