@@ -115,7 +115,7 @@ const recognizedDocuments: RecognizedDocument[] = [
       const transactions = await getNonLinkedBankTransactions({
         date,
         where: and(
-          eq(Transactions.amount, amount),
+          eq(Transactions.amount, -amount),
           like(Transactions.description, 'TRE %'),
         ),
       })
