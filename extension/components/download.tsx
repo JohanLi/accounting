@@ -3,8 +3,8 @@ import { useEffect, useReducer } from 'react'
 import { browser } from 'wxt/browser'
 
 import type {
+  Response as BackgroundResponse,
   RequestFiles,
-  Response,
   UploadFile,
 } from '../entrypoints/background.ts'
 import LoadingSpinner from './loadingSpinner.tsx'
@@ -18,7 +18,7 @@ const limit = pLimit(5)
 
 export type DownloadType = {
   url: string
-  filename: string
+  filename?: string
 }
 
 type Props = {
@@ -108,9 +108,16 @@ export default function Download({ getDownloads, requestInit }: Props) {
       uploadFiles = await Promise.all(
         state.downloads.map(async (download) => {
           const response = await limit(() => fetch(download.url, requestInit))
+          const filename =
+            getContentDispositionFilename(response) ?? download.filename
+
+          if (!filename) {
+            throw new Error('Missing filename')
+          }
+
           const data = await responseToBase64(response)
           return {
-            filename: download.filename,
+            filename,
             data,
           }
         }),
@@ -121,7 +128,10 @@ export default function Download({ getDownloads, requestInit }: Props) {
       return
     }
 
-    const response = await browser.runtime.sendMessage<RequestFiles, Response>({
+    const response = await browser.runtime.sendMessage<
+      RequestFiles,
+      BackgroundResponse
+    >({
       type: 'files',
       uploadFiles,
     })
@@ -213,4 +223,22 @@ export default function Download({ getDownloads, requestInit }: Props) {
       )}
     </div>
   )
+}
+
+function getContentDispositionFilename(response: Response) {
+  const contentDisposition = response.headers.get('content-disposition')
+
+  if (!contentDisposition) {
+    return null
+  }
+
+  const utf8Match = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i)
+
+  if (utf8Match?.[1]) {
+    return decodeURIComponent(utf8Match[1].replace(/^"|"$/g, ''))
+  }
+
+  const match = contentDisposition.match(/filename="?([^";]+)"?/i)
+
+  return match?.[1] ?? null
 }

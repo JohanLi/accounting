@@ -15,9 +15,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             Seb
           </Link>
           <Link href="https://www.tre.se/mitt3/fakturor">Tre</Link>
-          <Link href="https://box.developersbay.se/profile/invoices">
-            Developers Bay
-          </Link>
+          <Link href="https://eu.workforcelogiq.com/Login/Login">Magnit</Link>
           {/*
             Order receipts from Namecheap are a frustrating experience. While they get sent to both your Namecheap
             inbox and your email, neither of these places show you your added company details. Instead, it's this
