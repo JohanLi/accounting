@@ -1,8 +1,8 @@
 import { eq } from 'drizzle-orm'
 
 import { getTotal } from '../accountTotals/getAccountTotals'
-import { getNonLinkedBankTransactions } from '../getNonLinkedBankTransactions'
 import { PERSONAL_PAYMENT_ACCOUNT_ID, Transaction } from '../getJournalEntries'
+import { getNonLinkedBankTransactions } from '../getNonLinkedBankTransactions'
 import { JournalEntryTransactions, Transactions } from '../schema'
 import { getCurrentFiscalYear, getFiscalYear } from '../utils'
 

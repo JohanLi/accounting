@@ -1,11 +1,11 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import { getBankSavingsSuggestions } from './bankSavingsSuggestions'
-import { getReimburseSelfSuggestions } from './reimburseSelfSuggestions'
 import { getDocumentSuggestions } from './documentSuggestions'
 import { getSuggestions } from './getSuggestions'
 import { getInsuranceSuggestions } from './insuranceSuggestions'
 import { getPaidInvoiceSuggestions } from './paidInvoiceSuggestions'
+import { getReimburseSelfSuggestions } from './reimburseSelfSuggestions'
 import { getTaxSuggestions } from './taxSuggestions'
 
 vi.mock('./taxSuggestions', () => ({

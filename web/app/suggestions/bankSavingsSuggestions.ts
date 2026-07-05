@@ -1,8 +1,8 @@
 import { and, asc, eq, isNull } from 'drizzle-orm'
 
 import db from '../db'
-import { getNonLinkedBankTransactions } from '../getNonLinkedBankTransactions'
 import { Transaction } from '../getJournalEntries'
+import { getNonLinkedBankTransactions } from '../getNonLinkedBankTransactions'
 import { Transactions } from '../schema'
 
 const INTEREST_DESCRIPTION = 'RÄNTA'
@@ -25,9 +25,7 @@ export async function getBankSavingsSuggestions() {
     .map(async (transaction) => {
       const bankRegularTransactionMatch = await getNonLinkedBankTransactions({
         date: transaction.date,
-        where: and(
-          eq(Transactions.amount, -transaction.amount),
-        ),
+        where: and(eq(Transactions.amount, -transaction.amount)),
       })
 
       if (!bankRegularTransactionMatch.length) {

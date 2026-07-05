@@ -11,8 +11,8 @@
  */
 import { asc, eq } from 'drizzle-orm'
 
-import { getNonLinkedBankTransactions } from '../getNonLinkedBankTransactions'
 import { Transaction } from '../getJournalEntries'
+import { getNonLinkedBankTransactions } from '../getNonLinkedBankTransactions'
 import { Transactions } from '../schema'
 
 // set this to the first receipt
@@ -21,8 +21,7 @@ const DOCUMENT_ID = null
 export async function getInsuranceSuggestions() {
   const insuranceProviderTransactions = await getNonLinkedBankTransactions({
     where: eq(Transactions.description, 'TRYGG-HANSA'),
-  })
-    .orderBy(asc(Transactions.id))
+  }).orderBy(asc(Transactions.id))
 
   return insuranceProviderTransactions.map((transaction) => {
     const transactions = [

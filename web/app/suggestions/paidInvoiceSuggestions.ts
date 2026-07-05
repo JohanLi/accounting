@@ -1,14 +1,13 @@
 import { asc, like } from 'drizzle-orm'
 
-import { getNonLinkedBankTransactions } from '../getNonLinkedBankTransactions'
 import { Transaction } from '../getJournalEntries'
+import { getNonLinkedBankTransactions } from '../getNonLinkedBankTransactions'
 import { Transactions } from '../schema'
 
 export async function getPaidInvoiceSuggestions() {
   const insuranceProviderTransactions = await getNonLinkedBankTransactions({
     where: like(Transactions.description, 'BG %'),
-  })
-    .orderBy(asc(Transactions.id))
+  }).orderBy(asc(Transactions.id))
 
   return insuranceProviderTransactions.map((transaction) => {
     const transactions = [

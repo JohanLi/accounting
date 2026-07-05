@@ -144,9 +144,7 @@ async function searchForBankTransaction(
 
   const bankTransactions = await getNonLinkedBankTransactions({
     date: yesterday,
-    where: and(
-      eq(Transactions.amount, -taxTransaction.amount),
-    ),
+    where: and(eq(Transactions.amount, -taxTransaction.amount)),
   })
 
   if (!bankTransactions.length) {

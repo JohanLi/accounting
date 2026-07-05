@@ -1,12 +1,12 @@
 import { Transaction } from '../getJournalEntries'
 import { filterNull } from '../utils'
 import { getBankSavingsSuggestions } from './bankSavingsSuggestions'
-import { getReimburseSelfSuggestions } from './reimburseSelfSuggestions'
 import { getDocumentSuggestions } from './documentSuggestions'
 import { getInsuranceSuggestions } from './insuranceSuggestions'
-import { getPaidInvoiceSuggestions } from './paidInvoiceSuggestions'
-import { getTaxSuggestions } from './taxSuggestions'
 import { getInvestmentAccountSuggestions } from './investmentAccountSuggestions'
+import { getPaidInvoiceSuggestions } from './paidInvoiceSuggestions'
+import { getReimburseSelfSuggestions } from './reimburseSelfSuggestions'
+import { getTaxSuggestions } from './taxSuggestions'
 
 export type Suggestions = {
   date: Date

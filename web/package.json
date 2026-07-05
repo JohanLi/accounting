@@ -12,12 +12,6 @@
     "db:import": "sh ./scripts/db/import.sh",
     "db:export": "sh ./scripts/db/export.sh"
   },
-  "lint-staged": {
-    "*.{ts,tsx}": [
-      "prettier --write",
-      "next lint --fix"
-    ]
-  },
   "dependencies": {
     "@headlessui/react": "^2.2.6",
     "@heroicons/react": "^2.2.0",
