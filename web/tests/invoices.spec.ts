@@ -32,12 +32,12 @@ test.describe('handling invoices using Fakturametoden', () => {
     await expectSuggestion(
       page,
       {
-        date: '2025-01-31',
+        date: '2026-04-30',
         description: 'Recognized document – Inkomst kundfordran',
         transactions: [
-          ['1510', '160 000'],
-          ['2610', '-32 000'],
-          ['3011', '-128 000'],
+          ['1510', '205 000'],
+          ['2610', '-41 000'],
+          ['3011', '-164 000'],
         ],
       },
       0,
@@ -46,12 +46,12 @@ test.describe('handling invoices using Fakturametoden', () => {
     await expectSuggestion(
       page,
       {
-        date: '2025-02-28',
+        date: '2026-06-01',
         description: 'Recognized document – Inkomst kundfordran',
         transactions: [
-          ['1510', '200 000'],
-          ['2610', '-40 000'],
-          ['3011', '-160 000'],
+          ['1510', '162 500'],
+          ['2610', '-32 500'],
+          ['3011', '-130 000'],
         ],
       },
       1,
@@ -66,17 +66,17 @@ test.describe('handling invoices using Fakturametoden', () => {
       .locator('label:has-text("FY") button[aria-haspopup="menu"]')
       .click()
 
-    await page.getByRole('menuitem', { name: '2025' }).click()
+    await page.getByRole('menuitem', { name: '2026' }).click()
 
     await expectJournalEntry(
       page,
       {
-        date: '2025-02-28',
+        date: '2026-06-01',
         description: 'Recognized document – Inkomst kundfordran',
         transactions: [
-          ['1510', '200 000'],
-          ['2610', '-40 000'],
-          ['3011', '-160 000'],
+          ['1510', '162 500'],
+          ['2610', '-32 500'],
+          ['3011', '-130 000'],
         ],
       },
       0,
@@ -85,12 +85,12 @@ test.describe('handling invoices using Fakturametoden', () => {
     await expectJournalEntry(
       page,
       {
-        date: '2025-01-31',
+        date: '2026-04-30',
         description: 'Recognized document – Inkomst kundfordran',
         transactions: [
-          ['1510', '160 000'],
-          ['2610', '-32 000'],
-          ['3011', '-128 000'],
+          ['1510', '205 000'],
+          ['2610', '-41 000'],
+          ['3011', '-164 000'],
         ],
       },
       1,

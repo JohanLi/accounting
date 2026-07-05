@@ -1,6 +1,11 @@
 import { expect, test } from '@playwright/test'
 
-import { expectSuggestion, sendDocuments, truncateDb } from './utils'
+import {
+  expectSuggestion,
+  sendDocuments,
+  sendTransactions,
+  truncateDb,
+} from './utils'
 
 /*
   Gotcha: if a test fails, afterAll() is actually run before the next test starts.
@@ -17,6 +22,32 @@ test('when known documents are received, a suggestion is created', async ({
 }) => {
   await sendDocuments(
     ['bank.pdf', 'invoice.pdf', 'mobileProvider.pdf'],
+    request,
+  )
+
+  await sendTransactions(
+    [
+      {
+        outgoingAmount: '-130.000',
+        outgoingCurrency: 'SEK',
+        id: 'something1',
+        bookedDate: '2023-04-03',
+        valueDate: '2023-04-03',
+        text: '12345',
+        availableBalance: '-130.000',
+        type: 'bankRegular',
+      },
+      {
+        outgoingAmount: '-374.000',
+        outgoingCurrency: 'SEK',
+        id: 'something2',
+        bookedDate: '2025-01-31',
+        valueDate: '2025-01-31',
+        text: 'TRE SVERIGE',
+        availableBalance: '-504.000',
+        type: 'bankRegular',
+      },
+    ],
     request,
   )
 
@@ -39,11 +70,11 @@ test('when known documents are received, a suggestion is created', async ({
     page,
     {
       date: '2025-01-31',
-      description: 'Recognized document – Inkomst kundfordran',
+      description: 'Recognized document – Tre företagsabonnemang',
       transactions: [
-        ['1510', '160 000'],
-        ['2610', '-32 000'],
-        ['3011', '-128 000'],
+        ['2640', '75'],
+        ['6212', '299'],
+        ['1930', '-374'],
       ],
     },
     1,
@@ -52,12 +83,12 @@ test('when known documents are received, a suggestion is created', async ({
   await expectSuggestion(
     page,
     {
-      date: '2025-01-31',
-      description: 'Recognized document – Tre företagsabonnemang',
+      date: '2026-04-30',
+      description: 'Recognized document – Inkomst kundfordran',
       transactions: [
-        ['2640', '75'],
-        ['6212', '299'],
-        ['1930', '-374'],
+        ['1510', '205 000'],
+        ['2610', '-41 000'],
+        ['3011', '-164 000'],
       ],
     },
     2,
