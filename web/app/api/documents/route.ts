@@ -1,14 +1,14 @@
 import { eq } from 'drizzle-orm'
 
 import db from '../../db'
-import { getPDFStrings } from '../../document'
+import { getPDFLines } from '../../document'
 import { Documents } from '../../schema'
 import { getPdfHash } from './getPdfHash'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const id = searchParams.get('id')
-  const viewStrings = searchParams.get('viewStrings')
+  const viewLines = searchParams.get('viewLines')
 
   if (!id) {
     return new Response('id is required', { status: 400 })
@@ -22,8 +22,8 @@ export async function GET(request: Request) {
     throw Error(`Could not find document with id: ${id}`)
   }
 
-  if (viewStrings) {
-    const strings = await getPDFStrings(document.data)
+  if (viewLines) {
+    const strings = await getPDFLines(document.data)
 
     return new Response(JSON.stringify(strings, null, 2))
   }

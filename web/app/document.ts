@@ -1,14 +1,19 @@
-import Decimal from 'decimal.js'
-import { and, eq, like, sql } from 'drizzle-orm'
-import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
-import { TextContent } from 'pdfjs-dist/types/src/display/api'
+import { and, eq, like, sql } from 'drizzle-orm';
+import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
+import { TextContent, TextItem } from 'pdfjs-dist/types/src/display/api';
 
-import { JournalEntryUpdate } from './actions/updateJournalEntry'
-import { Transaction } from './getJournalEntries'
-import { getNonLinkedBankTransactions } from './getNonLinkedBankTransactions'
-import { Transactions } from './schema'
-import { AccountCode } from './types'
-import { krToOre } from './utils'
+
+
+import { JournalEntryUpdate } from './actions/updateJournalEntry';
+import { Transaction } from './getJournalEntries';
+import { getNonLinkedBankTransactions } from './getNonLinkedBankTransactions';
+import { Transactions } from './schema';
+import { AccountCode } from './types';
+import { krToOre } from './utils';
+
+
+
+
 
 // https://github.com/vercel/next.js/issues/58313#issuecomment-1807184812
 // @ts-expect-error pdf.js hack
@@ -41,59 +46,131 @@ export async function getPDFStrings(buffer: Buffer) {
     .flat()
 }
 
-type Characterization =
-  | 'INCOME'
-  | 'BANKING_COSTS'
-  | 'MOBILE_PROVIDER'
-  | 'ANNUAL_REPORT'
+type PDFLineItem = {
+  str: string
+  x: number
+  y: number
+}
+
+function isTextItem(item: TextContent['items'][number]): item is TextItem {
+  return 'str' in item
+}
+
+export async function getPDFLines(buffer: Buffer) {
+  const pdf = await getDocument({
+    data: Uint8Array.from(buffer),
+    // https://github.com/mozilla/pdf.js/issues/4244#issuecomment-1479534301
+    useSystemFonts: true,
+  }).promise
+  const { numPages } = pdf
+
+  const pageLines: string[] = []
+
+  for (let i = 1; i <= numPages; i++) {
+    const page = await pdf.getPage(i)
+    const textContent = await page.getTextContent()
+    const lines: { y: number; items: PDFLineItem[] }[] = []
+    const items = textContent.items
+      .filter(isTextItem)
+      .filter((item) => item.str.trim() !== '')
+      .map((item) => ({
+        str: item.str,
+        x: item.transform[4],
+        y: item.transform[5],
+      }))
+      .sort((a, b) => b.y - a.y || a.x - b.x)
+
+    for (const item of items) {
+      let line = lines.find((line) => Math.abs(line.y - item.y) < 2)
+
+      if (!line) {
+        line = { y: item.y, items: [] }
+        lines.push(line)
+      }
+
+      line.items.push(item)
+    }
+
+    pageLines.push(
+      ...lines
+        .sort((a, b) => b.y - a.y)
+        .map((line) =>
+          line.items
+            .sort((a, b) => a.x - b.x)
+            .map((item) => item.str)
+            .join(' ')
+            .replace(/\s+/g, ' ')
+            .trim(),
+        ),
+    )
+  }
+
+  return pageLines
+}
+
 type VatRate = '0.25' | '0.12' | '0.06' | '0'
 
-const characterizations: {
-  [key in Characterization]: {
-    debit: AccountCode
-    credit: AccountCode
-    vatRate: VatRate
-  }
-} = {
-  INCOME: {
-    debit: 1510,
-    credit: 3011,
-    vatRate: '0.25',
-  },
-  BANKING_COSTS: {
-    debit: 6570,
-    credit: 1930,
-    vatRate: '0',
-  },
-  MOBILE_PROVIDER: {
-    debit: 6212,
-    credit: 1930,
-    vatRate: '0.25',
-  },
-  ANNUAL_REPORT: {
-    debit: 6550,
-    credit: 1930,
-    vatRate: '0.25',
-  },
+type ExtractionRule<T> = {
+  regex: RegExp
+  parse: (match: RegExpMatchArray) => T
 }
 
 type RecognizedDocument = {
   identifiedBy: string
-  characterization: Characterization
   description: string
+  postingType?: 'income'
+  accounting: {
+    debit: AccountCode
+    credit: AccountCode
+    vatRate: VatRate
+  }
+  extraction: {
+    dateRule: ExtractionRule<Date>
+    monetaryValueRule: ExtractionRule<number>
+  }
   getLinkedToTransactionIds?: (date: Date, amount: number) => Promise<number[]>
 }
 
 const recognizedDocuments: RecognizedDocument[] = [
   {
-    identifiedBy: 'Developers Bay AB',
-    characterization: 'INCOME',
+    identifiedBy: 'Magnit Global Sweden',
     description: 'Inkomst kundfordran',
+    postingType: 'income',
+    accounting: {
+      debit: 1510,
+      credit: 3011,
+      vatRate: '0.25',
+    },
+    extraction: {
+      dateRule: {
+        regex: /Invoice Date:\s*(\d{1,2})-([A-Z][a-z]{2})-(\d{4})/g,
+        parse: (match) =>
+          getUTCDate(match[3], monthNameToNumber(match[2]), match[1]),
+      },
+      monetaryValueRule: {
+        regex: /kr\s+(\d{1,3}(?:,\d{3})*\.\d{2})/g,
+        parse: (match) => krToOre(match[1].replaceAll(',', '')),
+      },
+    },
   },
   {
     identifiedBy: 'Skandinaviska Enskilda Banken AB',
-    characterization: 'BANKING_COSTS',
     description: 'SEB månadsavgift',
+    accounting: {
+      debit: 6570,
+      credit: 1930,
+      vatRate: '0',
+    },
+    extraction: {
+      dateRule: {
+        regex: /FÖRFALLODATUM:\s*(\d{4})-(\d{2})-(\d{2})/g,
+        parse: (match) => getUTCDate(match[1], match[2], match[3]),
+      },
+      monetaryValueRule: {
+        regex: /(\d+,\d{2})/g,
+        parse: (match) => parseSwedishKronor(match[1]),
+      },
+    },
     getLinkedToTransactionIds: async (date, amount) => {
       const transactions = await getNonLinkedBankTransactions({
         date,
@@ -109,8 +186,22 @@ const recognizedDocuments: RecognizedDocument[] = [
   },
   {
     identifiedBy: 'Hi3G Access AB',
-    characterization: 'MOBILE_PROVIDER',
     description: 'Tre företagsabonnemang',
+    accounting: {
+      debit: 6212,
+      credit: 1930,
+      vatRate: '0.25',
+    },
+    extraction: {
+      dateRule: {
+        regex: /Oss tillhanda\s+(\d{4})-(\d{2})-(\d{2})/g,
+        parse: (match) => getUTCDate(match[1], match[2], match[3]),
+      },
+      monetaryValueRule: {
+        regex: /(\d+,\d{2})/g,
+        parse: (match) => parseSwedishKronor(match[1]),
+      },
+    },
     getLinkedToTransactionIds: async (date, amount) => {
       const transactions = await getNonLinkedBankTransactions({
         date,
@@ -125,8 +216,22 @@ const recognizedDocuments: RecognizedDocument[] = [
   },
   {
     identifiedBy: 'Årsredovisning Online',
-    characterization: 'ANNUAL_REPORT',
     description: 'Årsredovisning Online',
+    accounting: {
+      debit: 6550,
+      credit: 1930,
+      vatRate: '0.25',
+    },
+    extraction: {
+      dateRule: {
+        regex: /Datum\s+(\d{4})-(\d{2})-(\d{2})/g,
+        parse: (match) => getUTCDate(match[1], match[2], match[3]),
+      },
+      monetaryValueRule: {
+        regex: /(\d{1,3}(?: \d{3})*,\d{2})/g,
+        parse: (match) => parseSwedishKronor(match[1]),
+      },
+    },
   },
 ]
 
@@ -150,17 +255,21 @@ export async function getRecognizedDocument(
     return null
   }
 
-  const { debit, credit, vatRate } = characterizations[source.characterization]
+  const { debit, credit, vatRate } = source.accounting
+  const { dateRule, monetaryValueRule } = source.extraction
 
-  const monetaryValues = getMonetaryValues(strings)
+  const monetaryValues = getRecognizedDocumentMonetaryValues(
+    strings,
+    monetaryValueRule,
+  )
 
   if (!monetaryValues.length) {
     throw Error('Did not find any monetary values')
   }
 
-  const dates = getDates(strings)
+  const date = getRecognizedDocumentDate(strings, dateRule)
 
-  if (!dates.length) {
+  if (!date) {
     throw Error('Did not find any dates')
   }
 
@@ -171,24 +280,24 @@ export async function getRecognizedDocument(
     const expectedVat = Math.round(total - total / (1 + parseFloat(vatRate)))
 
     const foundExpectedVat = monetaryValues.find(
-      (value) => value === expectedVat,
+      /*
+       The 50 ören tolerance has to do with some providers rounding the VAT
+       to the nearest kr, like Tre does. I haven't bothered writing logic
+       handling öresavrundning as I find the amount negligible.
+       */
+      (value) => Math.abs(value - expectedVat) <= 50,
     )
 
-    if (foundExpectedVat === undefined) {
-      // this can occur if the total has been rounded to the nearest krona
-      if (!strings.includes(`Moms ${Decimal.mul(vatRate, 100)}%`)) {
-        throw Error('Did not find the expected VAT rate')
-      }
+    if (!foundExpectedVat) {
+      throw Error('Did not find the expected VAT')
     }
 
     vat = expectedVat
   }
 
-  let date: Date
   let transactions: Transaction[]
 
-  if (source.characterization === 'INCOME') {
-    date = getEarliestAndLatestDate(dates).earliest
+  if (source.postingType === 'income') {
     transactions = [
       {
         accountId: debit,
@@ -204,7 +313,6 @@ export async function getRecognizedDocument(
       },
     ]
   } else {
-    date = getEarliestAndLatestDate(dates).latest
     transactions = [
       {
         accountId: debit,
@@ -243,18 +351,6 @@ export async function getRecognizedDocument(
   }
 }
 
-function getEarliestAndLatestDate(dates: Date[]) {
-  let earliest = dates[0]
-  let latest = dates[0]
-
-  for (const date of dates) {
-    if (date < earliest) earliest = date
-    if (date > latest) latest = date
-  }
-
-  return { earliest, latest }
-}
-
 function unique<T>(array: T[]) {
   return [...new Set(array)]
 }
@@ -265,91 +361,59 @@ function uniqueDate(array: Date[]) {
   )
 }
 
-const monetaryFormats = [
-  /(\d{1,3}\.\d{3}\.\d{2}) SEK/, // MacBook purchase
-  /(\d{1,3}(?: \d{3})*,\d{2}) SEK/,
-  /(\d{1,3}(?: \d{3})*\.\d{2}) SEK/,
-  /(\d+) SEK/, // Webhallen purchase
-  /(\d{1,3}([ .]?\d{3})*,\d{2})/,
-  /(\d+,\d{2})/,
-]
-export function getMonetaryValues(strings: string[]) {
-  const found = monetaryFormats.find((regex) =>
-    strings.find((string) => string.match(regex)),
+function extractWithRule<T>(strings: string[], rule: ExtractionRule<T>) {
+  return strings.flatMap((string) =>
+    Array.from(string.matchAll(rule.regex)).map((match) => rule.parse(match)),
   )
-
-  if (!found) {
-    return []
-  }
-
-  return unique(
-    strings
-      .map((string) => string.match(found))
-      .filter((found): found is RegExpMatchArray => found !== null)
-      .map((found) =>
-        found[1]
-          // invoice
-          .replace(/.(\d{3})/, '$1')
-          // using point as decimal separator
-          .replace(',', '.'),
-      ),
-  )
-    .map((string) => krToOre(string))
-    .sort((a, b) => b - a)
 }
 
-const dateFormats = [
-  /[A-Z][a-z]{2} \d{1,2}, \d{4}/,
-  /\d{4}-\d{2}-\d{2}/,
-  /(\d{2})\/(\d{2})\/(\d{4})/,
-  /(\d{1,2})[./](\d{1,2})[./](\d{4})/,
-]
-/*
-  There exists ambiguity between MM/DD/YYYY and DD/MM/YYYY. It appears that USA and Canada use MM/DD/YYYY.
-  If $ is detected as the currency in an unknown document, we'll assume MM/DD/YYYY.
+function getRecognizedDocumentMonetaryValues(
+  strings: string[],
+  rule: ExtractionRule<number>,
+) {
+  return unique(extractWithRule(strings, rule)).sort((a, b) => b - a)
+}
 
-  An alternate solution is to return dates assuming both formats, as long as they're valid. It doesn't matter
-  for unknown documents, because the date is only used to find bank transactions.
- */
-export function getDates(strings: string[], checkMMDDYYYY = false) {
-  const found = dateFormats.findIndex((regex) =>
-    strings.find((string) => string.match(regex)),
-  )
+function getRecognizedDocumentDate(
+  strings: string[],
+  rule: ExtractionRule<Date>,
+) {
+  const dates = uniqueDate(extractWithRule(strings, rule))
 
-  if (found === -1) {
-    return []
+  if (dates.length > 1) {
+    throw Error('Found more than one date')
   }
 
-  return uniqueDate(
-    strings
-      .map((string) => string.match(dateFormats[found]))
-      .filter((foundDate): foundDate is RegExpMatchArray => foundDate !== null)
-      .map((foundDate) => {
-        if (found === 2) {
-          if (!checkMMDDYYYY) {
-            return new Date(`${foundDate[3]}-${foundDate[2]}-${foundDate[1]}`)
-          }
+  return dates[0]
+}
 
-          return new Date(`${foundDate[3]}-${foundDate[1]}-${foundDate[2]}`)
-        }
+function getUTCDate(year: string, month: string, day: string) {
+  return new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`)
+}
 
-        /*
-          While "2024-05-25" is treated as UTC, strings like "2023-5-25" and "Apr 8, 2023" are treated as local time.
-          UTC+00:00 is a hack to make sure both of them are treated as UTC. Another option is padding the month and day.
-         */
-        if (found === 3) {
-          if (!checkMMDDYYYY) {
-            return new Date(
-              `${foundDate[3]}-${foundDate[2]}-${foundDate[1]} UTC+00:00`,
-            )
-          }
+function monthNameToNumber(month: string) {
+  const monthNumber = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ].indexOf(month)
 
-          return new Date(
-            `${foundDate[3]}-${foundDate[1]}-${foundDate[2]} UTC+00:00`,
-          )
-        }
+  if (monthNumber === -1) {
+    throw Error(`Unknown month: ${month}`)
+  }
 
-        return new Date(`${foundDate[0]} UTC+00:00`)
-      }),
-  )
+  return String(monthNumber + 1)
+}
+
+function parseSwedishKronor(value: string) {
+  return krToOre(value.replaceAll(' ', '').replace(',', '.'))
 }

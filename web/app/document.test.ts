@@ -1,12 +1,7 @@
-import { describe, expect, test, vi } from 'vitest'
+import { expect, test, vi } from 'vitest'
 
 import { readTestDocument } from '../tests/utils'
-import {
-  getDates,
-  getMonetaryValues,
-  getPDFStrings,
-  getRecognizedDocument,
-} from './document'
+import { getPDFLines, getRecognizedDocument } from './document'
 import { getNonLinkedBankTransactions } from './getNonLinkedBankTransactions'
 
 vi.mock('./getNonLinkedBankTransactions', () => ({
@@ -15,26 +10,26 @@ vi.mock('./getNonLinkedBankTransactions', () => ({
 
 async function getRecognizedDocumentFromFile(filename: string) {
   const data = await readTestDocument(filename)
-  const strings = await getPDFStrings(data)
+  const strings = await getPDFLines(data)
   return getRecognizedDocument(strings)
 }
 
-test('parse', async () => {
+test('getRecognizedDocument', async () => {
   expect(await getRecognizedDocumentFromFile('invoice.pdf')).toEqual({
-    date: new Date('2025-01-31'),
+    date: new Date('2026-04-30'),
     description: 'Recognized document – Inkomst kundfordran',
     transactions: [
       {
         accountId: 1510,
-        amount: 16000000,
+        amount: 20500000,
       },
       {
         accountId: 2610,
-        amount: -3200000,
+        amount: -4100000,
       },
       {
         accountId: 3011,
-        amount: -12800000,
+        amount: -16400000,
       },
     ],
     linkedToTransactionIds: [],
@@ -92,55 +87,24 @@ test('parse', async () => {
     ],
     linkedToTransactionIds: [22],
   })
-})
 
-describe('getDates', () => {
-  test('JetBrains invoices', () => {
-    expect(
-      getDates(['Payment Date: 26.4.2023', '26.4.2023', 'Due date: 26.4.2023']),
-    ).toEqual([new Date('2023-04-26')])
-  })
-
-  test('Namecheap invoices', () => {
-    expect(getDates([': 5/25/2024 1:23:11 PM'], true)).toEqual([
-      new Date('2024-05-25'),
-    ])
-  })
-})
-
-describe('getMonetaryValues', () => {
-  test('recognizes my invoices', () => {
-    expect(getMonetaryValues(['123 456,78'])).toEqual([12345678])
-  })
-
-  test('works for known formats, returning the amount in ören', () => {
-    expect(getMonetaryValues(['1,23 SEK'])).toEqual([123])
-    expect(getMonetaryValues(['12.34 SEK'])).toEqual([1234])
-    expect(getMonetaryValues(['2.555,20'])).toEqual([255520])
-    expect(getMonetaryValues(['380,00'])).toEqual([38000])
-  })
-
-  test('uses only the first found format', () => {
-    expect(
-      getMonetaryValues(['1,23 SEK', '12.34 SEK', '2.555,20', '380,00']),
-    ).toEqual([123])
-
-    // unhandled: Skånetrafiken tickets contain "31 SEK" without decimals but "1,75 SEK" for VAT
-  })
-
-  test('removes duplicates', () => {
-    expect(getMonetaryValues(['4,34 SEK', '4,34 SEK'])).toEqual([434])
-  })
-
-  test('sorts in descending order', () => {
-    expect(getMonetaryValues(['1 600,00', '400,00', '2 000,00'])).toEqual([
-      200000, 160000, 40000,
-    ])
-  })
-
-  test('prefers comma over period as the decimal separator when dealing with SEK', () => {
-    expect(getMonetaryValues(['9 876.54 SEK', '1 234,56 SEK'])).toEqual([
-      123456,
-    ])
+  expect(await getRecognizedDocumentFromFile('annualReport.pdf')).toEqual({
+    date: new Date('2025-08-02'),
+    description: 'Recognized document – Årsredovisning Online',
+    transactions: [
+      {
+        accountId: 2640,
+        amount: 42250,
+      },
+      {
+        accountId: 6550,
+        amount: 169000,
+      },
+      {
+        accountId: 1930,
+        amount: -211250,
+      },
+    ],
+    linkedToTransactionIds: [],
   })
 })

@@ -1,7 +1,7 @@
 import { asc, eq, isNull } from 'drizzle-orm'
 
 import db from '../db'
-import { getPDFStrings, getRecognizedDocument } from '../document'
+import { getPDFLines, getRecognizedDocument } from '../document'
 import { Documents, JournalEntries } from '../schema'
 
 export async function getDocumentSuggestions() {
@@ -21,7 +21,7 @@ export async function getDocumentSuggestions() {
   const knownDocumentSuggestions = []
 
   for (const document of pendingDocuments) {
-    const strings = await getPDFStrings(document.data)
+    const strings = await getPDFLines(document.data)
 
     const recognizedDocument = await getRecognizedDocument(strings)
 

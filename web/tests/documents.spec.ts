@@ -89,6 +89,6 @@ test('loading documents both as a PDF and as extracted strings', async ({
   response = await request.get(`/api/documents?id=${id}`)
   expect(response.headers()['content-type']).toEqual('application/pdf')
 
-  response = await request.get(`/api/documents?id=${id}&viewStrings=true`)
+  response = await request.get(`/api/documents?id=${id}&viewLines=true`)
   expect(response.headers()['content-type']).toEqual('text/plain;charset=UTF-8')
 })
