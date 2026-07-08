@@ -70,6 +70,7 @@ async function getDownloads() {
     },
     body: JSON.stringify({
       accountIds: [regularAccountId, savingsAccountId],
+      // there is a silent limit of 5 years
       dateFrom: COMPANY_START_DATE,
       dateTo: getTomorrow(),
       paginatingSize: 500,

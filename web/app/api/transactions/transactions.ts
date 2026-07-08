@@ -63,9 +63,9 @@ export function throwIfWrongSequence(
     return
   }
 
-  let balance = 0
+  let balance = transactions[0].balance
 
-  transactions.forEach((transaction) => {
+  transactions.slice(1).forEach((transaction) => {
     balance += transaction.amount
 
     if (transaction.balance !== balance) {
