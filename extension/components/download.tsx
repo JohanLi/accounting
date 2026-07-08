@@ -3,12 +3,17 @@ import { useEffect, useReducer } from 'react'
 import { browser } from 'wxt/browser'
 
 import type {
-  Response as BackgroundResponse,
+  BackgroundResponse,
+  RequestFileUrls,
   RequestFiles,
   UploadFile,
 } from '../entrypoints/background.ts'
 import LoadingSpinner from './loadingSpinner.tsx'
-import { classNames, responseToBase64 } from './utils.ts'
+import {
+  classNames,
+  getContentDispositionFilename,
+  responseToBase64,
+} from './utils.ts'
 
 /*
  For SEB, downloading too many in parallel seems to cause the server to
@@ -24,6 +29,7 @@ export type DownloadType = {
 type Props = {
   getDownloads: () => Promise<DownloadType[]>
   requestInit?: RequestInit
+  downloadInBackground?: boolean
 }
 
 type State = {
@@ -81,7 +87,11 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-export default function Download({ getDownloads, requestInit }: Props) {
+export default function Download({
+  getDownloads,
+  requestInit,
+  downloadInBackground = false,
+}: Props) {
   const [state, dispatch] = useReducer(reducer, initialState)
 
   useEffect(() => {
@@ -101,6 +111,27 @@ export default function Download({ getDownloads, requestInit }: Props) {
 
   const onClick = async () => {
     dispatch({ type: 'downloadStarted' })
+
+    if (downloadInBackground) {
+      const response = await browser.runtime.sendMessage<
+        RequestFileUrls,
+        BackgroundResponse
+      >({
+        type: 'fileUrls',
+        downloads: state.downloads,
+      })
+
+      if ('error' in response) {
+        dispatch({
+          type: 'error',
+          payload: `Failed to download: ${response.error}`,
+        })
+        return
+      }
+
+      dispatch({ type: 'downloadCompleted', payload: response.created })
+      return
+    }
 
     let uploadFiles: UploadFile[]
 
@@ -223,22 +254,4 @@ export default function Download({ getDownloads, requestInit }: Props) {
       )}
     </div>
   )
-}
-
-function getContentDispositionFilename(response: Response) {
-  const contentDisposition = response.headers.get('content-disposition')
-
-  if (!contentDisposition) {
-    return null
-  }
-
-  const utf8Match = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i)
-
-  if (utf8Match?.[1]) {
-    return decodeURIComponent(utf8Match[1].replace(/^"|"$/g, ''))
-  }
-
-  const match = contentDisposition.match(/filename="?([^";]+)"?/i)
-
-  return match?.[1] ?? null
 }

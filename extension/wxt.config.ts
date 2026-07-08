@@ -1,9 +1,14 @@
 import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'wxt'
 
+import { CHATGPT_HOST_PERMISSIONS } from './entrypoints/chatgpt.content/permissions.ts'
+
 // See https://wxt.dev/api/config.html
 export default defineConfig({
   modules: ['@wxt-dev/module-react'],
+  manifest: {
+    host_permissions: CHATGPT_HOST_PERMISSIONS,
+  },
   vite: () => ({
     plugins: [tailwindcss()],
   }),

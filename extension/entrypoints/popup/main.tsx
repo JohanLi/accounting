@@ -16,6 +16,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           </Link>
           <Link href="https://www.tre.se/mitt3/fakturor">Tre</Link>
           <Link href="https://eu.workforcelogiq.com/Login/Login">Magnit</Link>
+          <Link href="https://chatgpt.com/#settings/Billing">ChatGPT</Link>
           {/*
             Order receipts from Namecheap are a frustrating experience. While they get sent to both your Namecheap
             inbox and your email, neither of these places show you your added company details. Instead, it's this

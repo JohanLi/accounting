@@ -2,8 +2,8 @@ import { useEffect, useReducer } from 'react'
 import { browser } from 'wxt/browser'
 
 import type {
+  BackgroundResponse,
   RequestTransactions,
-  Response,
   Transactions,
 } from '../entrypoints/background.ts'
 import LoadingSpinner from './loadingSpinner.tsx'
@@ -91,7 +91,7 @@ export default function DownloadTransactions({ getDownloads }: Props) {
 
     const response = await browser.runtime.sendMessage<
       RequestTransactions,
-      Response
+      BackgroundResponse
     >({
       type: 'transactions',
       transactions: state.downloads,
