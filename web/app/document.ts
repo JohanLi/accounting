@@ -1,4 +1,4 @@
-import { and, eq, like, sql } from 'drizzle-orm'
+import { and, between, eq, like, sql } from 'drizzle-orm'
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 import { TextContent, TextItem } from 'pdfjs-dist/types/src/display/api'
 
@@ -117,11 +117,16 @@ type RecognizedDocument = {
     debit: AccountCode
     credit: AccountCode
     vatRate: VatRate
+    reverseCharge?: true
   }
   extraction: {
     dateRule: ExtractionRule<Date>
     monetaryValueRule: ExtractionRule<number>
   }
+  resolveTotal?: (
+    date: Date,
+    extractedAmount: number,
+  ) => Promise<{ total: number; linkedToTransactionIds: number[] } | null>
   getLinkedToTransactionIds?: (date: Date, amount: number) => Promise<number[]>
 }
 
@@ -227,6 +232,61 @@ const recognizedDocuments: RecognizedDocument[] = [
       },
     },
   },
+  {
+    identifiedBy: 'ChatGPT Plus',
+    description: 'ChatGPT Plus',
+    accounting: {
+      debit: 4535,
+      credit: 1930,
+      vatRate: '0.25',
+      reverseCharge: true,
+    },
+    extraction: {
+      dateRule: {
+        regex: /Date due ([A-Z][a-z]+) (\d{1,2}), (\d{4})/g,
+        parse: (match) =>
+          getUTCDate(match[3], englishMonthNameToNumber(match[1]), match[2]),
+      },
+      monetaryValueRule: {
+        regex: /Total €(\d+\.\d{2})/g,
+        parse: (match) => krToOre(match[1]),
+      },
+    },
+    resolveTotal: async (date, euroAmount) => {
+      const assumedSekPerEuro = 10
+      const exchangeRateMargin = 0.5
+      const minimumAmount = Math.round(
+        euroAmount * assumedSekPerEuro * (1 - exchangeRateMargin),
+      )
+      const maximumAmount = Math.round(
+        euroAmount * assumedSekPerEuro * (1 + exchangeRateMargin),
+      )
+
+      const transactions = await getNonLinkedBankTransactions({
+        date,
+        dateMarginDays: 2,
+        where: and(
+          between(Transactions.amount, -maximumAmount, -minimumAmount),
+          like(Transactions.description, 'DUBLIN %'),
+        ),
+      })
+
+      if (transactions.length > 1) {
+        throw Error('Found more than one matching ChatGPT Plus transaction')
+      }
+
+      const transaction = transactions[0]
+
+      if (!transaction) {
+        return null
+      }
+
+      return {
+        total: Math.abs(transaction.amount),
+        linkedToTransactionIds: [transaction.id],
+      }
+    },
+  },
 ]
 
 export async function getRecognizedDocument(
@@ -267,10 +327,25 @@ export async function getRecognizedDocument(
     throw Error('Did not find any dates')
   }
 
-  const total = monetaryValues[0]
+  let total = monetaryValues[0]
+  let linkedToTransactionIds: number[] = []
+
+  if (source.resolveTotal) {
+    const resolvedTotal = await source.resolveTotal(date, total)
+
+    if (!resolvedTotal) {
+      return null
+    }
+
+    total = resolvedTotal.total
+    linkedToTransactionIds = resolvedTotal.linkedToTransactionIds
+  }
+
   let vat = 0
 
-  if (vatRate !== '0') {
+  if (source.accounting.reverseCharge) {
+    vat = Math.round(total * parseFloat(vatRate))
+  } else if (vatRate !== '0') {
     const expectedVat = Math.round(total - total / (1 + parseFloat(vatRate)))
 
     const foundExpectedVat = monetaryValues.find(
@@ -306,6 +381,25 @@ export async function getRecognizedDocument(
         amount: -(total - vat),
       },
     ]
+  } else if (source.accounting.reverseCharge) {
+    transactions = [
+      {
+        accountId: debit,
+        amount: total,
+      },
+      {
+        accountId: credit,
+        amount: -total,
+      },
+      {
+        accountId: 2614,
+        amount: -vat,
+      },
+      {
+        accountId: 2645,
+        amount: vat,
+      },
+    ]
   } else {
     transactions = [
       {
@@ -325,8 +419,6 @@ export async function getRecognizedDocument(
       })
     }
   }
-
-  let linkedToTransactionIds: number[] = []
 
   if (source.getLinkedToTransactionIds) {
     linkedToTransactionIds = await source.getLinkedToTransactionIds(date, total)
@@ -399,6 +491,29 @@ function monthNameToNumber(month: string) {
     'Oct',
     'Nov',
     'Dec',
+  ].indexOf(month)
+
+  if (monthNumber === -1) {
+    throw Error(`Unknown month: ${month}`)
+  }
+
+  return String(monthNumber + 1)
+}
+
+function englishMonthNameToNumber(month: string) {
+  const monthNumber = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
   ].indexOf(month)
 
   if (monthNumber === -1) {

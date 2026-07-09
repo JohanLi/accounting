@@ -110,7 +110,7 @@ test("when receiving a document that already exists, a new one isn't created", a
 test('loading documents both as a PDF and as extracted strings', async ({
   request,
 }) => {
-  let response = await sendDocuments(['jetbrainsWebstorm.pdf'], request)
+  let response = await sendDocuments(['chatgpt.pdf'], request)
 
   expect(response.ok()).toBe(true)
   const data = await response.json()

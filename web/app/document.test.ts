@@ -107,4 +107,36 @@ test('getRecognizedDocument', async () => {
     ],
     linkedToTransactionIds: [],
   })
+
+  vi.mocked(getNonLinkedBankTransactions).mockResolvedValueOnce([
+    {
+      id: 44,
+      amount: -20697,
+      date: new Date('2026-06-15'),
+    },
+  ])
+
+  expect(await getRecognizedDocumentFromFile('chatgpt.pdf')).toEqual({
+    date: new Date('2026-06-13'),
+    description: 'Recognized document – ChatGPT Plus',
+    transactions: [
+      {
+        accountId: 4535,
+        amount: 20697,
+      },
+      {
+        accountId: 1930,
+        amount: -20697,
+      },
+      {
+        accountId: 2614,
+        amount: -5174,
+      },
+      {
+        accountId: 2645,
+        amount: 5174,
+      },
+    ],
+    linkedToTransactionIds: [44],
+  })
 })
