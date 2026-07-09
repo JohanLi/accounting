@@ -5,10 +5,11 @@
     "setup": "pnpm --filter web run db:setup",
     "dev": "pnpm --reporter append-only run -r --parallel dev",
     "prepare": "husky",
-    "pre-commit": "pnpm run -r --workspace-concurrency=1 pre-commit"
+    "pre-commit": "pnpm exec lint-staged && pnpm run -r pre-commit"
   },
   "devDependencies": {
-    "husky": "^9.0.11"
+    "husky": "^9.0.11",
+    "lint-staged": "^16.1.2"
   },
   "packageManager": "pnpm@11.11.0+sha512.4463f65fd80ed80d69bc1d4bf163ee94f605c7380fc318bb5b2ebe15f8cd12d49c51a4d59e951b401e764d3b6ca751cbf51bc50ed7001a6bcb4935e684c34882"
 }
