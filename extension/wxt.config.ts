@@ -2,12 +2,21 @@ import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'wxt'
 
 import { CHATGPT_HOST_PERMISSIONS } from './entrypoints/chatgpt.content/permissions.ts'
+import { MAGNIT_HOST_PERMISSIONS } from './entrypoints/magnit.content/permissions.ts'
+import { SEB_HOST_PERMISSIONS } from './entrypoints/seb.content/permissions.ts'
+import { TRE_HOST_PERMISSIONS } from './entrypoints/tre.content/permissions.ts'
 
 // See https://wxt.dev/api/config.html
 export default defineConfig({
   modules: ['@wxt-dev/module-react'],
   manifest: {
-    host_permissions: CHATGPT_HOST_PERMISSIONS,
+    host_permissions: [
+      'http://localhost/*',
+      ...CHATGPT_HOST_PERMISSIONS,
+      ...MAGNIT_HOST_PERMISSIONS,
+      ...SEB_HOST_PERMISSIONS,
+      ...TRE_HOST_PERMISSIONS,
+    ],
   },
   vite: () => ({
     plugins: [tailwindcss()],

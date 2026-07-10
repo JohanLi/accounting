@@ -3,7 +3,7 @@ import { browser } from 'wxt/browser'
 
 import type {
   BackgroundResponse,
-  RequestTransactions,
+  RequestUploadTransactions,
   Transactions,
 } from '../entrypoints/background.ts'
 import LoadingSpinner from './loadingSpinner.tsx'
@@ -90,10 +90,10 @@ export default function DownloadTransactions({ getDownloads }: Props) {
     dispatch({ type: 'downloadStarted' })
 
     const response = await browser.runtime.sendMessage<
-      RequestTransactions,
+      RequestUploadTransactions,
       BackgroundResponse
     >({
-      type: 'transactions',
+      type: 'uploadTransactions',
       transactions: state.downloads,
     })
 

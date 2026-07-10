@@ -1,35 +1,19 @@
-import pLimit from 'p-limit'
 import { useEffect, useReducer } from 'react'
 import { browser } from 'wxt/browser'
 
 import type {
   BackgroundResponse,
-  RequestFileUrls,
-  RequestFiles,
-  UploadFile,
+  RequestDownloadDocuments,
 } from '../entrypoints/background.ts'
 import LoadingSpinner from './loadingSpinner.tsx'
-import {
-  classNames,
-  getContentDispositionFilename,
-  responseToBase64,
-} from './utils.ts'
-
-/*
- For SEB, downloading too many in parallel seems to cause the server to
- error out. It's probably a good idea to do this in general, though.
- */
-const limit = pLimit(5)
+import { classNames } from './utils.ts'
 
 export type DownloadType = {
   url: string
-  filename?: string
 }
 
 type Props = {
   getDownloads: () => Promise<DownloadType[]>
-  requestInit?: RequestInit
-  downloadInBackground?: boolean
 }
 
 type State = {
@@ -87,11 +71,7 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-export default function Download({
-  getDownloads,
-  requestInit,
-  downloadInBackground = false,
-}: Props) {
+export default function Download({ getDownloads }: Props) {
   const [state, dispatch] = useReducer(reducer, initialState)
 
   useEffect(() => {
@@ -112,59 +92,12 @@ export default function Download({
   const onClick = async () => {
     dispatch({ type: 'downloadStarted' })
 
-    if (downloadInBackground) {
-      const response = await browser.runtime.sendMessage<
-        RequestFileUrls,
-        BackgroundResponse
-      >({
-        type: 'fileUrls',
-        downloads: state.downloads,
-      })
-
-      if ('error' in response) {
-        dispatch({
-          type: 'error',
-          payload: `Failed to download: ${response.error}`,
-        })
-        return
-      }
-
-      dispatch({ type: 'downloadCompleted', payload: response.created })
-      return
-    }
-
-    let uploadFiles: UploadFile[]
-
-    try {
-      uploadFiles = await Promise.all(
-        state.downloads.map(async (download) => {
-          const response = await limit(() => fetch(download.url, requestInit))
-          const filename =
-            getContentDispositionFilename(response) ?? download.filename
-
-          if (!filename) {
-            throw new Error('Missing filename')
-          }
-
-          const data = await responseToBase64(response)
-          return {
-            filename,
-            data,
-          }
-        }),
-      )
-    } catch (e) {
-      console.error(e)
-      dispatch({ type: 'error', payload: 'Failed to download' })
-      return
-    }
-
     const response = await browser.runtime.sendMessage<
-      RequestFiles,
+      RequestDownloadDocuments,
       BackgroundResponse
     >({
-      type: 'files',
-      uploadFiles,
+      type: 'downloadDocuments',
+      downloads: state.downloads,
     })
 
     if ('error' in response) {

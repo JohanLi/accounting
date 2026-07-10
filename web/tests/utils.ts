@@ -12,20 +12,15 @@ export async function sendDocuments(
   filenames: string[],
   request: APIRequestContext,
 ) {
-  const base64List = await Promise.all(
-    filenames.map(async (filename) =>
-      (await readTestDocument(filename)).toString('base64'),
-    ),
-  )
+  const formData = new FormData()
+  const documents = await Promise.all(filenames.map(readTestDocument))
+
+  for (const data of documents) {
+    formData.append('documents', new Blob([data], { type: 'application/pdf' }))
+  }
 
   return request.put('/api/documents', {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    data: base64List.map((base64, i) => ({
-      filename: filenames[i],
-      data: base64,
-    })),
+    multipart: formData,
   })
 }
 

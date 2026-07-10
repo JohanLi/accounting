@@ -5,8 +5,6 @@ import { defineContentScript } from 'wxt/utils/define-content-script'
 import Download, { type DownloadType } from '../../components/download.tsx'
 import '../../components/tailwind.css'
 
-export { CHATGPT_HOST_PERMISSIONS } from './permissions.ts'
-
 export default defineContentScript({
   matches: ['https://chatgpt.com/*'],
   cssInjectionMode: 'ui',
@@ -28,9 +26,7 @@ export default defineContentScript({
         container.append(app)
 
         const root = ReactDOM.createRoot(app)
-        root.render(
-          <Download downloadInBackground getDownloads={getDownloads} />,
-        )
+        root.render(<Download getDownloads={getDownloads} />)
         return root
       },
       onRemove: (root) => {

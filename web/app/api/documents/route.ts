@@ -35,23 +35,24 @@ export async function GET(request: Request) {
   })
 }
 
-export type DocumentUpload = {
-  filename: string
-  data: string
-}
-
 export async function PUT(request: Request) {
-  const files = (await request.json()) as DocumentUpload[]
+  const formData = await request.formData()
+  const entries = formData.getAll('documents')
+  const files = entries.filter((entry): entry is File => entry instanceof File)
+
+  if (!files.length || files.length !== entries.length) {
+    return new Response('documents must contain at least one file', {
+      status: 400,
+    })
+  }
 
   const documents = await Promise.all(
     files.map(async (file) => {
-      const data = Buffer.from(file.data, 'base64')
-      const { filename } = file
+      const data = Buffer.from(await file.arrayBuffer())
 
       return {
-        filename,
         data,
-        hash: await getPdfHash(data, filename),
+        hash: await getPdfHash(data),
       }
     }),
   )
@@ -60,7 +61,7 @@ export async function PUT(request: Request) {
     .insert(Documents)
     .values(documents)
     .onConflictDoNothing()
-    .returning({ id: Documents.id, filename: Documents.filename })
+    .returning({ id: Documents.id })
 
   return Response.json(insertedDocuments)
 }

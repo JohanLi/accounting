@@ -14,9 +14,9 @@ import ReactDOM from 'react-dom/client'
 import { createShadowRootUi } from 'wxt/utils/content-script-ui/shadow-root'
 import { defineContentScript } from 'wxt/utils/define-content-script'
 
-import Download from '../components/download.tsx'
-import '../components/tailwind.css'
-import { COMPANY_START_DATE, getTomorrow } from '../components/utils.ts'
+import Download from '../../components/download.tsx'
+import '../../components/tailwind.css'
+import { COMPANY_START_DATE, getTomorrow } from '../../components/utils.ts'
 
 export default defineContentScript({
   matches: ['https://apps.seb.se/ccs/ibf/*'],
@@ -32,12 +32,7 @@ export default defineContentScript({
         container.append(app)
 
         const root = ReactDOM.createRoot(app)
-        root.render(
-          <Download
-            getDownloads={getDownloads}
-            requestInit={{ credentials: 'include' }}
-          />,
-        )
+        root.render(<Download getDownloads={getDownloads} />)
         return root
       },
       onRemove: (root) => {
@@ -91,6 +86,5 @@ async function getDownloads() {
     .filter(({ title }) => title === 'Faktura')
     .map((document) => ({
       url: `${API_BASE_URL}/pdf/${document.document_key}`,
-      filename: `bookkeeping/seb/seb-${document.effective_date}.pdf`,
     }))
 }

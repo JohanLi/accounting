@@ -1,46 +1,56 @@
-import {
-  getContentDispositionFilename,
-  responseToBase64,
-} from '@/components/utils.ts'
+import pLimit from 'p-limit'
 import { browser } from 'wxt/browser'
 import { defineBackground } from 'wxt/utils/define-background'
 
-export type UploadFile = {
-  filename: string
-  data: string
-}
-
 export type Transactions = Record<string, string>[]
 
-export type DownloadFile = {
+export type DocumentDownload = {
   url: string
-  filename?: string
 }
 
-export type RequestFiles = {
-  type: 'files'
-  uploadFiles: UploadFile[]
+export type RequestDownloadDocuments = {
+  type: 'downloadDocuments'
+  downloads: DocumentDownload[]
 }
 
-export type RequestFileUrls = {
-  type: 'fileUrls'
-  downloads: DownloadFile[]
-}
-
-export type RequestTransactions = {
-  type: 'transactions'
+export type RequestUploadTransactions = {
+  type: 'uploadTransactions'
   transactions: Transactions
 }
 
 export type BackgroundResponse = { created: number } | { error: string }
 
-async function handleFiles(body: RequestFiles): Promise<BackgroundResponse> {
-  const { uploadFiles } = body
+// Some providers fail when too many documents are requested concurrently.
+const limit = pLimit(5)
+
+async function downloadDocuments(
+  body: RequestDownloadDocuments,
+): Promise<BackgroundResponse> {
+  const documents = await Promise.all(
+    body.downloads.map((download) =>
+      limit(async () => {
+        const response = await fetch(download.url, { credentials: 'include' })
+
+        if (!response.ok) {
+          throw new Error(
+            `Failed to download ${download.url}: ${response.status} ${response.statusText}`,
+          )
+        }
+
+        return response.blob()
+      }),
+    ),
+  )
+
+  const formData = new FormData()
+
+  for (const document of documents) {
+    formData.append('documents', document)
+  }
 
   const response = await fetch('http://localhost:3000/api/documents', {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(uploadFiles),
+    body: formData,
   })
 
   if (!response.ok) {
@@ -51,38 +61,8 @@ async function handleFiles(body: RequestFiles): Promise<BackgroundResponse> {
   return { created: Array.isArray(json) ? json.length : 0 }
 }
 
-async function handleFileUrls(
-  body: RequestFileUrls,
-): Promise<BackgroundResponse> {
-  const uploadFiles = await Promise.all(
-    body.downloads.map(async (download) => {
-      const response = await fetch(download.url)
-
-      if (!response.ok) {
-        throw new Error(
-          `Failed to download ${download.url}: ${response.status} ${response.statusText}`,
-        )
-      }
-
-      const filename =
-        getContentDispositionFilename(response) ?? download.filename
-
-      if (!filename) {
-        throw new Error('Missing filename')
-      }
-
-      return {
-        filename,
-        data: await responseToBase64(response),
-      }
-    }),
-  )
-
-  return handleFiles({ type: 'files', uploadFiles })
-}
-
-async function handleTransactions(
-  body: RequestTransactions,
+async function uploadTransactions(
+  body: RequestUploadTransactions,
 ): Promise<BackgroundResponse> {
   const { transactions } = body
 
@@ -109,21 +89,19 @@ export default defineBackground(() => {
    */
   browser.runtime.onMessage.addListener(
     (
-      message: RequestFiles | RequestFileUrls | RequestTransactions,
+      message: RequestDownloadDocuments | RequestUploadTransactions,
       _,
       sendResponse,
     ) => {
-      if (message.type === 'files') {
-        handleFiles(message).then(sendResponse)
-      } else if (message.type === 'fileUrls') {
-        handleFileUrls(message)
+      if (message.type === 'downloadDocuments') {
+        downloadDocuments(message)
           .then(sendResponse)
           .catch((error) => {
             console.error(error)
             sendResponse({ error: 'Failed to download files' })
           })
-      } else if (message.type === 'transactions') {
-        handleTransactions(message).then(sendResponse)
+      } else if (message.type === 'uploadTransactions') {
+        uploadTransactions(message).then(sendResponse)
       } else {
         sendResponse({ error: `Message not recognized` })
       }

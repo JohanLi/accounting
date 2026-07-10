@@ -2,9 +2,9 @@ import ReactDOM from 'react-dom/client'
 import { createShadowRootUi } from 'wxt/utils/content-script-ui/shadow-root'
 import { defineContentScript } from 'wxt/utils/define-content-script'
 
-import Download from '../components/download.tsx'
-import '../components/tailwind.css'
-import { waitFor } from '../components/utils.ts'
+import Download from '../../components/download.tsx'
+import '../../components/tailwind.css'
+import { waitFor } from '../../components/utils.ts'
 
 export default defineContentScript({
   matches: ['https://eu.workforcelogiq.com/Invoice/List*'],
@@ -20,12 +20,7 @@ export default defineContentScript({
         container.append(app)
 
         const root = ReactDOM.createRoot(app)
-        root.render(
-          <Download
-            getDownloads={getDownloads}
-            requestInit={{ credentials: 'include' }}
-          />,
-        )
+        root.render(<Download getDownloads={getDownloads} />)
         return root
       },
       onRemove: (root) => {
@@ -52,9 +47,6 @@ async function getDownloads() {
     const vendorID = getRequiredAttribute(anchor, 'data-vendorid')
     const isManagmentFeeInvoice =
       anchor.dataset.ismanagmentfeeinvoice ?? 'false'
-    const invoiceNumber =
-      anchor.getAttribute('invoicenumdata') ?? anchor.textContent?.trim()
-
     const params = new URLSearchParams({
       invoiceID,
       vendorID,
@@ -64,7 +56,6 @@ async function getDownloads() {
 
     return {
       url: `${INVOICE_DOWNLOAD_URL}?${params}`,
-      filename: `bookkeeping/magnit/${invoiceNumber ?? invoiceID}.pdf`,
     }
   })
 }
