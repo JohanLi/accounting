@@ -8,9 +8,7 @@
     "pre-commit": "tsc --noEmit"
   },
   "lint-staged": {
-    "*.{ts,tsx}": [
-      "prettier --write"
-    ]
+    "*.{mjs,ts,tsx,css,html,json,md}": "prettier --write"
   },
   "dependencies": {
     "p-limit": "6.2.0",

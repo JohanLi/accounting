@@ -34,7 +34,13 @@ export function LinkPopover({
 }) {
   return (
     <Popover className="relative z-10">
-      {({ open }) => <LinkForm journalEntry={journalEntry} open={open} />}
+      {({ open }) => (
+        <LinkForm
+          key={open ? 'open' : 'closed'}
+          journalEntry={journalEntry}
+          open={open}
+        />
+      )}
     </Popover>
   )
 }
@@ -63,7 +69,6 @@ function LinkForm({
 
   useEffect(() => {
     if (!open) {
-      setCheckedTransactionIds(undefined)
       return
     }
 

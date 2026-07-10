@@ -2,8 +2,8 @@ packages:
   - web
   - extension
 overrides:
-  '@types/react': 19.0.2
-  '@types/react-dom': 19.0.2
+  '@types/react': 19.2.17
+  '@types/react-dom': 19.2.3
 allowBuilds:
   '@parcel/watcher': true
   '@swc/core': true
