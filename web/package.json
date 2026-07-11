@@ -21,7 +21,7 @@
     "drizzle-orm": "^0.45.2",
     "iconv-lite": "^0.7.3",
     "next": "16.2.10",
-    "pdfjs-dist": "5.4.54",
+    "pdfjs-dist": "6.1.200",
     "postgres": "^3.4.9",
     "react": "19.2.7",
     "react-dom": "19.2.7",
@@ -44,6 +44,6 @@
     "tailwindcss": "^4.3.2",
     "tsx": "^4.23.0",
     "typescript": "5.8.3",
-    "vitest": "^3.2.4"
+    "vitest": "^4.1.10"
   }
 }

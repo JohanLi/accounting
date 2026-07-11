@@ -1,6 +1,8 @@
 import type { NextConfig } from 'next'
 
-const nextConfig: NextConfig = {}
+const nextConfig: NextConfig = {
+  serverExternalPackages: ['pdfjs-dist'],
+}
 
 const NEXT_DIST_DIR = process.env.NEXT_DIST_DIR
 

@@ -9,14 +9,10 @@ import { Transactions } from './schema'
 import { AccountCode } from './types'
 import { krToOre } from './utils'
 
-// https://github.com/vercel/next.js/issues/58313#issuecomment-1807184812
-// @ts-expect-error pdf.js hack
-await import('pdfjs-dist/build/pdf.worker.mjs')
-
 export async function getPDFStrings(buffer: Buffer) {
   const pdf = await getDocument({
     data: Uint8Array.from(buffer),
-    // https://github.com/mozilla/pdf.js/issues/4244#issuecomment-1479534301
+    // avoid requiring standardFontDataUrl for PDFs that use non-embedded fonts
     useSystemFonts: true,
   }).promise
   const { numPages } = pdf
@@ -28,16 +24,9 @@ export async function getPDFStrings(buffer: Buffer) {
     pageTextContent.push(page.getTextContent())
   }
 
-  return (await Promise.all(pageTextContent))
-    .map((text) =>
-      text.items
-        .map((item) => {
-          // @ts-expect-error pdf.js hack
-          return item.str
-        })
-        .flat(),
-    )
-    .flat()
+  return (await Promise.all(pageTextContent)).flatMap((text) =>
+    text.items.filter(isTextItem).map((item) => item.str),
+  )
 }
 
 type PDFLineItem = {
@@ -53,7 +42,7 @@ function isTextItem(item: TextContent['items'][number]): item is TextItem {
 export async function getPDFLines(buffer: Buffer) {
   const pdf = await getDocument({
     data: Uint8Array.from(buffer),
-    // https://github.com/mozilla/pdf.js/issues/4244#issuecomment-1479534301
+    // avoid requiring standardFontDataUrl for PDFs that use non-embedded fonts
     useSystemFonts: true,
   }).promise
   const { numPages } = pdf
