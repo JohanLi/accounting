@@ -11,9 +11,6 @@ For personal use. The user experience I'm aiming for is:
 
 ```
 pnpm install
-pnpm run setup
+pnpm setup
 pnpm dev
 ```
-
-If using Apple silicon, you'll need to [do this](https://github.com/Automattic/node-canvas/issues/2036#issuecomment-1627742027)
-before running `pnpm install`.
