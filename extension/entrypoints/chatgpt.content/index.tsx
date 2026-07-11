@@ -1,9 +1,8 @@
+import Download, { type DownloadType } from '@/components/download.tsx'
+import '@/components/tailwind.css'
 import ReactDOM from 'react-dom/client'
 import { createShadowRootUi } from 'wxt/utils/content-script-ui/shadow-root'
 import { defineContentScript } from 'wxt/utils/define-content-script'
-
-import Download, { type DownloadType } from '../../components/download.tsx'
-import '../../components/tailwind.css'
 
 export default defineContentScript({
   matches: ['https://chatgpt.com/*'],

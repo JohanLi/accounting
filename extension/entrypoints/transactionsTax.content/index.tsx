@@ -1,10 +1,9 @@
+import DownloadTransactions from '@/components/downloadTransactions.tsx'
+import '@/components/tailwind.css'
+import { COMPANY_START_DATE } from '@/components/utils.ts'
 import ReactDOM from 'react-dom/client'
 import { createShadowRootUi } from 'wxt/utils/content-script-ui/shadow-root'
 import { defineContentScript } from 'wxt/utils/define-content-script'
-
-import DownloadTransactions from '../../components/downloadTransactions.tsx'
-import '../../components/tailwind.css'
-import { COMPANY_START_DATE } from '../../components/utils.ts'
 
 export default defineContentScript({
   matches: ['https://www7.skatteverket.se/portal/skattekonto'],
