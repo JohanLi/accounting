@@ -26,6 +26,14 @@ export function getTomorrow() {
   return formatDate(currentDate)
 }
 
+export function getYesterday() {
+  const currentDate = new Date()
+
+  currentDate.setDate(currentDate.getDate() - 1)
+
+  return formatDate(currentDate)
+}
+
 export function waitFor(selector: string, count: number = 1) {
   return new Promise<void>((resolve) => {
     if (document.querySelectorAll(selector).length >= count) {

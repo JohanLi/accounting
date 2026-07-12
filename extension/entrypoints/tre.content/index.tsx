@@ -31,7 +31,7 @@ export default defineContentScript({
   },
 })
 
-const COUNT = 4
+const COUNT = 6
 
 const selector = 'a[href^="/mitt3/fakturor/"]'
 

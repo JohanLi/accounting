@@ -1,6 +1,6 @@
 import DownloadTransactions from '@/components/downloadTransactions.tsx'
 import '@/components/tailwind.css'
-import { formatDate, getOneYearAgo } from '@/components/utils.ts'
+import { getOneYearAgo, getYesterday } from '@/components/utils.ts'
 import ReactDOM from 'react-dom/client'
 import { createShadowRootUi } from 'wxt/utils/content-script-ui/shadow-root'
 import { defineContentScript } from 'wxt/utils/define-content-script'
@@ -56,7 +56,8 @@ async function getDownloads() {
       idPers: organizationId,
       kodGruppTrans: '1',
       datFrom: atMidnight(getOneYearAgo()),
-      datTom: atMidnight(formatDate(new Date())),
+      // the until field is mandatory. This is the latest datetime you can pass in
+      datTom: atMidnight(getYesterday()),
       typFgKontoutdrag: '',
       visaRadioknappar: 'J',
       sprak: 'sv',
@@ -69,7 +70,7 @@ async function getDownloads() {
 
   const json = await response.json()
 
-  const transactions = json.transrader
+  return json.transrader
     .filter((transaction: any) => transaction.datTrans)
     .map((transaction: any) => ({
       date: transaction.datTrans.slice(0, 10),
@@ -77,6 +78,4 @@ async function getDownloads() {
       amount: String(transaction.belSkm),
       balance: String(transaction.radsaldoSkm),
     }))
-
-  return transactions
 }
