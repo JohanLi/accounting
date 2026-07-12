@@ -83,30 +83,22 @@ async function uploadTransactions(
 }
 
 export default defineBackground(() => {
-  /*
-    returning a Promise doesn't work in Chrome due to a bug:
-    https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/onMessage#sending_an_asynchronous_response_using_a_promise
-   */
   browser.runtime.onMessage.addListener(
-    (
-      message: RequestDownloadDocuments | RequestUploadTransactions,
-      _,
-      sendResponse,
-    ) => {
-      if (message.type === 'downloadDocuments') {
-        downloadDocuments(message)
-          .then(sendResponse)
-          .catch((error) => {
-            console.error(error)
-            sendResponse({ error: 'Failed to download files' })
-          })
-      } else if (message.type === 'uploadTransactions') {
-        uploadTransactions(message).then(sendResponse)
-      } else {
-        sendResponse({ error: `Message not recognized` })
-      }
+    async (message: RequestDownloadDocuments | RequestUploadTransactions) => {
+      try {
+        if (message.type === 'downloadDocuments') {
+          return await downloadDocuments(message)
+        }
 
-      return true
+        if (message.type === 'uploadTransactions') {
+          return await uploadTransactions(message)
+        }
+
+        return { error: 'Message not recognized' }
+      } catch (error) {
+        console.error(error)
+        return { error: 'Request failed' }
+      }
     },
   )
 })

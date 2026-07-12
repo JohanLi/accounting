@@ -10,6 +10,8 @@ import { TRE_HOST_PERMISSIONS } from './entrypoints/tre.content/permissions.ts'
 export default defineConfig({
   modules: ['@wxt-dev/module-react'],
   manifest: {
+    // Chrome 148 added support for Promise-returning runtime.onMessage listeners
+    minimum_chrome_version: '148',
     host_permissions: [
       'http://localhost/*',
       ...CHATGPT_HOST_PERMISSIONS,
