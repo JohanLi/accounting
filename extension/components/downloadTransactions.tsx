@@ -89,23 +89,32 @@ export default function DownloadTransactions({ getDownloads }: Props) {
   const onClick = async () => {
     dispatch({ type: 'downloadStarted' })
 
-    const response = await browser.runtime.sendMessage<
-      RequestUploadTransactions,
-      BackgroundResponse
-    >({
-      type: 'uploadTransactions',
-      transactions: state.downloads,
-    })
+    try {
+      const response = await browser.runtime.sendMessage<
+        RequestUploadTransactions,
+        BackgroundResponse
+      >({
+        type: 'uploadTransactions',
+        transactions: state.downloads,
+      })
 
-    if ('error' in response) {
+      if ('error' in response) {
+        dispatch({
+          type: 'error',
+          payload: `Failed to upload: ${response.error}`,
+        })
+        return
+      }
+
+      dispatch({ type: 'downloadCompleted', payload: response.created })
+    } catch (error) {
+      console.error(error)
       dispatch({
         type: 'error',
-        payload: `Failed to upload: ${response.error}`,
+        payload:
+          'Failed to contact the extension. Refresh the page and try again.',
       })
-      return
     }
-
-    dispatch({ type: 'downloadCompleted', payload: response.created })
   }
 
   const goBack = (
