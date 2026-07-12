@@ -9,26 +9,6 @@ import { Transactions } from './schema'
 import { AccountCode } from './types'
 import { krToOre } from './utils'
 
-export async function getPDFStrings(buffer: Buffer) {
-  const pdf = await getDocument({
-    data: Uint8Array.from(buffer),
-    // avoid requiring standardFontDataUrl for PDFs that use non-embedded fonts
-    useSystemFonts: true,
-  }).promise
-  const { numPages } = pdf
-
-  const pageTextContent: Promise<TextContent>[] = []
-
-  for (let i = 1; i <= numPages; i++) {
-    const page = await pdf.getPage(i)
-    pageTextContent.push(page.getTextContent())
-  }
-
-  return (await Promise.all(pageTextContent)).flatMap((text) =>
-    text.items.filter(isTextItem).map((item) => item.str),
-  )
-}
-
 type PDFLineItem = {
   str: string
   x: number

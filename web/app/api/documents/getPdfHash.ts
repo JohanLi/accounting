@@ -1,29 +1,20 @@
-import { getPDFStrings } from '../../document'
+import { getPDFLines } from '../../document'
 import { getHash } from '../../utils'
 
 /*
-  Developers Bay generates a slightly different PDF each time you download
-  an invoice — CreationDate and ModDate in the metadata is different.
-
-  Because of this, the hash is instead based on the PDF strings.
-
-  Additionally, this function needs to be "insulated" from Vitest. It uses
-  pdfjs-dist, which crashes Vitest. See https://github.com/vitest-dev/vitest/issues/740
+  Some providers regenerate the same invoice with different PDF metadata.
+  Hashing its rendered text lines identifies the document by content instead.
  */
 export async function getPdfHash(data: Buffer) {
-  const pdfStrings = await getPDFStrings(data)
+  const lines = await getPDFLines(data)
 
   /*
-    It's rare, but I do have a few PDFs that just wrap a JPEG. They won't
-    produce any strings, so a fallback is to hash their raw bytes instead.
-
-    Such JPEGs are always manually imported, so this is OK. These hashes
-    don't have to be foolproof, as long as I can download recurring PDFs
-    through my extension without creating duplicates.
+    While rare, I do have a few PDFs that wrap JPEGs. They don't have any text,
+    so the fallback is hashing their bytes.
    */
-  if (pdfStrings.length === 0) {
+  if (!lines.length) {
     return getHash(data)
   }
 
-  return getHash(JSON.stringify(pdfStrings))
+  return getHash(JSON.stringify(lines))
 }
