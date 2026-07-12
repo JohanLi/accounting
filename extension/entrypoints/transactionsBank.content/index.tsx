@@ -1,6 +1,6 @@
 import DownloadTransactions from '@/components/downloadTransactions.tsx'
 import '@/components/tailwind.css'
-import { COMPANY_START_DATE, getTomorrow } from '@/components/utils.ts'
+import { getOneYearAgo, getTomorrow } from '@/components/utils.ts'
 import ReactDOM from 'react-dom/client'
 import { createShadowRootUi } from 'wxt/utils/content-script-ui/shadow-root'
 import { defineContentScript } from 'wxt/utils/define-content-script'
@@ -70,7 +70,7 @@ async function getDownloads() {
     body: JSON.stringify({
       accountIds: [regularAccountId, savingsAccountId],
       // there is a silent limit of 5 years
-      dateFrom: COMPANY_START_DATE,
+      dateFrom: getOneYearAgo(),
       dateTo: getTomorrow(),
       paginatingSize: 500,
     }),

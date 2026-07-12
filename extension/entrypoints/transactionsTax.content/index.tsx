@@ -1,6 +1,6 @@
 import DownloadTransactions from '@/components/downloadTransactions.tsx'
 import '@/components/tailwind.css'
-import { COMPANY_START_DATE } from '@/components/utils.ts'
+import { formatDate, getOneYearAgo } from '@/components/utils.ts'
 import ReactDOM from 'react-dom/client'
 import { createShadowRootUi } from 'wxt/utils/content-script-ui/shadow-root'
 import { defineContentScript } from 'wxt/utils/define-content-script'
@@ -34,14 +34,6 @@ export default defineContentScript({
 const API_BASE_URL =
   'https://wapi.skatteverket.se/secure/skattekonto/etjanst/v1/bokfordaTransaktioner/hamta'
 
-function formatDate(date: Date) {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-
-  return atMidnight(`${year}-${month}-${day}`)
-}
-
 function atMidnight(date: string) {
   return `${date}T00:00:00`
 }
@@ -63,8 +55,8 @@ async function getDownloads() {
     body: JSON.stringify({
       idPers: organizationId,
       kodGruppTrans: '1',
-      datFrom: atMidnight(COMPANY_START_DATE),
-      datTom: formatDate(new Date()),
+      datFrom: atMidnight(getOneYearAgo()),
+      datTom: atMidnight(formatDate(new Date())),
       typFgKontoutdrag: '',
       visaRadioknappar: 'J',
       sprak: 'sv',
@@ -85,27 +77,6 @@ async function getDownloads() {
       amount: String(transaction.belSkm),
       balance: String(transaction.radsaldoSkm),
     }))
-
-  const expectedFirstTransaction = {
-    date: '2021-07-12',
-    description: 'Debiterad preliminärskatt',
-    amount: '-17120',
-    balance: '-17120',
-  }
-
-  const firstTransaction = transactions[0]
-
-  if (
-    !firstTransaction ||
-    Object.entries(expectedFirstTransaction).some(
-      ([key, value]) => firstTransaction[key] !== value,
-    )
-  ) {
-    // in the event that pagination happens, I'll move the "start date" and update the expected transaction
-    throw new Error(
-      `Either you've forgotten to switch to the company account, or the transactions have been paginated`,
-    )
-  }
 
   return transactions
 }

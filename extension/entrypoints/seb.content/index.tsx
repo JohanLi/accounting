@@ -12,7 +12,7 @@
  */
 import Download from '@/components/download.tsx'
 import '@/components/tailwind.css'
-import { COMPANY_START_DATE, getTomorrow } from '@/components/utils.ts'
+import { getOneYearAgo, getTomorrow } from '@/components/utils.ts'
 import ReactDOM from 'react-dom/client'
 import { createShadowRootUi } from 'wxt/utils/content-script-ui/shadow-root'
 import { defineContentScript } from 'wxt/utils/define-content-script'
@@ -56,12 +56,9 @@ type Document = {
 const API_BASE_URL =
   'https://ibf.apps.seb.se/dsc/digitaldocuments-corporate/digitaldocuments'
 
-// used as a check in case the results get paginated
-const FIRST_INVOICE_DATE = '2021-12-07'
-
 async function getDownloads() {
   const response = await fetch(
-    `${API_BASE_URL}?from_date=${COMPANY_START_DATE}&to_date=${getTomorrow()}`,
+    `${API_BASE_URL}?from_date=${getOneYearAgo()}&to_date=${getTomorrow()}`,
     { credentials: 'include' },
   )
 
@@ -73,12 +70,6 @@ async function getDownloads() {
 
   if (!documents.length) {
     throw new Error('No invoices found')
-  }
-
-  if (documents[documents.length - 1].effective_date !== FIRST_INVOICE_DATE) {
-    throw new Error(
-      'The earliest invoice found does not match the known earliest invoice',
-    )
   }
 
   return documents
