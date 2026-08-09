@@ -1,10 +1,10 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import { getBankSavingsSuggestions } from './bankSavingsSuggestions'
+import { getCapitalInsuranceSuggestions } from './capitalInsuranceSuggestions'
 import { getDocumentSuggestions } from './documentSuggestions'
 import { getSuggestions } from './getSuggestions'
 import { getInsuranceSuggestions } from './insuranceSuggestions'
-import { getInvestmentAccountSuggestions } from './investmentAccountSuggestions'
 import { getPaidInvoiceSuggestions } from './paidInvoiceSuggestions'
 import { getReimburseSelfSuggestions } from './reimburseSelfSuggestions'
 import { getTaxSuggestions } from './taxSuggestions'
@@ -24,8 +24,8 @@ vi.mock('./paidInvoiceSuggestions', () => ({
 vi.mock('./documentSuggestions', () => ({
   getDocumentSuggestions: vi.fn(),
 }))
-vi.mock('./investmentAccountSuggestions', () => ({
-  getInvestmentAccountSuggestions: vi.fn(),
+vi.mock('./capitalInsuranceSuggestions', () => ({
+  getCapitalInsuranceSuggestions: vi.fn(),
 }))
 vi.mock('./reimburseSelfSuggestions', () => ({
   getReimburseSelfSuggestions: vi.fn(),
@@ -68,7 +68,7 @@ describe('getSuggestions', () => {
         documentId: 1,
       },
     ])
-    vi.mocked(getInvestmentAccountSuggestions).mockResolvedValue([])
+    vi.mocked(getCapitalInsuranceSuggestions).mockResolvedValue([])
     vi.mocked(getReimburseSelfSuggestions).mockResolvedValue([])
 
     const suggestions = await getSuggestions()

@@ -1,9 +1,9 @@
 import { Transaction } from '../getJournalEntries'
 import { filterNull } from '../utils'
 import { getBankSavingsSuggestions } from './bankSavingsSuggestions'
+import { getCapitalInsuranceSuggestions } from './capitalInsuranceSuggestions'
 import { getDocumentSuggestions } from './documentSuggestions'
 import { getInsuranceSuggestions } from './insuranceSuggestions'
-import { getInvestmentAccountSuggestions } from './investmentAccountSuggestions'
 import { getPaidInvoiceSuggestions } from './paidInvoiceSuggestions'
 import { getReimburseSelfSuggestions } from './reimburseSelfSuggestions'
 import { getTaxSuggestions } from './taxSuggestions'
@@ -23,7 +23,7 @@ export async function getSuggestions(): Promise<Suggestions[]> {
     getInsuranceSuggestions(),
     getPaidInvoiceSuggestions(),
     getDocumentSuggestions(),
-    getInvestmentAccountSuggestions(),
+    getCapitalInsuranceSuggestions(),
     getReimburseSelfSuggestions(),
   ])
 
