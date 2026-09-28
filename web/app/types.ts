@@ -45,6 +45,7 @@ export const chartOfAccounts = {
   6550: 'Konsultarvoden',
   6570: 'Bankkostnader',
   6991: 'Övriga externa kostnader, avdragsgilla',
+  6992: 'Övriga externa kostnader, ej avdragsgilla',
   7210: 'Löner till tjänstemän',
   7510: 'Arbetsgivaravgifter',
   7699: 'Övriga personalkostnader',

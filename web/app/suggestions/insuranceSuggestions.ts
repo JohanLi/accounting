@@ -25,8 +25,8 @@ export async function getInsuranceSuggestions() {
 
   return insuranceProviderTransactions.map((transaction) => {
     const transactions = [
-      { accountId: 6310, amount: transaction.amount },
-      { accountId: 1930, amount: -transaction.amount },
+      { accountId: 6310, amount: -transaction.amount },
+      { accountId: 1930, amount: transaction.amount },
     ] satisfies Transaction[]
 
     const linkedToTransactionIds = [transaction.id]
