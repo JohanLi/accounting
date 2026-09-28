@@ -8,6 +8,7 @@ export const chartOfAccounts = {
   1510: 'Kundfordringar',
   1630: 'Skattekonto',
   1650: 'Momsfordran',
+  1790: 'Övriga förutbetalda kostnader och upplupna intäkter',
   1930: 'Företagskonto',
   1931: 'Företagskonto (spar)',
   1932: 'Företagskonto (inaktiv)',
