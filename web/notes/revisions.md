@@ -36,3 +36,17 @@
 
 - As with the interest above, 6992 is used because the deductions belong to FY2024 and FY2025. Roughly 1 070 SEK (FY2024)
   and 1 510 SEK (FY2025) was overpaid, which could be reclaimed through omprövning.
+
+#### 2026-11-11
+
+- Entries 741 and 743 (Skånetrafiken, Öresundszon Malmö Hyllie–CPH Airport, 150 SEK each) deducted 6% input VAT
+  (8.49 SEK each), but the receipts state 0% VAT. FY2026 Q4 (April–June) input VAT was therefore overstated by 16.98 SEK.
+- As the FY2026 Q4 VAT return is filed, entries 741 and 743 are left untouched. Instead, a correction entry (838)
+  dated 2026-09-30 includes the difference in the FY2027 Q1 (July–September) VAT return:
+
+| Account | Amount |
+| ------- | ------ |
+| 2640    | -16.98 |
+| 5810    | 16.98  |
+
+- 5810 is used rather than 6992, as the cost was never deducted in FY2026. It's deducted once, a year late, which is immaterial.
