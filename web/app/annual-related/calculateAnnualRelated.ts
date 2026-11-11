@@ -122,5 +122,8 @@ export async function calculateAnnualRelated(fiscalYear: number) {
     profitTaxable,
     tax,
     profitAfterTax,
+    nonDeductibleExpenses,
+    nonDeductibleRevenue,
+    lossFromPrevious,
   }
 }

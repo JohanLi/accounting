@@ -12,6 +12,7 @@ import { calculateAnnualRelated } from './calculateAnnualRelated'
 import { getAnnualRelated } from './getAnnualRelated'
 import { getPaidPreliminaryTax } from './getPaidPreliminaryTax'
 import SieExport from './sie-export/SieExport'
+import SruExport from './sru-export/SruExport'
 
 /*
   TODO
@@ -110,6 +111,7 @@ export default async function AnnualRelated(props: NextPageProps) {
           <JournalEntries journalEntries={journalEntries} />
         </div>
         <SieExport selectedFiscalYear={selectedFiscalYear} />
+        <SruExport selectedFiscalYear={selectedFiscalYear} />
       </div>
     </>
   )
