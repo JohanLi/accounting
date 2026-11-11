@@ -58,6 +58,19 @@ test('getFiscalYearQuarter', () => {
     endInclusive: new Date('2024-06-30'),
     endExclusive: new Date('2024-07-01'),
   })
+
+  // the Q2/Q3 boundary crosses from summer to winter time in Sweden
+  expect(getFiscalYearQuarter(2026, 2)).toEqual({
+    startInclusive: new Date('2025-10-01'),
+    endInclusive: new Date('2025-12-31'),
+    endExclusive: new Date('2026-01-01'),
+  })
+
+  expect(getFiscalYearQuarter(2026, 3)).toEqual({
+    startInclusive: new Date('2026-01-01'),
+    endInclusive: new Date('2026-03-31'),
+    endExclusive: new Date('2026-04-01'),
+  })
 })
 
 test('getIncomeYear', () => {

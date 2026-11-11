@@ -46,14 +46,19 @@ export function getFiscalYear(year: number) {
 export function getFiscalYearQuarter(year: number, quarter: number) {
   const fiscalYear = getFiscalYear(year)
 
+  /*
+    Dates are UTC midnight, like in getFiscalYear. Doing the date math in local
+    time would shift the Q2/Q3 boundary by an hour, as it crosses from summer
+    to winter time.
+   */
   const startInclusive = new Date(fiscalYear.startInclusive)
-  startInclusive.setMonth(startInclusive.getMonth() + (quarter - 1) * 3)
+  startInclusive.setUTCMonth(startInclusive.getUTCMonth() + (quarter - 1) * 3)
 
   const endExclusive = new Date(startInclusive)
-  endExclusive.setMonth(startInclusive.getMonth() + 3)
+  endExclusive.setUTCMonth(startInclusive.getUTCMonth() + 3)
 
   const endInclusive = new Date(endExclusive)
-  endInclusive.setDate(endInclusive.getDate() - 1)
+  endInclusive.setUTCDate(endInclusive.getUTCDate() - 1)
 
   return {
     startInclusive,

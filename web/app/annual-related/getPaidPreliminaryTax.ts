@@ -12,10 +12,10 @@ export async function getPaidPreliminaryTax(fiscalYear: number) {
    FY2023, is paid in July 2023.
    */
   const startInclusive = new Date(currentFiscalYear.startInclusive)
-  startInclusive.setMonth(startInclusive.getMonth() + 1)
+  startInclusive.setUTCMonth(startInclusive.getUTCMonth() + 1)
 
   const endExclusive = new Date(currentFiscalYear.endExclusive)
-  endExclusive.setMonth(endExclusive.getMonth() + 1)
+  endExclusive.setUTCMonth(endExclusive.getUTCMonth() + 1)
 
   const totals = await getTotals({
     startInclusive,
