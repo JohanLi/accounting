@@ -36,19 +36,30 @@ export async function PUT(request: Request) {
 
     if (bankTransactions.success) {
       transactions = await Promise.all(
-        bankTransactions.data.map(async (transaction) => ({
-          type: transaction.type,
-          date: new Date(transaction.bookedDate),
-          description: transaction.text,
-          amount: krToOre(
+        bankTransactions.data.map(async (transaction) => {
+          const amount =
             'outgoingAmount' in transaction
               ? transaction.outgoingAmount
-              : transaction.ingoingAmount,
-          ),
-          balance: krToOre(transaction.availableBalance),
-          raw: JSON.stringify(transaction),
-          externalId: await getExternalId(transaction.id),
-        })),
+              : transaction.ingoingAmount
+
+          return {
+            type: transaction.type,
+            date: new Date(transaction.bookedDate),
+            description: transaction.text,
+            amount: krToOre(amount),
+            balance: krToOre(transaction.availableBalance),
+            raw: JSON.stringify(transaction),
+            /*
+              The bank's own ID can't be used, as the bank sometimes changes
+              it for transactions that have already been imported.
+             */
+            externalId: await getExternalId(
+              transaction.bookedDate,
+              amount,
+              transaction.availableBalance,
+            ),
+          }
+        }),
       )
 
       transactions.reverse()

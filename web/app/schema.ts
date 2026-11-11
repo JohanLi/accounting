@@ -99,10 +99,11 @@ export const Transactions = pgTable(
       to contain an ID. This might change once/if I get access to Skatteverket's
       official API.
 
-      SEB transactions do contain IDs, but some of them exceed 600 characters.
+      SEB transactions do contain IDs, but they sometimes change for
+      transactions that have already been imported.
 
-      While one approach is using partial indexes, I think a more pragmatic
-      solution is generating an ID in the application layer.
+      Both are therefore identified by date, amount and balance, hashed in
+      the application layer.
      */
     externalId: char('external_id', { length: 64 }).notNull(),
     journalEntryId: integer('journal_entry_id').references(
