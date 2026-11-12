@@ -12,6 +12,7 @@ export const chartOfAccounts = {
   1930: 'Företagskonto',
   1931: 'Företagskonto (spar)',
   1932: 'Företagskonto (inaktiv)',
+  1933: 'Företagskonto (spar 2)',
   2081: 'Aktiekapital',
   2091: 'Balanserad vinst eller förlust',
   2098: 'Vinst eller förlust från föregående år',
