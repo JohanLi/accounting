@@ -10,6 +10,7 @@ const VAT_MAP: {
     accountIds: number[]
     xmlElement: string
     invert?: true
+    sales?: true
   }
 } = {
   // Momspliktig försäljning som inte ingår i ruta 06, 07 eller 08
@@ -17,6 +18,7 @@ const VAT_MAP: {
     accountIds: [3011],
     xmlElement: 'ForsMomsEjAnnan',
     invert: true,
+    sales: true,
   },
   // Utgående moms 25%
   '10': {
@@ -47,20 +49,28 @@ const VAT_MAP: {
   },
 }
 
+/*
+  Sales are taken from salesAccounts rather than accounts. Those only include
+  journal entries with outgoing VAT, which leaves out accrued income and its
+  reversal – their VAT is reported when invoicing, which is also when the sale
+  should be reported.
+ */
 export function getXML({
   endInclusive,
   accounts,
+  salesAccounts,
 }: {
   endInclusive: Date
   accounts: { id: number; amount: number }[]
+  salesAccounts: { id: number; amount: number }[]
 }) {
   const elements: string[] = []
 
   let totalKr = 0
 
   Object.entries(VAT_MAP).forEach(
-    ([id, { accountIds, xmlElement, invert }]) => {
-      let elementTotal = accounts
+    ([id, { accountIds, xmlElement, invert, sales }]) => {
+      let elementTotal = (sales ? salesAccounts : accounts)
         .filter((a) => accountIds.includes(a.id))
         .reduce((acc, a) => acc + a.amount, 0)
 

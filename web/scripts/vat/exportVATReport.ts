@@ -16,7 +16,7 @@
   some values are repeated – the total can be calculated from other fields,
   but you still need to explicitly include it.
  */
-import { eq, ne } from 'drizzle-orm'
+import { and, eq, inArray, ne } from 'drizzle-orm'
 import fs from 'fs/promises'
 import { dirname } from 'path'
 import readline from 'readline'
@@ -27,7 +27,7 @@ import {
   updateJournalEntry,
 } from '../../app/actions/updateJournalEntry'
 import db from '../../app/db'
-import { JournalEntries } from '../../app/schema'
+import { JournalEntries, JournalEntryTransactions } from '../../app/schema'
 import { AccountCode, chartOfAccounts } from '../../app/types'
 import { getFiscalYearQuarter } from '../../app/utils'
 import { getJournalEntryTransactions } from './getJournalEntryTransactions'
@@ -123,6 +123,21 @@ async function main() {
     isKnownAccountCode(a.id),
   )
 
+  const salesAccounts = await getTotals({
+    startInclusive,
+    endExclusive,
+    where: and(
+      ne(JournalEntries.description, journalEntryDescription),
+      inArray(
+        JournalEntries.id,
+        db
+          .select({ id: JournalEntryTransactions.journalEntryId })
+          .from(JournalEntryTransactions)
+          .where(eq(JournalEntryTransactions.accountId, 2610)),
+      ),
+    ),
+  })
+
   /*
     When dealing with Skatteverket, all decimals are supposed to be truncated. For VAT, my understanding
     is that the truncation isn't done on an account-basis, but per input/"square". Because of this,
@@ -131,6 +146,7 @@ async function main() {
   const { xml, vatTotalTruncated } = getXML({
     endInclusive,
     accounts,
+    salesAccounts,
   })
 
   const vatReportJournalEntry: JournalEntryUpdate = {
