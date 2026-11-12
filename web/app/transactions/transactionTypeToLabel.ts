@@ -5,5 +5,6 @@ export const transactionTypeToLabel: {
 } = {
   bankRegular: 'Företagskonto',
   bankSavings: 'Sparkonto',
+  bankSavings2: 'Sparkonto 2',
   tax: 'Skattekonto',
 }

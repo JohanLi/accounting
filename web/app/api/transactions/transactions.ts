@@ -43,6 +43,18 @@ export const transactionsSchema = z.array(
 
 export type TransactionsType = z.infer<typeof transactionsSchema>
 
+export const collectorTransactionsSchema = z.array(
+  z.object({
+    id: z.string(),
+    amount: z.number(),
+    balance: z.number(),
+    message: z.string(),
+    transactionType: z.string(),
+    date: z.string(),
+    type: z.literal('bankSavings2'),
+  }),
+)
+
 export const taxTransactionsSchema = z.array(
   z.object({
     date: z.string(),

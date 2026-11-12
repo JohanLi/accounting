@@ -75,7 +75,12 @@ export const JournalEntries = pgTable('journal_entries', {
   updatedAt: timestamp('updated_at'),
 })
 
-export const transactionTypes = ['bankRegular', 'bankSavings', 'tax'] as const
+export const transactionTypes = [
+  'bankRegular',
+  'bankSavings',
+  'bankSavings2',
+  'tax',
+] as const
 export type TransactionType = (typeof transactionTypes)[number]
 
 /*
@@ -102,8 +107,8 @@ export const Transactions = pgTable(
       SEB transactions do contain IDs, but they sometimes change for
       transactions that have already been imported.
 
-      Both are therefore identified by date, amount and balance, hashed in
-      the application layer.
+      All transactions are therefore identified by date, amount and balance,
+      hashed in the application layer.
      */
     externalId: char('external_id', { length: 64 }).notNull(),
     journalEntryId: integer('journal_entry_id').references(

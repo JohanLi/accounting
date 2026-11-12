@@ -4,6 +4,7 @@ import db from '../../db'
 import { Transactions } from '../../schema'
 import { krToOre } from '../../utils'
 import {
+  collectorTransactionsSchema,
   getExternalId,
   getTransactionsForLinkForm,
   taxTransactionsSchema,
@@ -31,6 +32,7 @@ export async function PUT(request: Request) {
 
   try {
     const bankTransactions = transactionsSchema.safeParse(body)
+    const collectorTransactions = collectorTransactionsSchema.safeParse(body)
 
     let transactions: InferInsertModel<typeof Transactions>[]
 
@@ -73,6 +75,30 @@ export async function PUT(request: Request) {
           (transaction) => transaction.type === 'bankSavings',
         ),
       )
+    } else if (collectorTransactions.success) {
+      transactions = await Promise.all(
+        collectorTransactions.data.map(async (transaction) => {
+          // e.g. 2026-09-28T00:00:00+02:00, already in Swedish time
+          const date = transaction.date.slice(0, 10)
+
+          return {
+            type: transaction.type,
+            date: new Date(date),
+            description: transaction.message || transaction.transactionType,
+            amount: krToOre(transaction.amount),
+            balance: krToOre(transaction.balance),
+            raw: JSON.stringify(transaction),
+            externalId: await getExternalId(
+              date,
+              String(transaction.amount),
+              String(transaction.balance),
+            ),
+          }
+        }),
+      )
+
+      transactions.reverse()
+      throwIfWrongSequence(transactions)
     } else {
       transactions = await Promise.all(
         taxTransactionsSchema.parse(body).map(async (transaction) => ({
